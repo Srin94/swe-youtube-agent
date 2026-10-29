@@ -7,15 +7,22 @@ export interface WordTimestamp {
   end_sec: number;
 }
 
-export type SystemStatus = "HEALTHY" | "DEGRADED" | "CRITICAL" | "RECOVERING";
+export type HudLevel = "info" | "good" | "warning" | "critical";
 
-export interface TelemetrySnapshot {
-  incident_clock: string;
-  rps: number;
-  p99_latency_ms: number;
-  error_rate_pct: number;
-  system_status: SystemStatus;
-  tradeoff_badge: string;
+export interface HudStat {
+  label: string;
+  value: string;
+  emphasis: HudLevel;
+}
+
+// Category-adaptive right-rail HUD (replaces the old incident-only telemetry).
+export interface SceneHud {
+  context_label: string;
+  context_value: string;
+  status_text: string;
+  status_level: HudLevel;
+  stats: HudStat[];
+  insight: string;
 }
 
 export type NodeStatus = "normal" | "active" | "warning" | "critical";
@@ -79,7 +86,7 @@ export interface SceneSpec {
   duration_sec: number;
   visual_type: VisualType;
   camera_focus_node_id?: string | null;
-  telemetry: TelemetrySnapshot;
+  hud: SceneHud;
   nodes: GraphNode[];
   edges: GraphEdge[];
   code_diff?: CodeDiffPayload | null;

@@ -15,6 +15,7 @@ interfaces in `video-engine/src/types/schema.ts` mirror them one-to-one.
 from __future__ import annotations
 
 import json
+import re
 from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
@@ -34,14 +35,50 @@ class WordTimestamp(BaseModel):
     end_sec: float
 
 
-class TelemetrySnapshot(BaseModel):
-    incident_clock: str = Field(description="Format T+00:00:00 or metric label")
-    rps: int = Field(description="Simulated or real requests/sec or primary volume metric")
-    p99_latency_ms: int = Field(description="Simulated or real tail latency in ms")
-    error_rate_pct: float = Field(description="0.0 to 100.0")
-    system_status: Literal["HEALTHY", "DEGRADED", "CRITICAL", "RECOVERING"]
-    tradeoff_badge: str = Field(
-        description="Short trade-off note, e.g. 'Low Latency vs Stale Reads'"
+class HudStat(BaseModel):
+    """One metric tile in the right-rail HUD."""
+
+    label: str = Field(
+        description="Short metric name fit to the topic: 'RPS','p99','MEDIAN TC',"
+        "'ROLES CUT','STARS','ADOPTION'"
+    )
+    value: str = Field(
+        description="Formatted value WITH any unit: '82k','110ms','$180k','4.2M','+38%'"
+    )
+    emphasis: Literal["normal", "good", "warning", "critical"] = "normal"
+
+
+class SceneHud(BaseModel):
+    """Category-adaptive right-rail HUD.
+
+    This replaces the old incident-only telemetry. The metrics shown MUST fit
+    the topic — never force RPS / p99 / error-rate onto a job-market or release
+    video. The LLM picks a context readout, a status, and 2-4 real metrics.
+    """
+
+    context_label: str = Field(
+        description="Readout label fit to the topic: 'INCIDENT CLOCK' (outage), "
+        "'AS OF' (job market), 'VERSION' (release), 'SCALE' (system design)"
+    )
+    context_value: str = Field(
+        description="e.g. 'T+00:06:00', 'Jul 2025', 'v1.0.0', '10M users'"
+    )
+    status_text: str = Field(
+        description="Short status fit to topic. Outage: HEALTHY/DEGRADED/CRITICAL/"
+        "RECOVERING. Job market: HIRING/FROZEN/LAYOFFS/REBOUND. Release: ALPHA/BETA/"
+        "STABLE/SHIPPING. System design: STABLE/SCALING/BOTTLENECK/SOLVED"
+    )
+    status_level: Literal["info", "good", "warning", "critical"] = "info"
+    stats: List[HudStat] = Field(
+        default_factory=list,
+        description="2 to 4 metrics that genuinely fit THIS topic. Outage: RPS, "
+        "p99, error rate. Job market: roles cut, severance, hiring delta, comp. "
+        "Release: stars, version, benchmark win, adoption. NEVER invent RPS or "
+        "latency for a non-technical topic.",
+    )
+    insight: str = Field(
+        description="One-line trade-off or takeaway for this beat, e.g. "
+        "'Headcount Cost vs AI Capex'"
     )
 
 
@@ -101,7 +138,7 @@ class SceneSpec(BaseModel):
     camera_focus_node_id: Optional[str] = Field(
         default=None, description="Node ID to zoom into, or null for full view"
     )
-    telemetry: TelemetrySnapshot
+    hud: SceneHud
     nodes: List[GraphNode] = Field(default_factory=list)
     edges: List[GraphEdge] = Field(default_factory=list)
     code_diff: Optional[CodeDiffPayload] = None
@@ -230,14 +267,33 @@ starts with 3-4 baseline nodes; scene N+1 ADDS the bottleneck / cache / queue / 
 shard node so the architecture visibly evolves. Reuse node ids across scenes.
 4. THEME SELECTION (strict): INCIDENT_POSTMORTEM and JOB_MARKET => "WAR_ROOM_HUD". \
 SYSTEM_DESIGN and NEW_TECH_RELEASE => "ARCHITECT_PAPER".
-5. VISUAL VARIETY: use the visual_type that best fits each beat — SystemGraph \
-for architecture, CodeDiff for before/after code, BenchmarkChart for \
-measurable comparisons, IncidentTimeline for post-mortems, JobMarketCard for \
-hiring/layoff/comp data. Populate the matching payload field (nodes/edges, \
-code_diff, benchmarks, or timeline_events) for EVERY scene's visual_type.
-6. TELEMETRY: every scene has a plausible TelemetrySnapshot. Numbers should \
-move scene-to-scene to tell the story (e.g. error_rate climbs to the incident, \
-p99 drops after the fix). system_status should escalate/recover logically.
+5. VISUAL VARIETY + NO EMPTY SCENES (critical): pick the visual_type that fits \
+each beat AND fully populate its data field. A scene whose data is empty renders \
+blank and is unacceptable — especially Scene 1.
+   - SystemGraph  -> MUST have >=3 nodes and >=2 edges.
+   - CodeDiff     -> MUST have code_diff with before_code and after_code.
+   - BenchmarkChart -> MUST have >=2 benchmarks.
+   - IncidentTimeline -> MUST have >=3 timeline_events.
+   - JobMarketCard -> MUST have >=3 benchmarks (e.g. roles cut, severance weeks, \
+hiring delta, comp) and MAY add timeline_events for notable moments.
+   Pick visual_type by topic: INCIDENT_POSTMORTEM favors IncidentTimeline + \
+SystemGraph; SYSTEM_DESIGN favors SystemGraph + CodeDiff + BenchmarkChart; \
+NEW_TECH_RELEASE favors BenchmarkChart + CodeDiff + SystemGraph; JOB_MARKET \
+favors JobMarketCard + BenchmarkChart + IncidentTimeline. Do NOT use an empty \
+JobMarketCard as the hook.
+6. HUD (category-adaptive, strict): fill each scene's `hud` with metrics that \
+FIT THE TOPIC. Never put RPS / p99 / latency / error-rate / "INCIDENT CLOCK" on \
+a JOB_MARKET or NEW_TECH_RELEASE video.
+   - INCIDENT_POSTMORTEM: context 'INCIDENT CLOCK' + 'T+HH:MM:SS'; stats RPS, \
+p99, error rate; status HEALTHY->DEGRADED->CRITICAL->RECOVERING across scenes.
+   - SYSTEM_DESIGN: context 'SCALE'/'THROUGHPUT'; stats QPS, p99, cache hit %, \
+cost; status STABLE/SCALING/BOTTLENECK/SOLVED.
+   - JOB_MARKET: context 'AS OF' + a date; stats like 'ROLES CUT', 'SEVERANCE', \
+'HIRING' (+/-%), 'MEDIAN TC'; status HIRING/FROZEN/LAYOFFS/REBOUND.
+   - NEW_TECH_RELEASE: context 'VERSION'/'RELEASE'; stats STARS, benchmark win \
+(e.g. '3.2x'), ADOPTION, 'VS' a rival; status ALPHA/BETA/STABLE/SHIPPING.
+   Numbers should evolve scene-to-scene to tell the story. Set each stat's \
+emphasis (good/warning/critical) to drive color.
 7. icon_slug and thumbnail icon slugs MUST be real simpleicons.org slugs \
 (e.g. postgresql, redis, cloudflare, rust, go, nodedotjs, docker, kubernetes, \
 nginx, amazonaws, kafka).
@@ -283,9 +339,75 @@ def generate_script(
     # Guarantee the source url round-trips even if the model omitted it.
     payload.source_url = payload.source_url or source_url
 
-    # Seed provisional timings (audio_engine overwrites with real values).
+    # Repair any empty scenes so Zone A is never blank, then seed timings.
+    _repair_scenes(payload)
     _seed_provisional_timings(payload)
     return payload
+
+
+# ---------------------------------------------------------------------------
+# Scene repair (safety net so a scene never renders empty)
+# ---------------------------------------------------------------------------
+def _parse_number(value: str) -> tuple[float, str]:
+    """Extract a numeric magnitude and trailing unit from a stat value string.
+
+    '82k' -> (82000, ''), '$180k' -> (180000, '$'), '110ms' -> (110, 'ms'),
+    '+38%' -> (38, '%'), '3.2x' -> (3.2, 'x'). Falls back to (1.0, value).
+    """
+    cleaned = value.replace(",", "")
+    m = re.search(r"-?\d+\.?\d*", cleaned)
+    if not m:
+        return 1.0, value.strip()
+    num = float(m.group(0))
+    tail = cleaned[m.end():].strip()
+    lead = cleaned[: m.start()].strip()
+    # Only a *standalone* k/M suffix (e.g. '82k', '4.2M') is a multiplier — not
+    # the 'k' inside 'wks' or the 'm' inside 'ms'.
+    suffix = re.match(r"([kKmM])\b", tail)
+    if suffix:
+        num *= 1_000 if suffix.group(1).lower() == "k" else 1_000_000
+        tail = tail[suffix.end():].strip()
+    return num, (tail or lead)
+
+
+def _stats_to_benchmarks(scene: "SceneSpec") -> None:
+    items: List[BenchmarkItem] = []
+    for s in scene.hud.stats:
+        num, unit = _parse_number(s.value)
+        items.append(
+            BenchmarkItem(
+                label=s.label, value=num, unit=unit, is_winner=(s.emphasis == "good")
+            )
+        )
+    if items:
+        scene.benchmarks = items
+
+
+def _repair_scenes(payload: VideoRenderPayload) -> None:
+    """Guarantee each scene's visual has data; convert empties to a bar chart
+    built from the (category-appropriate) HUD stats."""
+    for sc in payload.scenes:
+        if not sc.hud.stats:
+            sc.hud.stats = [HudStat(label="SIGNAL", value="—")]
+
+        empty = (
+            (sc.visual_type == "SystemGraph" and len(sc.nodes) < 2)
+            or (sc.visual_type == "CodeDiff" and sc.code_diff is None)
+            or (sc.visual_type == "BenchmarkChart" and not sc.benchmarks)
+            or (sc.visual_type == "IncidentTimeline" and not sc.timeline_events)
+            or (sc.visual_type == "JobMarketCard" and not sc.benchmarks)
+        )
+        if not empty:
+            continue
+        # Fall back: render the HUD stats as a bar chart so Zone A is populated.
+        print(
+            f"[script] Scene {sc.scene_id} ({sc.visual_type}) had no data; "
+            "repairing to BenchmarkChart from HUD stats."
+        )
+        if sc.visual_type not in ("BenchmarkChart", "JobMarketCard"):
+            sc.visual_type = "BenchmarkChart"
+        if not sc.benchmarks:
+            _stats_to_benchmarks(sc)
 
 
 def _seed_provisional_timings(payload: VideoRenderPayload) -> None:

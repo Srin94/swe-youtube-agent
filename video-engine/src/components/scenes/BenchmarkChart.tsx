@@ -13,7 +13,9 @@ interface Props {
 
 export const BenchmarkChart: React.FC<Props> = ({ scene, theme, localFrame, fps }) => {
   const items = scene.benchmarks;
-  const maxVal = Math.max(1, ...items.map((b) => b.value));
+  // Scale by absolute magnitude so negative values (e.g. -4% headcount) still
+  // render a sensible bar length; the sign is shown in the value label.
+  const maxVal = Math.max(1, ...items.map((b) => Math.abs(b.value)));
   const x = scaleLinear().domain([0, maxVal]).range([0, 100]);
 
   if (items.length === 0) {
@@ -42,7 +44,7 @@ export const BenchmarkChart: React.FC<Props> = ({ scene, theme, localFrame, fps 
           fps,
           config: { damping: 18, stiffness: 120 },
         });
-        const widthPct = x(b.value) * grow;
+        const widthPct = x(Math.abs(b.value)) * grow;
         const barColor = b.is_winner ? theme.accentPrimary : theme.textMuted;
         return (
           <div key={b.label + i}>

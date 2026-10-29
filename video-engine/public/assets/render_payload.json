@@ -2,17 +2,16 @@
   "topic_category": "INCIDENT_POSTMORTEM",
   "theme_id": "WAR_ROOM_HUD",
   "youtube_title": "How One Expired Cert Took Down 20% of the Internet",
-  "youtube_description": "A breakdown of the Cloudflare edge outage.\n\n0:00 The Hook\n0:06 Baseline Architecture\n0:12 The Bottleneck\n0:19 The Fix\n0:27 The Numbers\n0:35 The Takeaway",
+  "youtube_description": "A breakdown of the Cloudflare edge outage.\n\n0:00 The Hook\n0:06 Baseline\n0:12 Bottleneck\n0:19 The Fix\n0:27 The Numbers\n0:35 Takeaway",
   "youtube_tags": [
     "cloudflare",
     "outage",
     "post-mortem",
     "system design",
     "SRE",
-    "tls",
-    "incident"
+    "tls"
   ],
-  "pinned_comment": "Fail open or fail closed on an expired cert in the hot path? Which would you ship, and what's the blast radius you're willing to accept?",
+  "pinned_comment": "Fail open or fail closed on an expired cert in the hot path? What blast radius would you accept?",
   "source_url": "https://blog.cloudflare.com/mock-postmortem",
   "thumbnail": {
     "headline_text": "CERT KILLED THE EDGE",
@@ -25,16 +24,32 @@
     {
       "scene_id": 1,
       "chapter_title": "The Hook",
-      "narration_text": "At 14:52 UTC, Cloudflare started returning 500s to twenty percent of the internet. One expired certificate cascaded into a global edge meltdown.",
       "visual_type": "IncidentTimeline",
+      "narration_text": "At 14:52 UTC, Cloudflare started returning 500s to twenty percent of the internet. One expired certificate cascaded into a global edge meltdown.",
       "camera_focus_node_id": null,
-      "telemetry": {
-        "incident_clock": "T+00:00:00",
-        "rps": 4200000,
-        "p99_latency_ms": 38,
-        "error_rate_pct": 0.1,
-        "system_status": "HEALTHY",
-        "tradeoff_badge": "Edge Speed vs Cert Freshness"
+      "hud": {
+        "context_label": "INCIDENT CLOCK",
+        "context_value": "T+00:00:00",
+        "status_text": "HEALTHY",
+        "status_level": "good",
+        "stats": [
+          {
+            "label": "RPS",
+            "value": "4.2M/s",
+            "emphasis": "normal"
+          },
+          {
+            "label": "p99",
+            "value": "38ms",
+            "emphasis": "good"
+          },
+          {
+            "label": "ERROR",
+            "value": "0.1%",
+            "emphasis": "good"
+          }
+        ],
+        "insight": "Edge Speed vs Cert Freshness"
       },
       "nodes": [],
       "edges": [],
@@ -71,16 +86,32 @@
     {
       "scene_id": 2,
       "chapter_title": "Baseline Arch",
-      "narration_text": "Here is the normal request path. Clients hit the edge, the edge terminates TLS, and proxies traffic back to origin servers. Clean and fast.",
       "visual_type": "SystemGraph",
+      "narration_text": "Here is the normal request path. Clients hit the edge, the edge terminates TLS, and proxies traffic back to origin servers. Clean and fast.",
       "camera_focus_node_id": null,
-      "telemetry": {
-        "incident_clock": "T+00:02:00",
-        "rps": 4100000,
-        "p99_latency_ms": 41,
-        "error_rate_pct": 0.4,
-        "system_status": "DEGRADED",
-        "tradeoff_badge": "Low Latency vs Single Cert Authority"
+      "hud": {
+        "context_label": "INCIDENT CLOCK",
+        "context_value": "T+00:02:00",
+        "status_text": "DEGRADED",
+        "status_level": "warning",
+        "stats": [
+          {
+            "label": "RPS",
+            "value": "4.1M/s",
+            "emphasis": "normal"
+          },
+          {
+            "label": "p99",
+            "value": "41ms",
+            "emphasis": "good"
+          },
+          {
+            "label": "ERROR",
+            "value": "0.4%",
+            "emphasis": "good"
+          }
+        ],
+        "insight": "Low Latency vs Single Cert Authority"
       },
       "nodes": [
         {
@@ -140,16 +171,32 @@
     {
       "scene_id": 3,
       "chapter_title": "Bottleneck",
-      "narration_text": "Then the expired cert forced every edge node to reject handshakes. The retry storm hammered a shared validation service, which became the true bottleneck.",
       "visual_type": "SystemGraph",
+      "narration_text": "Then the expired cert forced every edge node to reject handshakes. The retry storm hammered a shared validation service, which became the true bottleneck.",
       "camera_focus_node_id": "validator",
-      "telemetry": {
-        "incident_clock": "T+00:06:00",
-        "rps": 5900000,
-        "p99_latency_ms": 2400,
-        "error_rate_pct": 21.0,
-        "system_status": "CRITICAL",
-        "tradeoff_badge": "Central Validation vs Blast Radius"
+      "hud": {
+        "context_label": "INCIDENT CLOCK",
+        "context_value": "T+00:06:00",
+        "status_text": "CRITICAL",
+        "status_level": "critical",
+        "stats": [
+          {
+            "label": "RPS",
+            "value": "5.9M/s",
+            "emphasis": "normal"
+          },
+          {
+            "label": "p99",
+            "value": "2400ms",
+            "emphasis": "critical"
+          },
+          {
+            "label": "ERROR",
+            "value": "21.0%",
+            "emphasis": "critical"
+          }
+        ],
+        "insight": "Central Validation vs Blast Radius"
       },
       "nodes": [
         {
@@ -225,16 +272,32 @@
     {
       "scene_id": 4,
       "chapter_title": "The Fix",
-      "narration_text": "The fix was a two line change: cache validation results and fail open on a stale cert instead of hard rejecting every single handshake.",
       "visual_type": "CodeDiff",
+      "narration_text": "The fix was a two line change: cache validation results and fail open on a stale cert instead of hard rejecting every single handshake.",
       "camera_focus_node_id": null,
-      "telemetry": {
-        "incident_clock": "T+00:28:00",
-        "rps": 4600000,
-        "p99_latency_ms": 180,
-        "error_rate_pct": 3.2,
-        "system_status": "RECOVERING",
-        "tradeoff_badge": "Fail Open vs Security Risk"
+      "hud": {
+        "context_label": "INCIDENT CLOCK",
+        "context_value": "T+00:28:00",
+        "status_text": "RECOVERING",
+        "status_level": "info",
+        "stats": [
+          {
+            "label": "RPS",
+            "value": "4.6M/s",
+            "emphasis": "normal"
+          },
+          {
+            "label": "p99",
+            "value": "180ms",
+            "emphasis": "warning"
+          },
+          {
+            "label": "ERROR",
+            "value": "3.2%",
+            "emphasis": "warning"
+          }
+        ],
+        "insight": "Fail Open vs Security Risk"
       },
       "nodes": [],
       "edges": [],
@@ -258,16 +321,32 @@
     {
       "scene_id": 5,
       "chapter_title": "The Numbers",
-      "narration_text": "The impact in hard numbers. Tail latency dropped from twenty four hundred milliseconds back to twelve, and error rate collapsed from twenty one percent to near zero.",
       "visual_type": "BenchmarkChart",
+      "narration_text": "The impact in hard numbers. Tail latency dropped from twenty four hundred milliseconds back to twelve, and error rate collapsed from twenty one percent to near zero.",
       "camera_focus_node_id": null,
-      "telemetry": {
-        "incident_clock": "T+00:45:00",
-        "rps": 4300000,
-        "p99_latency_ms": 12,
-        "error_rate_pct": 0.2,
-        "system_status": "HEALTHY",
-        "tradeoff_badge": "Recovery Speed vs Audit Debt"
+      "hud": {
+        "context_label": "INCIDENT CLOCK",
+        "context_value": "T+00:45:00",
+        "status_text": "HEALTHY",
+        "status_level": "good",
+        "stats": [
+          {
+            "label": "RPS",
+            "value": "4.3M/s",
+            "emphasis": "normal"
+          },
+          {
+            "label": "p99",
+            "value": "12ms",
+            "emphasis": "good"
+          },
+          {
+            "label": "ERROR",
+            "value": "0.2%",
+            "emphasis": "good"
+          }
+        ],
+        "insight": "Recovery Speed vs Audit Debt"
       },
       "nodes": [],
       "edges": [],
@@ -304,29 +383,45 @@
     {
       "scene_id": 6,
       "chapter_title": "The Takeaway",
+      "visual_type": "BenchmarkChart",
       "narration_text": "The lesson for your systems: any central dependency in the hot path is a global kill switch. Cache aggressively, and decide your fail mode before the outage.",
-      "visual_type": "JobMarketCard",
       "camera_focus_node_id": null,
-      "telemetry": {
-        "incident_clock": "VERDICT",
-        "rps": 4300000,
-        "p99_latency_ms": 12,
-        "error_rate_pct": 0.1,
-        "system_status": "HEALTHY",
-        "tradeoff_badge": "Fail Open vs Fail Closed"
+      "hud": {
+        "context_label": "INCIDENT CLOCK",
+        "context_value": "VERDICT",
+        "status_text": "HEALTHY",
+        "status_level": "good",
+        "stats": [
+          {
+            "label": "RPS",
+            "value": "4.3M/s",
+            "emphasis": "normal"
+          },
+          {
+            "label": "p99",
+            "value": "12ms",
+            "emphasis": "good"
+          },
+          {
+            "label": "ERROR",
+            "value": "0.1%",
+            "emphasis": "good"
+          }
+        ],
+        "insight": "Fail Open vs Fail Closed"
       },
       "nodes": [],
       "edges": [],
       "code_diff": null,
       "benchmarks": [
         {
-          "label": "Users affected",
-          "value": 1200000000,
-          "unit": "",
+          "label": "Users affected (M)",
+          "value": 1200,
+          "unit": "M",
           "is_winner": false
         },
         {
-          "label": "Time to mitigate",
+          "label": "Time to mitigate (min)",
           "value": 28,
           "unit": "min",
           "is_winner": true
@@ -338,14 +433,7 @@
           "is_winner": false
         }
       ],
-      "timeline_events": [
-        {
-          "timestamp_label": "ACTION",
-          "title": "Cache hot-path validation",
-          "detail": "Never call a central service per request",
-          "severity": "resolved"
-        }
-      ],
+      "timeline_events": [],
       "callout_keywords": [
         "central",
         "dependency",

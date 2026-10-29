@@ -88,7 +88,6 @@ export const MasterComposition: React.FC<MasterProps> = ({ payload }) => {
         <div style={{ gridColumn: "2 / 3", gridRow: "1 / 2", minHeight: 0 }}>
           <ZoneBTelemetryHUD
             scene={active.scene}
-            prevScene={active.prev}
             theme={theme}
             localFrame={active.localFrame}
             fps={fps}

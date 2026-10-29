@@ -22,10 +22,11 @@ export const JobMarketCard: React.FC<Props> = ({ scene, theme, localFrame, fps }
       style={{
         width: "100%",
         height: "100%",
-        padding: "28px 36px",
+        padding: "28px 40px",
         display: "flex",
         flexDirection: "column",
-        gap: 20,
+        justifyContent: "center",
+        gap: 24,
       }}
     >
       {metrics.length > 0 && (
@@ -49,9 +50,9 @@ export const JobMarketCard: React.FC<Props> = ({ scene, theme, localFrame, fps }
                 style={{
                   background: theme.cardBg,
                   border: theme.borderStyle,
-                  borderTop: `4px solid ${color}`,
-                  borderRadius: 10,
-                  padding: "18px 20px",
+                  borderTop: `5px solid ${color}`,
+                  borderRadius: 12,
+                  padding: "28px 26px",
                   opacity: appear,
                   transform: `translateY(${interpolate(appear, [0, 1], [18, 0])}px)`,
                 }}
@@ -70,11 +71,11 @@ export const JobMarketCard: React.FC<Props> = ({ scene, theme, localFrame, fps }
                 <div
                   style={{
                     fontFamily: theme.fontHeading,
-                    fontSize: 46,
+                    fontSize: 54,
                     fontWeight: 800,
                     color,
                     lineHeight: 1.1,
-                    marginTop: 6,
+                    marginTop: 8,
                   }}
                 >
                   {m.value.toLocaleString()}
