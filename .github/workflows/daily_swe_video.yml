@@ -16,7 +16,9 @@ permissions:
 jobs:
   generate-and-publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # Must comfortably exceed render time + APPROVAL_WINDOW_MINUTES below, or the
+    # runner is killed mid-wait before you can tap Approve.
+    timeout-minutes: 90
 
     steps:
       - name: Checkout Repository
@@ -62,8 +64,9 @@ jobs:
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           # The job polls for your Telegram Approve/Cancel tap for this long. The
           # runner is billed for the whole wait, so keep the repo public (free,
-          # unlimited minutes) or keep this window short.
-          APPROVAL_WINDOW_MINUTES: "120"
+          # unlimited minutes) or keep this window short. Stays under the job's
+          # timeout-minutes so render + wait never gets killed mid-approval.
+          APPROVAL_WINDOW_MINUTES: "60"
           # Fail-closed: no tap within the window => nothing is published.
           APPROVE_ON_TIMEOUT: "false"
         run: |
