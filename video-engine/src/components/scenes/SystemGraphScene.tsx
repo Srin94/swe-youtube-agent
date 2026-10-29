@@ -31,8 +31,25 @@ const bezier = (
   ];
 };
 
-const CHIP = 60; // logo chip size inside each node
+const CHIP = 56; // logo chip size inside each node
 const PACKET_OFFSETS = [0, 0.2, 0.4, 0.6, 0.8]; // five packets per edge -> a stream
+
+// Fit a label to the available width: scale the font down toward a floor, and
+// if it still would not fit, return a textLength so SVG compresses it exactly
+// to `avail`. Guarantees text never spills past the card edge.
+const fitText = (
+  text: string,
+  avail: number,
+  maxFont: number,
+  minFont: number,
+  ratio: number,
+): { font: number; textLength?: number } => {
+  const natural = text.length * ratio * maxFont;
+  if (natural <= avail) return { font: maxFont };
+  const font = Math.max(minFont, avail / (text.length * ratio));
+  const stillOver = text.length * ratio * font > avail + 0.5;
+  return { font, textLength: stillOver ? avail : undefined };
+};
 
 export const SystemGraphScene: React.FC<Props> = ({ scene, theme, localFrame, fps }) => {
   const layout = useMemo(
@@ -146,6 +163,13 @@ export const SystemGraphScene: React.FC<Props> = ({ scene, theme, localFrame, fp
           const icon = getIcon(n.icon_slug);
           const s = 0.92 + enter * 0.08;
           const rise = (1 - enter) * 20;
+          // Text area to the right of the chip, and labels fitted to it.
+          const labelX = 16 + CHIP + 16;
+          const avail = NODE_WIDTH - labelX - 16;
+          const labelStr = n.label.slice(0, 26);
+          const subStr = n.sublabel.slice(0, 30);
+          const lf = fitText(labelStr, avail, 21, 14, 0.58);
+          const sf = fitText(subStr, avail, 14, 11, 0.54);
           return (
             <g
               key={n.id}
@@ -227,25 +251,29 @@ export const SystemGraphScene: React.FC<Props> = ({ scene, theme, localFrame, fp
                     {n.label.slice(0, 1).toUpperCase()}
                   </text>
                 )}
-                {/* labels */}
+                {/* labels (auto-fit so long names never spill past the card) */}
                 <text
-                  x={16 + CHIP + 16}
+                  x={labelX}
                   y={NODE_HEIGHT / 2 - 4}
                   fontFamily={theme.fontHeading}
-                  fontSize={21}
+                  fontSize={lf.font}
                   fontWeight={700}
                   fill={theme.textPrimary}
+                  textLength={lf.textLength}
+                  lengthAdjust="spacingAndGlyphs"
                 >
-                  {n.label.slice(0, 16)}
+                  {labelStr}
                 </text>
                 <text
-                  x={16 + CHIP + 16}
+                  x={labelX}
                   y={NODE_HEIGHT / 2 + 20}
                   fontFamily={theme.fontMono}
-                  fontSize={14}
+                  fontSize={sf.font}
                   fill={theme.textMuted}
+                  textLength={sf.textLength}
+                  lengthAdjust="spacingAndGlyphs"
                 >
-                  {n.sublabel.slice(0, 20)}
+                  {subStr}
                 </text>
               </g>
             </g>
