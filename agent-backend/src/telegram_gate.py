@@ -43,7 +43,19 @@ def _call(method: str, **params):
         return resp.json()
 
 
-def _send_photo(payload: VideoRenderPayload) -> None:
+# Telegram Bot API caps uploads at 50 MB; stay just under it.
+_TG_MAX_UPLOAD = 49 * 1024 * 1024
+
+
+def _send_preview(payload: VideoRenderPayload) -> None:
+    """Send the preview for approval.
+
+    Prefers sending the actual rendered MP4 (so you can WATCH it on your phone
+    before approving) with the Approve/Cancel buttons attached. Falls back to the
+    thumbnail photo if the video is missing or larger than Telegram's 50 MB cap.
+    """
+    import json as _json
+
     caption = (
         f"\U0001F3AC *{_md(payload.youtube_title)}*\n\n"
         f"Theme: `{payload.theme_id}`  |  Category: `{payload.topic_category}`\n"
@@ -57,21 +69,46 @@ def _send_photo(payload: VideoRenderPayload) -> None:
             {"text": "❌ Cancel", "callback_data": REJECT},
         ]]
     }
-    import json as _json
+    data = {
+        "chat_id": config.TELEGRAM_CHAT_ID,
+        "caption": caption[:1024],
+        "parse_mode": "Markdown",
+        "reply_markup": _json.dumps(keyboard),
+    }
 
-    url = _API.format(token=config.TELEGRAM_BOT_TOKEN, method="sendPhoto")
-    with httpx.Client(timeout=60.0) as client, open(config.THUMBNAIL_PATH, "rb") as img:
-        resp = client.post(
-            url,
-            data={
-                "chat_id": config.TELEGRAM_CHAT_ID,
-                "caption": caption[:1024],
-                "parse_mode": "Markdown",
-                "reply_markup": _json.dumps(keyboard),
-            },
-            files={"photo": ("thumbnail.png", img, "image/png")},
-        )
-        resp.raise_for_status()
+    video_ok = (
+        config.FINAL_VIDEO_PATH.exists()
+        and config.FINAL_VIDEO_PATH.stat().st_size <= _TG_MAX_UPLOAD
+    )
+
+    with httpx.Client(timeout=180.0) as client:
+        if video_ok:
+            # Send the playable clip with the thumbnail as its cover.
+            url = _API.format(token=config.TELEGRAM_BOT_TOKEN, method="sendVideo")
+            files = {"video": ("final_video.mp4", open(config.FINAL_VIDEO_PATH, "rb"), "video/mp4")}
+            if config.THUMBNAIL_PATH.exists():
+                files["thumbnail"] = ("thumbnail.png", open(config.THUMBNAIL_PATH, "rb"), "image/png")
+            data["supports_streaming"] = "true"
+            try:
+                resp = client.post(url, data=data, files=files)
+                resp.raise_for_status()
+                return
+            except Exception as exc:  # noqa: BLE001 - fall back to a photo
+                print(f"[telegram] sendVideo failed ({exc}); falling back to thumbnail.")
+            finally:
+                for f in files.values():
+                    f[1].close()
+        elif config.FINAL_VIDEO_PATH.exists():
+            size_mb = config.FINAL_VIDEO_PATH.stat().st_size / 1_048_576
+            print(f"[telegram] video is {size_mb:.0f}MB (>50MB); sending thumbnail only.")
+
+        # Fallback: thumbnail photo with the same caption + buttons.
+        url = _API.format(token=config.TELEGRAM_BOT_TOKEN, method="sendPhoto")
+        with open(config.THUMBNAIL_PATH, "rb") as img:
+            resp = client.post(
+                url, data=data, files={"photo": ("thumbnail.png", img, "image/png")}
+            )
+            resp.raise_for_status()
 
 
 def _md(text: str) -> str:
@@ -118,7 +155,7 @@ def request_approval(payload: VideoRenderPayload) -> bool:
         return True
 
     try:
-        _send_photo(payload)
+        _send_preview(payload)
     except Exception as exc:  # noqa: BLE001
         print(f"[telegram] Failed to send preview ({exc}); auto-approving.")
         return True
