@@ -1,0 +1,37 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# ---- Node / Remotion ----
+node_modules/
+video-engine/.remotion/
+video-engine/out/
+npm-debug.log*
+
+# ---- Secrets ----
+.env
+*.pem
+client_secret*.json
+token.json
+
+# ---- Generated per-run artifacts ----
+agent-backend/output/*
+!agent-backend/output/.gitkeep
+video-engine/public/assets/*
+!video-engine/public/assets/.gitkeep
+
+# Keep the mock payload used for standalone Remotion testing
+!video-engine/public/assets/render_payload.json
+
+# ---- Model caches ----
+agent-backend/.cache/
+*.onnx
+
+# ---- OS ----
+.DS_Store
+Thumbs.db

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      /* Fonts are expected to be available on the render host (CI installs
+         them); we fall back gracefully to system equivalents. */
+      :root {
+        --canvas-bg: __CANVAS_BG__;
+        --card-bg: __CARD_BG__;
+        --grid: __GRID__;
+        --text-primary: __TEXT_PRIMARY__;
+        --accent: __ACCENT__;
+        --accent-critical: __ACCENT_CRITICAL__;
+        --border: __BORDER__;
+        --font-heading: __FONT_HEADING__;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      html, body {
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+      }
+
+      body {
+        background-color: var(--canvas-bg);
+        background-image: __GRID_PATTERN__;
+        background-size: 48px 48px;
+        font-family: var(--font-heading);
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 64px 72px;
+        position: relative;
+      }
+
+      .badge {
+        align-self: flex-start;
+        background: var(--accent-critical);
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 30px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        padding: 12px 26px;
+        border: var(--border);
+        box-shadow: __BADGE_SHADOW__;
+      }
+
+      .center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 56px;
+        margin: 8px 0;
+      }
+
+      .icon-wrap {
+        width: 180px;
+        height: 180px;
+        background: var(--card-bg);
+        border: var(--border);
+        box-shadow: __CARD_SHADOW__;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 18px;
+      }
+      .icon-wrap img, .icon-wrap svg { width: 112px; height: 112px; }
+
+      .connector {
+        font-size: 92px;
+        font-weight: 900;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .connector.critical { color: var(--accent-critical); }
+
+      .headline {
+        font-size: 92px;
+        line-height: 0.98;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: -1px;
+        max-width: 1100px;
+      }
+      .headline .hl { color: var(--accent); }
+
+      .footer-rule {
+        height: 10px;
+        width: 100%;
+        background: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="badge">__BADGE_TEXT__</div>
+
+    <div class="center">
+      <div class="icon-wrap">__LEFT_ICON__</div>
+      <div class="connector __CONNECTOR_CLASS__">__CONNECTOR_GLYPH__</div>
+      <div class="icon-wrap">__RIGHT_ICON__</div>
+    </div>
+
+    <div class="headline">__HEADLINE_HTML__</div>
+
+    <div class="footer-rule"></div>
+  </body>
+</html>

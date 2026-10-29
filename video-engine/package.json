@@ -1,0 +1,31 @@
+{
+  "name": "swe-video-engine",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts SWEMasterVideo ../agent-backend/output/final_video.mp4 --codec=h264"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.250",
+    "@remotion/media-utils": "^4.0.250",
+    "@remotion/shapes": "^4.0.250",
+    "@xyflow/react": "^12.4.0",
+    "d3-scale": "^4.0.2",
+    "elkjs": "^0.9.3",
+    "lucide-react": "^0.475.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.250",
+    "shiki": "^2.0.0",
+    "simple-icons": "^14.5.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/d3-scale": "^4.0.8",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.0"
+  }
+}

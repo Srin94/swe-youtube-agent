@@ -1,0 +1,1319 @@
+{
+  "topic_category": "NEW_TECH_RELEASE",
+  "theme_id": "ARCHITECT_PAPER",
+  "youtube_title": "Why AI Generated Frontend Code Always Looks the Same",
+  "youtube_description": "AI coding agents suffer from a systemic design flaw: generic Inter fonts, identical purple-to-blue gradients, and repetitive nested cards. Enter Impeccable, an open-source deterministic engine that injects visual vocabulary, critique heuristics, and deterministic linter rules directly into agent harnesses like Claude Code, Cursor, and Codex CLI.\n\nChapters:\n0:00 - The AI Slop Problem\n0:12 - Why LLMs Default to Boring UI\n0:25 - Impeccable Architecture: 62 Deterministic Rules\n0:38 - Pre-commit Agent Hooks\n0:50 - Live Browser Hot-swapping\n1:03 - Benchmark: Deterministic Rules vs LLM Review\n1:17 - How to Ship Custom Brand Guardrails",
+  "youtube_tags": [
+    "software engineering",
+    "web development",
+    "frontend",
+    "ai agents",
+    "cursor",
+    "claude code",
+    "ui design",
+    "developer tools"
+  ],
+  "pinned_comment": "Should design quality enforcement be shifted left to local deterministic AST linters, or left to multimodal LLM vision critiques in CI/CD? What's your take?",
+  "source_url": "https://github.com/pbakaus/impeccable",
+  "thumbnail": {
+    "headline_text": "KILLING AI SLOP",
+    "badge_text": "NEW TECH RELEASE",
+    "left_icon_slug": "anthropic",
+    "right_icon_slug": "typescript",
+    "connector_style": "upgrade_arrow"
+  },
+  "scenes": [
+    {
+      "scene_id": 1,
+      "chapter_title": "The Slop Baseline",
+      "narration_text": "Every single coding agent generates identical UI slop: ubiquitous Inter font, purple gradients, and nested cards. Over sixty-two repeatable design flaws ship unchecked daily.",
+      "start_sec": 0.0,
+      "duration_sec": 11.928,
+      "visual_type": "SystemGraph",
+      "camera_focus_node_id": "agent",
+      "telemetry": {
+        "incident_clock": "00:00:00",
+        "rps": 12,
+        "p99_latency_ms": 480,
+        "error_rate_pct": 82.5,
+        "system_status": "DEGRADED",
+        "tradeoff_badge": "High Velocity vs Zero Polish"
+      },
+      "nodes": [
+        {
+          "id": "prompt",
+          "label": "User Prompt",
+          "sublabel": "make it pop",
+          "icon_slug": "gnometerminal",
+          "tier": 1,
+          "status": "normal"
+        },
+        {
+          "id": "agent",
+          "label": "AI Coding Agent",
+          "sublabel": "Claude / Cursor",
+          "icon_slug": "anthropic",
+          "tier": 2,
+          "status": "warning"
+        },
+        {
+          "id": "output",
+          "label": "Target DOM",
+          "sublabel": "Purple Slop UI",
+          "icon_slug": "html5",
+          "tier": 3,
+          "status": "critical"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1-2",
+          "source": "prompt",
+          "target": "agent",
+          "label": "Vague Directive",
+          "packet_color": "orange",
+          "animate_packets": true
+        },
+        {
+          "id": "e2-3",
+          "source": "agent",
+          "target": "output",
+          "label": "Emit Generic JSX",
+          "packet_color": "crimson",
+          "animate_packets": true
+        }
+      ],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [
+        "identical UI slop",
+        "ubiquitous Inter",
+        "nested cards"
+      ]
+    },
+    {
+      "scene_id": 2,
+      "chapter_title": "Context Injector",
+      "narration_text": "Impeccable solves this without API keys. It bootstraps product and design markdown files directly into the repository, injecting domain taste into prompt context.",
+      "start_sec": 12.228,
+      "duration_sec": 11.088,
+      "visual_type": "SystemGraph",
+      "camera_focus_node_id": "context_engine",
+      "telemetry": {
+        "incident_clock": "00:00:13",
+        "rps": 45,
+        "p99_latency_ms": 120,
+        "error_rate_pct": 45.0,
+        "system_status": "HEALTHY",
+        "tradeoff_badge": "Static Context vs Agent Freedom"
+      },
+      "nodes": [
+        {
+          "id": "prompt",
+          "label": "Agent CLI",
+          "sublabel": "/impeccable init",
+          "icon_slug": "gnometerminal",
+          "tier": 1,
+          "status": "normal"
+        },
+        {
+          "id": "agent",
+          "label": "AI Coding Agent",
+          "sublabel": "Harness Session",
+          "icon_slug": "anthropic",
+          "tier": 2,
+          "status": "normal"
+        },
+        {
+          "id": "context_engine",
+          "label": "Context Bridge",
+          "sublabel": "PRODUCT.md & DESIGN.md",
+          "icon_slug": "markdown",
+          "tier": 3,
+          "status": "active"
+        },
+        {
+          "id": "output",
+          "label": "Design Tokens",
+          "sublabel": "System Constraints",
+          "icon_slug": "css3",
+          "tier": 4,
+          "status": "normal"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1-2",
+          "source": "prompt",
+          "target": "agent",
+          "label": "Invoke Engine",
+          "packet_color": "cyan",
+          "animate_packets": true
+        },
+        {
+          "id": "e2-3",
+          "source": "agent",
+          "target": "context_engine",
+          "label": "Sync Rules",
+          "packet_color": "emerald",
+          "animate_packets": true
+        },
+        {
+          "id": "e3-4",
+          "source": "context_engine",
+          "target": "output",
+          "label": "Enforce Palettes",
+          "packet_color": "emerald",
+          "animate_packets": true
+        }
+      ],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [
+        "API keys",
+        "bootstraps",
+        "markdown files"
+      ]
+    },
+    {
+      "scene_id": 3,
+      "chapter_title": "Deterministic Hook",
+      "narration_text": "Instead of waiting for human review, Impeccable intercepts agent tool calls with a design hook, executing sixty-two deterministic heuristics directly before saving files.",
+      "start_sec": 23.616,
+      "duration_sec": 10.152,
+      "visual_type": "CodeDiff",
+      "camera_focus_node_id": null,
+      "telemetry": {
+        "incident_clock": "00:00:27",
+        "rps": 60,
+        "p99_latency_ms": 15,
+        "error_rate_pct": 12.0,
+        "system_status": "HEALTHY",
+        "tradeoff_badge": "Deterministic AST vs Vision LLM"
+      },
+      "nodes": [],
+      "edges": [],
+      "code_diff": {
+        "language": "typescript",
+        "filename": "pricing-card.tsx",
+        "before_code": "<div className=\"bg-gradient-to-r from-purple-500 to-blue-500 p-4 font-sans text-gray-400 rounded-xl\">\n  <div className=\"bg-white/10 p-4 rounded-lg shadow-sm\">\n    <span className=\"inline-block p-2 bg-indigo-500 rounded-md\"><Icon /></span>\n    <h3 className=\"text-sm text-gray-200\">Enterprise</h3>\n  </div>\n</div>",
+        "after_code": "<article className=\"bg-slate-900 border border-slate-800 p-8 rounded-none font-serif text-slate-100\">\n  <header className=\"border-b border-slate-800 pb-4 mb-6\">\n    <h3 className=\"text-2xl font-light tracking-tight\">Enterprise Tier</h3>\n    <p className=\"text-sm text-slate-400 mt-1\">Dedicated cluster deployment</p>\n  </header>\n</article>",
+        "highlight_explanation": "Replaces generic purple gradient nested card antipattern with high-contrast, typographically distinct component structure."
+      },
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [
+        "intercepts",
+        "design hook",
+        "sixty-two"
+      ]
+    },
+    {
+      "scene_id": 4,
+      "chapter_title": "Vocabulary Expansion",
+      "narration_text": "Vague prompts yield sludge. Twenty-four targeted agent commands like bolder, quieter, and harden provide specific surgical playbooks targeting narrow component surfaces.",
+      "start_sec": 34.068,
+      "duration_sec": 10.776,
+      "visual_type": "SystemGraph",
+      "camera_focus_node_id": "playbook",
+      "telemetry": {
+        "incident_clock": "00:00:41",
+        "rps": 85,
+        "p99_latency_ms": 22,
+        "error_rate_pct": 3.2,
+        "system_status": "HEALTHY",
+        "tradeoff_badge": "Domain Vocabulary vs Free-form Prompts"
+      },
+      "nodes": [
+        {
+          "id": "prompt",
+          "label": "Slash Command",
+          "sublabel": "/impeccable bolder",
+          "icon_slug": "gnometerminal",
+          "tier": 1,
+          "status": "normal"
+        },
+        {
+          "id": "playbook",
+          "label": "Design Playbook",
+          "sublabel": "Surgical Ruleset",
+          "icon_slug": "bookstack",
+          "tier": 2,
+          "status": "active"
+        },
+        {
+          "id": "agent",
+          "label": "Coding Agent",
+          "sublabel": "AST Rewriter",
+          "icon_slug": "anthropic",
+          "tier": 3,
+          "status": "normal"
+        },
+        {
+          "id": "component",
+          "label": "Component Target",
+          "sublabel": "Hero Section",
+          "icon_slug": "react",
+          "tier": 4,
+          "status": "normal"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1-2",
+          "source": "prompt",
+          "target": "playbook",
+          "label": "Load Heuristic",
+          "packet_color": "cyan",
+          "animate_packets": true
+        },
+        {
+          "id": "e2-3",
+          "source": "playbook",
+          "target": "agent",
+          "label": "Constrain LLM",
+          "packet_color": "cyan",
+          "animate_packets": true
+        },
+        {
+          "id": "e3-4",
+          "source": "agent",
+          "target": "component",
+          "label": "Patch JSX",
+          "packet_color": "emerald",
+          "animate_packets": true
+        }
+      ],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [
+        "Vague prompts",
+        "Twenty-four",
+        "surgical"
+      ]
+    },
+    {
+      "scene_id": 5,
+      "chapter_title": "Realtime Iteration",
+      "narration_text": "Live mode mounts an interactive overlay onto your running dev server. Hot swap visual variants in the browser and write changes straight back to source code.",
+      "start_sec": 45.144,
+      "duration_sec": 9.312,
+      "visual_type": "SystemGraph",
+      "camera_focus_node_id": "live_overlay",
+      "telemetry": {
+        "incident_clock": "00:00:54",
+        "rps": 120,
+        "p99_latency_ms": 8,
+        "error_rate_pct": 0.4,
+        "system_status": "HEALTHY",
+        "tradeoff_badge": "In-browser Mutations vs Direct Commits"
+      },
+      "nodes": [
+        {
+          "id": "browser",
+          "label": "Browser DOM",
+          "sublabel": "Vite Dev Server",
+          "icon_slug": "vite",
+          "tier": 1,
+          "status": "normal"
+        },
+        {
+          "id": "live_overlay",
+          "label": "Impeccable Live",
+          "sublabel": "Hot-Swap Engine",
+          "icon_slug": "javascript",
+          "tier": 2,
+          "status": "active"
+        },
+        {
+          "id": "validator",
+          "label": "Validation Script",
+          "sublabel": "manual-edit-validate",
+          "icon_slug": "nodedotjs",
+          "tier": 3,
+          "status": "normal"
+        },
+        {
+          "id": "fs",
+          "label": "Local Filesystem",
+          "sublabel": "JSX Patch Commit",
+          "icon_slug": "git",
+          "tier": 4,
+          "status": "normal"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1-2",
+          "source": "browser",
+          "target": "live_overlay",
+          "label": "Select Element",
+          "packet_color": "cyan",
+          "animate_packets": true
+        },
+        {
+          "id": "e2-3",
+          "source": "live_overlay",
+          "target": "validator",
+          "label": "Send Patch",
+          "packet_color": "emerald",
+          "animate_packets": true
+        },
+        {
+          "id": "e3-4",
+          "source": "validator",
+          "target": "fs",
+          "label": "Write Disk",
+          "packet_color": "emerald",
+          "animate_packets": true
+        }
+      ],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [
+        "Live mode",
+        "interactive overlay",
+        "Hot swap"
+      ]
+    },
+    {
+      "scene_id": 6,
+      "chapter_title": "Benchmark Latency",
+      "narration_text": "Zero-model deterministic linting runs in nine milliseconds. Compare that to multi-second vision-model audits that burn API budgets and trigger token throttles.",
+      "start_sec": 54.756,
+      "duration_sec": 10.128,
+      "visual_type": "BenchmarkChart",
+      "camera_focus_node_id": null,
+      "telemetry": {
+        "incident_clock": "00:01:07",
+        "rps": 180,
+        "p99_latency_ms": 9,
+        "error_rate_pct": 0.1,
+        "system_status": "HEALTHY",
+        "tradeoff_badge": "Cost & Speed vs Model Reasoning"
+      },
+      "nodes": [],
+      "edges": [],
+      "code_diff": null,
+      "benchmarks": [
+        {
+          "label": "Impeccable Binary Detector",
+          "value": 9.2,
+          "unit": "ms",
+          "is_winner": true
+        },
+        {
+          "label": "ESLint + Custom AST Plugins",
+          "value": 64.0,
+          "unit": "ms",
+          "is_winner": false
+        },
+        {
+          "label": "Headless Chrome DevTools Scan",
+          "value": 410.0,
+          "unit": "ms",
+          "is_winner": false
+        },
+        {
+          "label": "Multimodal LLM Vision Audit",
+          "value": 3450.0,
+          "unit": "ms",
+          "is_winner": false
+        }
+      ],
+      "timeline_events": [],
+      "callout_keywords": [
+        "deterministic",
+        "nine milliseconds",
+        "API budgets"
+      ]
+    },
+    {
+      "scene_id": 7,
+      "chapter_title": "Deploy Guardrails",
+      "narration_text": "Run npx impeccable detect in CI pipelines or terminal pre-commits to automatically block slop before it ever reaches production pull requests.",
+      "start_sec": 65.184,
+      "duration_sec": 8.592,
+      "visual_type": "SystemGraph",
+      "camera_focus_node_id": "ci_runner",
+      "telemetry": {
+        "incident_clock": "00:01:20",
+        "rps": 220,
+        "p99_latency_ms": 9,
+        "error_rate_pct": 0.0,
+        "system_status": "HEALTHY",
+        "tradeoff_badge": "Zero Regressions vs Build Time"
+      },
+      "nodes": [
+        {
+          "id": "agent",
+          "label": "Dev Environment",
+          "sublabel": "Agent Hook / CLI",
+          "icon_slug": "cursor",
+          "tier": 1,
+          "status": "normal"
+        },
+        {
+          "id": "ci_runner",
+          "label": "GitHub Actions",
+          "sublabel": "npx impeccable detect",
+          "icon_slug": "githubactions",
+          "tier": 2,
+          "status": "active"
+        },
+        {
+          "id": "audit_rules",
+          "label": "Rule Engine",
+          "sublabel": "62 Quality Rules",
+          "icon_slug": "rust",
+          "tier": 3,
+          "status": "normal"
+        },
+        {
+          "id": "prod_deploy",
+          "label": "Production Bundle",
+          "sublabel": "Verified Clean UI",
+          "icon_slug": "vercel",
+          "tier": 4,
+          "status": "normal"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1-2",
+          "source": "agent",
+          "target": "ci_runner",
+          "label": "Git Push",
+          "packet_color": "cyan",
+          "animate_packets": true
+        },
+        {
+          "id": "e2-3",
+          "source": "ci_runner",
+          "target": "audit_rules",
+          "label": "Validate DOM/AST",
+          "packet_color": "cyan",
+          "animate_packets": true
+        },
+        {
+          "id": "e3-4",
+          "source": "audit_rules",
+          "target": "prod_deploy",
+          "label": "Exit Code 0",
+          "packet_color": "emerald",
+          "animate_packets": true
+        }
+      ],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [
+        "detect in CI",
+        "terminal pre-commits",
+        "production pull"
+      ]
+    }
+  ],
+  "words": [
+    {
+      "word": "Every",
+      "start_sec": 0.0,
+      "end_sec": 0.497
+    },
+    {
+      "word": "single",
+      "start_sec": 0.497,
+      "end_sec": 0.994
+    },
+    {
+      "word": "coding",
+      "start_sec": 0.994,
+      "end_sec": 1.491
+    },
+    {
+      "word": "agent",
+      "start_sec": 1.491,
+      "end_sec": 1.988
+    },
+    {
+      "word": "generates",
+      "start_sec": 1.988,
+      "end_sec": 2.485
+    },
+    {
+      "word": "identical",
+      "start_sec": 2.485,
+      "end_sec": 2.982
+    },
+    {
+      "word": "UI",
+      "start_sec": 2.982,
+      "end_sec": 3.479
+    },
+    {
+      "word": "slop:",
+      "start_sec": 3.479,
+      "end_sec": 3.976
+    },
+    {
+      "word": "ubiquitous",
+      "start_sec": 3.976,
+      "end_sec": 4.473
+    },
+    {
+      "word": "Inter",
+      "start_sec": 4.473,
+      "end_sec": 4.97
+    },
+    {
+      "word": "font,",
+      "start_sec": 4.97,
+      "end_sec": 5.467
+    },
+    {
+      "word": "purple",
+      "start_sec": 5.467,
+      "end_sec": 5.964
+    },
+    {
+      "word": "gradients,",
+      "start_sec": 5.964,
+      "end_sec": 6.461
+    },
+    {
+      "word": "and",
+      "start_sec": 6.461,
+      "end_sec": 6.958
+    },
+    {
+      "word": "nested",
+      "start_sec": 6.958,
+      "end_sec": 7.455
+    },
+    {
+      "word": "cards.",
+      "start_sec": 7.455,
+      "end_sec": 7.952
+    },
+    {
+      "word": "Over",
+      "start_sec": 7.952,
+      "end_sec": 8.449
+    },
+    {
+      "word": "sixty-two",
+      "start_sec": 8.449,
+      "end_sec": 8.946
+    },
+    {
+      "word": "repeatable",
+      "start_sec": 8.946,
+      "end_sec": 9.443
+    },
+    {
+      "word": "design",
+      "start_sec": 9.443,
+      "end_sec": 9.94
+    },
+    {
+      "word": "flaws",
+      "start_sec": 9.94,
+      "end_sec": 10.437
+    },
+    {
+      "word": "ship",
+      "start_sec": 10.437,
+      "end_sec": 10.934
+    },
+    {
+      "word": "unchecked",
+      "start_sec": 10.934,
+      "end_sec": 11.431
+    },
+    {
+      "word": "daily.",
+      "start_sec": 11.431,
+      "end_sec": 11.928
+    },
+    {
+      "word": "Impeccable",
+      "start_sec": 12.228,
+      "end_sec": 12.71
+    },
+    {
+      "word": "solves",
+      "start_sec": 12.71,
+      "end_sec": 13.192
+    },
+    {
+      "word": "this",
+      "start_sec": 13.192,
+      "end_sec": 13.674
+    },
+    {
+      "word": "without",
+      "start_sec": 13.674,
+      "end_sec": 14.156
+    },
+    {
+      "word": "API",
+      "start_sec": 14.156,
+      "end_sec": 14.638
+    },
+    {
+      "word": "keys.",
+      "start_sec": 14.638,
+      "end_sec": 15.121
+    },
+    {
+      "word": "It",
+      "start_sec": 15.121,
+      "end_sec": 15.603
+    },
+    {
+      "word": "bootstraps",
+      "start_sec": 15.603,
+      "end_sec": 16.085
+    },
+    {
+      "word": "product",
+      "start_sec": 16.085,
+      "end_sec": 16.567
+    },
+    {
+      "word": "and",
+      "start_sec": 16.567,
+      "end_sec": 17.049
+    },
+    {
+      "word": "design",
+      "start_sec": 17.049,
+      "end_sec": 17.531
+    },
+    {
+      "word": "markdown",
+      "start_sec": 17.531,
+      "end_sec": 18.013
+    },
+    {
+      "word": "files",
+      "start_sec": 18.013,
+      "end_sec": 18.495
+    },
+    {
+      "word": "directly",
+      "start_sec": 18.495,
+      "end_sec": 18.977
+    },
+    {
+      "word": "into",
+      "start_sec": 18.977,
+      "end_sec": 19.459
+    },
+    {
+      "word": "the",
+      "start_sec": 19.459,
+      "end_sec": 19.941
+    },
+    {
+      "word": "repository,",
+      "start_sec": 19.941,
+      "end_sec": 20.423
+    },
+    {
+      "word": "injecting",
+      "start_sec": 20.423,
+      "end_sec": 20.906
+    },
+    {
+      "word": "domain",
+      "start_sec": 20.906,
+      "end_sec": 21.388
+    },
+    {
+      "word": "taste",
+      "start_sec": 21.388,
+      "end_sec": 21.87
+    },
+    {
+      "word": "into",
+      "start_sec": 21.87,
+      "end_sec": 22.352
+    },
+    {
+      "word": "prompt",
+      "start_sec": 22.352,
+      "end_sec": 22.834
+    },
+    {
+      "word": "context.",
+      "start_sec": 22.834,
+      "end_sec": 23.316
+    },
+    {
+      "word": "Instead",
+      "start_sec": 23.616,
+      "end_sec": 24.057
+    },
+    {
+      "word": "of",
+      "start_sec": 24.057,
+      "end_sec": 24.499
+    },
+    {
+      "word": "waiting",
+      "start_sec": 24.499,
+      "end_sec": 24.94
+    },
+    {
+      "word": "for",
+      "start_sec": 24.94,
+      "end_sec": 25.382
+    },
+    {
+      "word": "human",
+      "start_sec": 25.382,
+      "end_sec": 25.823
+    },
+    {
+      "word": "review,",
+      "start_sec": 25.823,
+      "end_sec": 26.264
+    },
+    {
+      "word": "Impeccable",
+      "start_sec": 26.264,
+      "end_sec": 26.706
+    },
+    {
+      "word": "intercepts",
+      "start_sec": 26.706,
+      "end_sec": 27.147
+    },
+    {
+      "word": "agent",
+      "start_sec": 27.147,
+      "end_sec": 27.589
+    },
+    {
+      "word": "tool",
+      "start_sec": 27.589,
+      "end_sec": 28.03
+    },
+    {
+      "word": "calls",
+      "start_sec": 28.03,
+      "end_sec": 28.471
+    },
+    {
+      "word": "with",
+      "start_sec": 28.471,
+      "end_sec": 28.913
+    },
+    {
+      "word": "a",
+      "start_sec": 28.913,
+      "end_sec": 29.354
+    },
+    {
+      "word": "design",
+      "start_sec": 29.354,
+      "end_sec": 29.795
+    },
+    {
+      "word": "hook,",
+      "start_sec": 29.795,
+      "end_sec": 30.237
+    },
+    {
+      "word": "executing",
+      "start_sec": 30.237,
+      "end_sec": 30.678
+    },
+    {
+      "word": "sixty-two",
+      "start_sec": 30.678,
+      "end_sec": 31.12
+    },
+    {
+      "word": "deterministic",
+      "start_sec": 31.12,
+      "end_sec": 31.561
+    },
+    {
+      "word": "heuristics",
+      "start_sec": 31.561,
+      "end_sec": 32.002
+    },
+    {
+      "word": "directly",
+      "start_sec": 32.002,
+      "end_sec": 32.444
+    },
+    {
+      "word": "before",
+      "start_sec": 32.444,
+      "end_sec": 32.885
+    },
+    {
+      "word": "saving",
+      "start_sec": 32.885,
+      "end_sec": 33.327
+    },
+    {
+      "word": "files.",
+      "start_sec": 33.327,
+      "end_sec": 33.768
+    },
+    {
+      "word": "Vague",
+      "start_sec": 34.068,
+      "end_sec": 34.581
+    },
+    {
+      "word": "prompts",
+      "start_sec": 34.581,
+      "end_sec": 35.094
+    },
+    {
+      "word": "yield",
+      "start_sec": 35.094,
+      "end_sec": 35.607
+    },
+    {
+      "word": "sludge.",
+      "start_sec": 35.607,
+      "end_sec": 36.121
+    },
+    {
+      "word": "Twenty-four",
+      "start_sec": 36.121,
+      "end_sec": 36.634
+    },
+    {
+      "word": "targeted",
+      "start_sec": 36.634,
+      "end_sec": 37.147
+    },
+    {
+      "word": "agent",
+      "start_sec": 37.147,
+      "end_sec": 37.66
+    },
+    {
+      "word": "commands",
+      "start_sec": 37.66,
+      "end_sec": 38.173
+    },
+    {
+      "word": "like",
+      "start_sec": 38.173,
+      "end_sec": 38.686
+    },
+    {
+      "word": "bolder,",
+      "start_sec": 38.686,
+      "end_sec": 39.199
+    },
+    {
+      "word": "quieter,",
+      "start_sec": 39.199,
+      "end_sec": 39.713
+    },
+    {
+      "word": "and",
+      "start_sec": 39.713,
+      "end_sec": 40.226
+    },
+    {
+      "word": "harden",
+      "start_sec": 40.226,
+      "end_sec": 40.739
+    },
+    {
+      "word": "provide",
+      "start_sec": 40.739,
+      "end_sec": 41.252
+    },
+    {
+      "word": "specific",
+      "start_sec": 41.252,
+      "end_sec": 41.765
+    },
+    {
+      "word": "surgical",
+      "start_sec": 41.765,
+      "end_sec": 42.278
+    },
+    {
+      "word": "playbooks",
+      "start_sec": 42.278,
+      "end_sec": 42.791
+    },
+    {
+      "word": "targeting",
+      "start_sec": 42.791,
+      "end_sec": 43.305
+    },
+    {
+      "word": "narrow",
+      "start_sec": 43.305,
+      "end_sec": 43.818
+    },
+    {
+      "word": "component",
+      "start_sec": 43.818,
+      "end_sec": 44.331
+    },
+    {
+      "word": "surfaces.",
+      "start_sec": 44.331,
+      "end_sec": 44.844
+    },
+    {
+      "word": "Live",
+      "start_sec": 45.144,
+      "end_sec": 45.502
+    },
+    {
+      "word": "mode",
+      "start_sec": 45.502,
+      "end_sec": 45.86
+    },
+    {
+      "word": "mounts",
+      "start_sec": 45.86,
+      "end_sec": 46.218
+    },
+    {
+      "word": "an",
+      "start_sec": 46.218,
+      "end_sec": 46.577
+    },
+    {
+      "word": "interactive",
+      "start_sec": 46.577,
+      "end_sec": 46.935
+    },
+    {
+      "word": "overlay",
+      "start_sec": 46.935,
+      "end_sec": 47.293
+    },
+    {
+      "word": "onto",
+      "start_sec": 47.293,
+      "end_sec": 47.651
+    },
+    {
+      "word": "your",
+      "start_sec": 47.651,
+      "end_sec": 48.009
+    },
+    {
+      "word": "running",
+      "start_sec": 48.009,
+      "end_sec": 48.367
+    },
+    {
+      "word": "dev",
+      "start_sec": 48.367,
+      "end_sec": 48.726
+    },
+    {
+      "word": "server.",
+      "start_sec": 48.726,
+      "end_sec": 49.084
+    },
+    {
+      "word": "Hot",
+      "start_sec": 49.084,
+      "end_sec": 49.442
+    },
+    {
+      "word": "swap",
+      "start_sec": 49.442,
+      "end_sec": 49.8
+    },
+    {
+      "word": "visual",
+      "start_sec": 49.8,
+      "end_sec": 50.158
+    },
+    {
+      "word": "variants",
+      "start_sec": 50.158,
+      "end_sec": 50.516
+    },
+    {
+      "word": "in",
+      "start_sec": 50.516,
+      "end_sec": 50.874
+    },
+    {
+      "word": "the",
+      "start_sec": 50.874,
+      "end_sec": 51.233
+    },
+    {
+      "word": "browser",
+      "start_sec": 51.233,
+      "end_sec": 51.591
+    },
+    {
+      "word": "and",
+      "start_sec": 51.591,
+      "end_sec": 51.949
+    },
+    {
+      "word": "write",
+      "start_sec": 51.949,
+      "end_sec": 52.307
+    },
+    {
+      "word": "changes",
+      "start_sec": 52.307,
+      "end_sec": 52.665
+    },
+    {
+      "word": "straight",
+      "start_sec": 52.665,
+      "end_sec": 53.023
+    },
+    {
+      "word": "back",
+      "start_sec": 53.023,
+      "end_sec": 53.382
+    },
+    {
+      "word": "to",
+      "start_sec": 53.382,
+      "end_sec": 53.74
+    },
+    {
+      "word": "source",
+      "start_sec": 53.74,
+      "end_sec": 54.098
+    },
+    {
+      "word": "code.",
+      "start_sec": 54.098,
+      "end_sec": 54.456
+    },
+    {
+      "word": "Zero-model",
+      "start_sec": 54.756,
+      "end_sec": 55.238
+    },
+    {
+      "word": "deterministic",
+      "start_sec": 55.238,
+      "end_sec": 55.721
+    },
+    {
+      "word": "linting",
+      "start_sec": 55.721,
+      "end_sec": 56.203
+    },
+    {
+      "word": "runs",
+      "start_sec": 56.203,
+      "end_sec": 56.685
+    },
+    {
+      "word": "in",
+      "start_sec": 56.685,
+      "end_sec": 57.167
+    },
+    {
+      "word": "nine",
+      "start_sec": 57.167,
+      "end_sec": 57.65
+    },
+    {
+      "word": "milliseconds.",
+      "start_sec": 57.65,
+      "end_sec": 58.132
+    },
+    {
+      "word": "Compare",
+      "start_sec": 58.132,
+      "end_sec": 58.614
+    },
+    {
+      "word": "that",
+      "start_sec": 58.614,
+      "end_sec": 59.097
+    },
+    {
+      "word": "to",
+      "start_sec": 59.097,
+      "end_sec": 59.579
+    },
+    {
+      "word": "multi-second",
+      "start_sec": 59.579,
+      "end_sec": 60.061
+    },
+    {
+      "word": "vision-model",
+      "start_sec": 60.061,
+      "end_sec": 60.543
+    },
+    {
+      "word": "audits",
+      "start_sec": 60.543,
+      "end_sec": 61.026
+    },
+    {
+      "word": "that",
+      "start_sec": 61.026,
+      "end_sec": 61.508
+    },
+    {
+      "word": "burn",
+      "start_sec": 61.508,
+      "end_sec": 61.99
+    },
+    {
+      "word": "API",
+      "start_sec": 61.99,
+      "end_sec": 62.473
+    },
+    {
+      "word": "budgets",
+      "start_sec": 62.473,
+      "end_sec": 62.955
+    },
+    {
+      "word": "and",
+      "start_sec": 62.955,
+      "end_sec": 63.437
+    },
+    {
+      "word": "trigger",
+      "start_sec": 63.437,
+      "end_sec": 63.919
+    },
+    {
+      "word": "token",
+      "start_sec": 63.919,
+      "end_sec": 64.402
+    },
+    {
+      "word": "throttles.",
+      "start_sec": 64.402,
+      "end_sec": 64.884
+    },
+    {
+      "word": "Run",
+      "start_sec": 65.184,
+      "end_sec": 65.593
+    },
+    {
+      "word": "npx",
+      "start_sec": 65.593,
+      "end_sec": 66.002
+    },
+    {
+      "word": "impeccable",
+      "start_sec": 66.002,
+      "end_sec": 66.411
+    },
+    {
+      "word": "detect",
+      "start_sec": 66.411,
+      "end_sec": 66.821
+    },
+    {
+      "word": "in",
+      "start_sec": 66.821,
+      "end_sec": 67.23
+    },
+    {
+      "word": "CI",
+      "start_sec": 67.23,
+      "end_sec": 67.639
+    },
+    {
+      "word": "pipelines",
+      "start_sec": 67.639,
+      "end_sec": 68.048
+    },
+    {
+      "word": "or",
+      "start_sec": 68.048,
+      "end_sec": 68.457
+    },
+    {
+      "word": "terminal",
+      "start_sec": 68.457,
+      "end_sec": 68.866
+    },
+    {
+      "word": "pre-commits",
+      "start_sec": 68.866,
+      "end_sec": 69.275
+    },
+    {
+      "word": "to",
+      "start_sec": 69.275,
+      "end_sec": 69.685
+    },
+    {
+      "word": "automatically",
+      "start_sec": 69.685,
+      "end_sec": 70.094
+    },
+    {
+      "word": "block",
+      "start_sec": 70.094,
+      "end_sec": 70.503
+    },
+    {
+      "word": "slop",
+      "start_sec": 70.503,
+      "end_sec": 70.912
+    },
+    {
+      "word": "before",
+      "start_sec": 70.912,
+      "end_sec": 71.321
+    },
+    {
+      "word": "it",
+      "start_sec": 71.321,
+      "end_sec": 71.73
+    },
+    {
+      "word": "ever",
+      "start_sec": 71.73,
+      "end_sec": 72.139
+    },
+    {
+      "word": "reaches",
+      "start_sec": 72.139,
+      "end_sec": 72.549
+    },
+    {
+      "word": "production",
+      "start_sec": 72.549,
+      "end_sec": 72.958
+    },
+    {
+      "word": "pull",
+      "start_sec": 72.958,
+      "end_sec": 73.367
+    },
+    {
+      "word": "requests.",
+      "start_sec": 73.367,
+      "end_sec": 73.776
+    }
+  ],
+  "total_duration_sec": 73.776
+}

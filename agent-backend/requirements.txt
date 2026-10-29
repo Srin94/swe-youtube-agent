@@ -1,0 +1,18 @@
+google-genai>=1.2.0
+pydantic>=2.10.0
+python-dotenv>=1.0.1
+httpx>=0.28.0
+feedparser>=6.0.11
+beautifulsoup4>=4.12.3
+kokoro-onnx>=0.4.0
+soundfile>=0.13.0
+edge-tts>=7.0.0
+faster-whisper>=1.1.0
+pydub>=0.25.1
+# pydub imports stdlib `audioop`, removed in Python 3.13+. This backport
+# restores it. (No-op on the 3.11 CI runner.)
+audioop-lts>=0.2.1; python_version >= "3.13"
+playwright>=1.50.0
+google-api-python-client>=2.160.0
+google-auth-oauthlib>=1.2.1
+tenacity>=9.0.0
