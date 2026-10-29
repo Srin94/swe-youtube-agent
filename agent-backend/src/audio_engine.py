@@ -268,12 +268,38 @@ def align_words(payload: VideoRenderPayload) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Background music
+# ---------------------------------------------------------------------------
+def _mix_background_music(master: AudioSegment) -> AudioSegment:
+    """Overlay a ducked, faded music bed under the stitched narration.
+
+    Runs AFTER word alignment so faster-whisper only ever sees clean speech.
+    Any failure returns the narration unchanged -- music is never fatal.
+    """
+    try:
+        from . import music_engine
+    except ImportError:  # pragma: no cover
+        import music_engine  # type: ignore
+    try:
+        bed = music_engine.build_music_bed(len(master))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[audio] background music skipped ({exc}).")
+        return master
+    if bed is None:
+        return master
+    print(f"[audio] mixed background music under {len(master) / 1000:.1f}s of narration.")
+    return master.overlay(bed)
+
+
+# ---------------------------------------------------------------------------
 # Public entrypoint
 # ---------------------------------------------------------------------------
 def build_audio(payload: VideoRenderPayload, save: bool = True) -> VideoRenderPayload:
-    """Synthesize narration, align words, and (optionally) persist the payload."""
-    synthesize_narration(payload)
-    align_words(payload)
+    """Synthesize narration, align words, mix music, and persist the payload."""
+    master = synthesize_narration(payload)   # writes clean narration.wav
+    align_words(payload)                      # whisper reads the clean speech
+    master = _mix_background_music(master)    # bed goes in after alignment
+    master.export(str(config.NARRATION_PATH), format="wav")
     if save:
         save_payload(payload)
     return payload

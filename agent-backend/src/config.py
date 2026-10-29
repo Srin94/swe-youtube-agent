@@ -158,6 +158,25 @@ WHISPER_MODEL = "base.en"
 WHISPER_COMPUTE_TYPE = "int8"
 
 # ---------------------------------------------------------------------------
+# Background music
+# ---------------------------------------------------------------------------
+# A soothing bed is mixed UNDER the narration of every video. By default it is
+# synthesized procedurally with a fresh key + chord progression each run, so no
+# two videos share the same track and nothing has to be downloaded or licensed.
+# Drop royalty-free files into MUSIC_DIR to use those instead (one per render,
+# never repeating the previous pick).
+BACKGROUND_MUSIC_ENABLED = os.getenv("BACKGROUND_MUSIC_ENABLED", "true").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+MUSIC_DIR = BACKEND_DIR / "assets" / "music"
+# Absolute level of the music bed (dBFS). Narration sits near -16..-20 dBFS, so
+# -30 keeps the music clearly in the background. Lower = quieter music.
+MUSIC_LEVEL_DBFS = float(os.getenv("MUSIC_LEVEL_DBFS", "-30"))
+MUSIC_FADE_MS = int(os.getenv("MUSIC_FADE_MS", "2500"))  # fade in/out length
+
+# ---------------------------------------------------------------------------
 # Thumbnail
 # ---------------------------------------------------------------------------
 THUMBNAIL_WIDTH = 1280
