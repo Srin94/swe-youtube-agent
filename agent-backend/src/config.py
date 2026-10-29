@@ -49,7 +49,23 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
-AUTO_APPROVE_MINUTES = int(os.getenv("AUTO_APPROVE_MINUTES", "30") or "30")
+
+# How long the pipeline waits for a Telegram decision before giving up.
+# (Historically named AUTO_APPROVE_MINUTES; it is now just the wait window.)
+APPROVAL_WINDOW_MINUTES = int(
+    os.getenv("APPROVAL_WINDOW_MINUTES", os.getenv("AUTO_APPROVE_MINUTES", "30")) or "30"
+)
+# Back-compat alias so existing code/.env referencing the old name keeps working.
+AUTO_APPROVE_MINUTES = APPROVAL_WINDOW_MINUTES
+
+# Fail-closed by default: if no explicit "Approve" arrives within the window,
+# DO NOT publish. Set APPROVE_ON_TIMEOUT=true only if you want the old behaviour
+# where silence auto-publishes after the timeout.
+APPROVE_ON_TIMEOUT = os.getenv("APPROVE_ON_TIMEOUT", "false").lower() in (
+    "1",
+    "true",
+    "yes",
+)
 
 YOUTUBE_CLIENT_ID = os.getenv("YOUTUBE_CLIENT_ID", "").strip()
 YOUTUBE_CLIENT_SECRET = os.getenv("YOUTUBE_CLIENT_SECRET", "").strip()

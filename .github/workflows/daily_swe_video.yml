@@ -60,7 +60,12 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-          AUTO_APPROVE_MINUTES: "30"
+          # The job polls for your Telegram Approve/Cancel tap for this long. The
+          # runner is billed for the whole wait, so keep the repo public (free,
+          # unlimited minutes) or keep this window short.
+          APPROVAL_WINDOW_MINUTES: "120"
+          # Fail-closed: no tap within the window => nothing is published.
+          APPROVE_ON_TIMEOUT: "false"
         run: |
           cd agent-backend
           if [ -n "${{ github.event.inputs.custom_topic }}" ]; then

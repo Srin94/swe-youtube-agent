@@ -1,12 +1,15 @@
 """Telegram Human-in-the-Loop approval gate.
 
-Sends the rendered thumbnail + title + summary + pinned comment to the operator
-with [Approve & Upload] / [Cancel] inline buttons, then polls getUpdates for a
-callback. If AUTO_APPROVE_MINUTES elapse without an explicit reject, it returns
-approved=True so the daily automation is never blocked.
+Sends the rendered video + title + summary + pinned comment to the operator with
+[Approve & Upload] / [Cancel] inline buttons, then polls getUpdates for a
+callback.
+
+FAIL-CLOSED: if no explicit "Approve" arrives within APPROVAL_WINDOW_MINUTES, the
+video is NOT published. Set APPROVE_ON_TIMEOUT=true to restore the old behaviour
+where silence auto-publishes after the timeout.
 
 If Telegram is not configured, `request_approval` returns True immediately
-(approval is a no-op), so local runs without a bot still publish.
+(approval is a no-op), so local hands-on runs without a bot still publish.
 """
 
 from __future__ import annotations
@@ -33,6 +36,10 @@ REJECT = "swe_reject"
 class ApprovalResult:
     approved: bool
     reason: str
+    # True only when the operator explicitly rejected — the topic should then be
+    # burned (marked seen). A mere timeout leaves this False so the topic can
+    # resurface on a later run instead of being lost.
+    reject_permanently: bool = False
 
 
 def _call(method: str, **params):
@@ -141,26 +148,41 @@ def _poll_for_decision(deadline: float) -> ApprovalResult:
                 if decision == APPROVE:
                     return ApprovalResult(True, "operator approved")
                 if decision == REJECT:
-                    return ApprovalResult(False, "operator rejected")
+                    return ApprovalResult(
+                        False, "operator rejected", reject_permanently=True
+                    )
         except Exception as exc:  # noqa: BLE001
             print(f"[telegram] poll error ({exc}); retrying.")
             time.sleep(3)
-    return ApprovalResult(True, "auto-approved on timeout")
+    # No explicit decision arrived within the window.
+    if config.APPROVE_ON_TIMEOUT:
+        return ApprovalResult(True, "auto-approved on timeout (APPROVE_ON_TIMEOUT)")
+    return ApprovalResult(False, "no response within window; not publishing (fail-closed)")
 
 
-def request_approval(payload: VideoRenderPayload) -> bool:
-    """Return True if the video should be published."""
+def request_approval(payload: VideoRenderPayload) -> ApprovalResult:
+    """Return the approval decision for this video.
+
+    `.approved` says whether to publish; `.reject_permanently` says whether the
+    topic should be burned (marked seen) vs. allowed to resurface later.
+    """
     if not config.has_telegram():
         print("[telegram] Not configured; auto-approving (no HITL gate).")
-        return True
+        return ApprovalResult(True, "telegram not configured; auto-approved")
 
     try:
         _send_preview(payload)
     except Exception as exc:  # noqa: BLE001
-        print(f"[telegram] Failed to send preview ({exc}); auto-approving.")
-        return True
+        # Could not even show the operator the preview. Fail closed unless the
+        # operator has explicitly opted into timeout auto-publish.
+        approved = config.APPROVE_ON_TIMEOUT
+        print(
+            f"[telegram] Failed to send preview ({exc}); "
+            f"{'auto-approving (APPROVE_ON_TIMEOUT)' if approved else 'NOT publishing (fail-closed)'}."
+        )
+        return ApprovalResult(approved, f"preview send failed: {exc}")
 
-    minutes = config.AUTO_APPROVE_MINUTES
+    minutes = config.APPROVAL_WINDOW_MINUTES
     print(f"[telegram] Preview sent. Waiting up to {minutes} min for a decision...")
     deadline = time.time() + minutes * 60
     result = _poll_for_decision(deadline)
@@ -168,13 +190,19 @@ def request_approval(payload: VideoRenderPayload) -> bool:
 
     # Notify the operator of the outcome.
     try:
-        msg = (
-            "✅ Publishing now." if result.approved else "\U0001F6D1 Upload cancelled."
-        )
+        if result.approved:
+            msg = "✅ Publishing now."
+        elif result.reject_permanently:
+            msg = "\U0001F6D1 Upload cancelled."
+        else:
+            msg = (
+                f"⌛ No response in {minutes} min — video NOT published "
+                "(fail-closed). Re-run to try again."
+            )
         _call("sendMessage", chat_id=config.TELEGRAM_CHAT_ID, text=msg)
     except Exception:  # noqa: BLE001
         pass
-    return result.approved
+    return result
 
 
 if __name__ == "__main__":
@@ -182,4 +210,4 @@ if __name__ == "__main__":
 
     with open(config.RENDER_PAYLOAD_PATH, encoding="utf-8") as fh:
         p = VideoRenderPayload.model_validate(json.load(fh))
-    print("approved:", request_approval(p))
+    print("decision:", request_approval(p))

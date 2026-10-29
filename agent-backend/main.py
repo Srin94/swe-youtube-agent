@@ -145,11 +145,16 @@ def render_video(payload) -> bool:
 
 def approve_and_publish(payload, dry_run: bool) -> None:
     _banner("STAGE 9: Telegram human-in-the-loop approval")
-    approved = telegram_gate.request_approval(payload)
-    if not approved:
-        print("[main] Rejected by operator. Not publishing.")
-        # Still mark as seen so we don't resurface it tomorrow.
-        db.mark_topic_published(payload.source_url, payload.youtube_title, None)
+    decision = telegram_gate.request_approval(payload)
+    if not decision.approved:
+        print(f"[main] Not publishing ({decision.reason}).")
+        if decision.reject_permanently:
+            # Explicit reject: burn the topic so we don't resurface it tomorrow.
+            db.mark_topic_published(payload.source_url, payload.youtube_title, None)
+        else:
+            # Timed out / preview failed: leave the topic unseen so a later run
+            # can pick it up again instead of losing it.
+            print("[main] Topic left unseen; it can resurface on a later run.")
         return
 
     _banner("STAGE 10: YouTube upload & community seeding")
