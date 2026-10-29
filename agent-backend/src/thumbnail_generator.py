@@ -25,6 +25,9 @@ _THEMES: Dict[str, Dict[str, str]] = {
     "ARCHITECT_PAPER": {
         "canvas_bg": "#F4F1EA",
         "card_bg": "#FFFFFF",
+        # Icon chips sit on a light surface so brand logos of any color stay
+        # legible (e.g. near-black GitHub, which vanished on the dark card).
+        "icon_chip_bg": "#FFFFFF",
         "grid": "#E2DDD2",
         "text_primary": "#18181B",
         "accent": "#FF4F00",
@@ -41,6 +44,8 @@ _THEMES: Dict[str, Dict[str, str]] = {
     "WAR_ROOM_HUD": {
         "canvas_bg": "#0B0C10",
         "card_bg": "#12151E",
+        # Light chip on the carbon console keeps brand logos legible.
+        "icon_chip_bg": "#F2F4F7",
         "grid": "#1F2430",
         "text_primary": "#F3F4F6",
         "accent": "#00F5D4",
@@ -55,6 +60,24 @@ _THEMES: Dict[str, Dict[str, str]] = {
     },
 }
 
+# Common LLM slug variants -> canonical simple-icons slugs. Brands fully removed
+# from simple-icons for trademark reasons (microsoft, windows, azure, openai,
+# vscode, ...) have no logo available and fall through to the letter badge.
+_ICON_ALIASES: Dict[str, str] = {
+    "node": "nodedotjs",
+    "nodejs": "nodedotjs",
+    "golang": "go",
+    "postgres": "postgresql",
+    "postgre": "postgresql",
+    "k8s": "kubernetes",
+    "https": "cloudflare",
+    "vuejs": "vuedotjs",
+    "nextjs": "nextdotjs",
+    "githubactions": "github",
+    "aws": "amazonwebservices",
+    "amazon": "amazonwebservices",
+}
+
 _CONNECTOR_GLYPH = {
     "vs_bolt": "⚡",      # lightning bolt (VS)
     "broken_arrow": "↯",  # downwards zigzag arrow
@@ -63,11 +86,17 @@ _CONNECTOR_GLYPH = {
 
 
 def _fetch_icon_svg(slug: str) -> str:
-    """Return inline <svg> markup for a simple-icons slug, or a text fallback."""
+    """Return inline <svg> markup for a simple-icons slug, or a text fallback.
+
+    The chip background is always light, so the letter fallback uses a dark
+    color (brand SVGs keep their own colors, which read fine on the light chip).
+    """
     if not slug:
         return ""
+    normalized = slug.lower().strip().replace(" ", "")
+    normalized = _ICON_ALIASES.get(normalized, normalized)
     try:
-        url = config.SIMPLEICONS_CDN.format(slug=slug.lower().strip())
+        url = config.SIMPLEICONS_CDN.format(slug=normalized)
         with httpx.Client(timeout=10.0) as client:
             resp = client.get(url, headers={"User-Agent": config.USER_AGENT})
             resp.raise_for_status()
@@ -75,10 +104,12 @@ def _fetch_icon_svg(slug: str) -> str:
             if "<svg" in svg:
                 return svg
     except Exception as exc:  # noqa: BLE001
-        print(f"[thumbnail] icon fetch failed for '{slug}': {exc}")
-    # Fallback: first letter in a styled box.
+        print(f"[thumbnail] icon unavailable for '{slug}' -> letter badge ({exc})")
+    # Fallback: first letter, dark on the light chip.
     letter = (slug[:1] or "?").upper()
-    return f'<span style="font-size:92px;font-weight:900">{letter}</span>'
+    return (
+        f'<span style="font-size:92px;font-weight:900;color:#18181B">{letter}</span>'
+    )
 
 
 def _headline_html(text: str, accent_last_word: bool = True) -> str:
@@ -103,6 +134,7 @@ def _fill_template(spec: ThumbnailSpec, theme_id: str) -> str:
     replacements = {
         "__CANVAS_BG__": theme["canvas_bg"],
         "__CARD_BG__": theme["card_bg"],
+        "__ICON_CHIP_BG__": theme["icon_chip_bg"],
         "__GRID__": theme["grid"],
         "__TEXT_PRIMARY__": theme["text_primary"],
         "__ACCENT__": theme["accent"],

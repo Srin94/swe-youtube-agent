@@ -52,19 +52,46 @@ def select_winning_candidate(custom_topic):
     if not candidates:
         raise SystemExit("No fresh candidates found. Nothing to produce today.")
     idx = script_generator.select_topic(candidates)
-    winner = candidates[idx]
+    # Put the LLM's pick first, then the rest by score, so a thin scrape can
+    # fall through to the next-best candidate.
+    ordered = [candidates[idx]] + [c for i, c in enumerate(candidates) if i != idx]
+    winner = ordered[0]
     print(f"\n[main] WINNER: {winner.title}\n        {winner.url}")
-    return winner
+    return winner, ordered
 
 
-def build_payload(winner):
+def _scrape_with_fallback(ordered):
+    """Scrape the winner; if too thin, fall through to the next candidates.
+
+    Returns (candidate, ScrapedArticle). Resolves Google News URLs along the
+    way. Guarantees we never script from 13 characters when a scrapeable
+    source exists in the shortlist.
+    """
+    tried = 0
+    for cand in ordered[:5]:
+        cand.url = ingest_scout.resolve_google_news_url(cand.url)
+        article = article_scraper.scrape_article(cand.url)
+        tried += 1
+        print(
+            f"[main] Scrape try {tried}: method={article.method} "
+            f"chars={len(article.markdown)} [{cand.source}]"
+        )
+        if article.ok:
+            return cand, article
+    # Nothing scraped well — return the best effort on the original winner.
+    best = ordered[0]
+    return best, article_scraper.scrape_article(best.url)
+
+
+def build_payload(winner, ordered=None):
     _banner("STAGE 4-5: Deep scrape & structured script generation")
-    article = article_scraper.scrape_article(winner.url)
-    print(f"[main] Scrape method={article.method} chars={len(article.markdown)}")
+    ordered = ordered or [winner]
+    winner, article = _scrape_with_fallback(ordered)
+    print(f"[main] Source: {winner.url}")
     payload = script_generator.generate_script(
         topic_title=winner.title,
         source_url=winner.url,
-        article_markdown=article.markdown or winner.title,
+        article_markdown=article.markdown if article.ok else winner.title,
     )
     print(
         f"[main] Script: category={payload.topic_category} theme={payload.theme_id} "
@@ -146,8 +173,8 @@ def main() -> None:
     print(f"[main] Mode: {mode}  dry_run={args.dry_run}")
     db.init_db()
 
-    winner = select_winning_candidate(args.topic)
-    payload = build_payload(winner)
+    winner, ordered = select_winning_candidate(args.topic)
+    payload = build_payload(winner, ordered)
     build_audio(payload)
     build_thumbnail(payload)
 

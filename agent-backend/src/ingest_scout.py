@@ -14,6 +14,8 @@ virality / freshness score. Already-published topics are filtered out via
 
 from __future__ import annotations
 
+import json
+import re
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -72,6 +74,53 @@ def _parse_feed_time(entry) -> float:
         if t:
             return time.mktime(t)
     return time.time()
+
+
+def resolve_google_news_url(url: str) -> str:
+    """Resolve a news.google.com/rss/articles/<id> link to the real publisher URL.
+
+    Google News RSS links are opaque redirects that do not scrape (they return
+    a consent/JS shell). The real URL is recovered via Google's internal
+    `batchexecute` endpoint: fetch the article page for its signature/timestamp,
+    then POST a `garturlreq` to get back the publisher URL. Best-effort — returns
+    the original URL on any failure so ingestion never breaks.
+    """
+    if "news.google.com" not in url:
+        return url
+    try:
+        with _client() as client:
+            page = client.get(url)
+            page.raise_for_status()
+            html = page.text
+            sig = re.search(r'data-n-a-sg="([^"]+)"', html)
+            ts = re.search(r'data-n-a-ts="([^"]+)"', html)
+            aid = re.search(r'data-n-a-id="([^"]+)"', html)
+            if not (sig and ts and aid):
+                return url
+            inner = json.dumps([
+                "garturlreq",
+                [["X", "X", ["X", "X"], None, None, 1, 1, "US:en", None, 1,
+                  None, None, None, None, None, 0, 1],
+                 "X", "X", 1, [1, 1, 1], 1, 1, None, 0, 0, None, 0],
+                aid.group(1), int(ts.group(1)), sig.group(1),
+            ])
+            f_req = json.dumps([[["Fbv4je", inner, None, "generic"]]])
+            resp = client.post(
+                "https://news.google.com/_/DotsSplashUi/data/batchexecute",
+                data={"f.req": f_req},
+                headers={
+                    "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+                },
+            )
+            for line in resp.text.split("\n"):
+                if line.startswith('[["wrb.fr"'):
+                    payload = json.loads(line)[0][2]
+                    real = json.loads(payload)[1]
+                    if real and real.startswith("http"):
+                        return real
+    except Exception as exc:  # noqa: BLE001
+        print(f"[ingest] Google News resolve failed: {exc}")
+    return url
 
 
 # ---------------------------------------------------------------------------
@@ -260,12 +309,16 @@ def fetch_custom_topic(query: str) -> List[Candidate]:
             link = entry.get("link")
             title = entry.get("title")
             if link and title:
+                # Resolve the opaque Google News redirect to the real publisher
+                # URL so it actually scrapes. Down-weight these vs. HN's real
+                # article URLs, which are always scrapeable.
+                resolved = resolve_google_news_url(link)
                 out.append(
                     Candidate(
                         title=title,
-                        url=link,
+                        url=resolved,
                         source="google-news",
-                        points=50,
+                        points=35,
                         comments=0,
                         created_at=_parse_feed_time(entry),
                     )

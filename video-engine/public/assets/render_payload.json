@@ -1,84 +1,68 @@
 {
-  "topic_category": "NEW_TECH_RELEASE",
-  "theme_id": "ARCHITECT_PAPER",
-  "youtube_title": "Why AI Generated Frontend Code Always Looks the Same",
-  "youtube_description": "AI coding agents suffer from a systemic design flaw: generic Inter fonts, identical purple-to-blue gradients, and repetitive nested cards. Enter Impeccable, an open-source deterministic engine that injects visual vocabulary, critique heuristics, and deterministic linter rules directly into agent harnesses like Claude Code, Cursor, and Codex CLI.\n\nChapters:\n0:00 - The AI Slop Problem\n0:12 - Why LLMs Default to Boring UI\n0:25 - Impeccable Architecture: 62 Deterministic Rules\n0:38 - Pre-commit Agent Hooks\n0:50 - Live Browser Hot-swapping\n1:03 - Benchmark: Deterministic Rules vs LLM Review\n1:17 - How to Ship Custom Brand Guardrails",
+  "topic_category": "JOB_MARKET",
+  "theme_id": "WAR_ROOM_HUD",
+  "youtube_title": "Why Microsoft Is Paying Engineers to Leave in 2025",
+  "youtube_description": "Microsoft is offering massive voluntary exit packages across engineering divisions. From junior developers to 50-year-old veterans, Big Tech is reshaping headcount around AI infrastructure.\n\n0:00 - The Voluntary Exit Shockwave\n0:12 - The Generational Divide\n0:24 - AI Capex vs Payroll Realities\n0:36 - Voluntary Buyout Compensation Breakdown\n0:48 - The Knowledge Drain Risk\n1:00 - Restructuring the Engineering Ladder\n1:12 - Stay or Take the Package?",
   "youtube_tags": [
+    "microsoft",
     "software engineering",
-    "web development",
-    "frontend",
-    "ai agents",
-    "cursor",
-    "claude code",
-    "ui design",
-    "developer tools"
+    "tech layoffs",
+    "job market",
+    "compensation",
+    "tech careers",
+    "big tech",
+    "ai capex"
   ],
-  "pinned_comment": "Should design quality enforcement be shifted left to local deterministic AST linters, or left to multimodal LLM vision critiques in CI/CD? What's your take?",
-  "source_url": "https://github.com/pbakaus/impeccable",
+  "pinned_comment": "If your company offered you 9 months of severance tax-advantaged tomorrow, would you take the payout to jumpstart a startup, or stay for stability in a brutal job market?",
+  "source_url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPTkNSZ1d4VDh0QUZtdDcycTdRM2JwczNlMjJ4a3ZlcG1uWDhNSG1VMVpMRU9nWW5fcUdXV1dvSWdsODcxWW1wSndJWFJjQnRrX25MZVM1bFdPOFJXdWJjLXl5bjBxNVpvbDZhekt6VUdOT2JWOHV2MF8xTUh5YXhpVHpIVnE1d2o0bmlyS09LLXdRdnhGNWFPZVoxNzl0d9IBpAFBVV95cUxPU0h3OWN4SkJSOWJNek1ZcWRCU2dSVGNjTWVQNC0xX2N2aDd3R3VuZVR5eEwzVy1QY2dORWJsMHU1clB3MjZGTTNEY01EVnBlQTQ3cldBYTNfMkFCamgzcHlKRDZwSml3NGNyeGZONXlWa3Iyc0stYjZKaXlXbmk0UmN1cmlyXzlFTnR4VXl3VmV2WU91SDJKSlg1ZElzVXhDaTVRdQ?oc=5",
   "thumbnail": {
-    "headline_text": "KILLING AI SLOP",
-    "badge_text": "NEW TECH RELEASE",
-    "left_icon_slug": "anthropic",
-    "right_icon_slug": "typescript",
-    "connector_style": "upgrade_arrow"
+    "headline_text": "TAKE BUYOUT OR STAY?",
+    "badge_text": "JOB MARKET",
+    "left_icon_slug": "microsoft",
+    "right_icon_slug": "github",
+    "connector_style": "vs_bolt"
   },
   "scenes": [
     {
       "scene_id": 1,
-      "chapter_title": "The Slop Baseline",
-      "narration_text": "Every single coding agent generates identical UI slop: ubiquitous Inter font, purple gradients, and nested cards. Over sixty-two repeatable design flaws ship unchecked daily.",
+      "chapter_title": "VOLUNTARY EXIT OFFER",
+      "narration_text": "Microsoft just presented engineering teams with an ultimatum: accept months of voluntary severance pay right now or brace for deep reorganizations.",
       "start_sec": 0.0,
-      "duration_sec": 11.928,
-      "visual_type": "SystemGraph",
-      "camera_focus_node_id": "agent",
+      "duration_sec": 8.664,
+      "visual_type": "JobMarketCard",
+      "camera_focus_node_id": null,
       "telemetry": {
-        "incident_clock": "00:00:00",
-        "rps": 12,
-        "p99_latency_ms": 480,
-        "error_rate_pct": 82.5,
+        "incident_clock": "T+00:00:00",
+        "rps": 82000,
+        "p99_latency_ms": 110,
+        "error_rate_pct": 0.2,
         "system_status": "DEGRADED",
-        "tradeoff_badge": "High Velocity vs Zero Polish"
+        "tradeoff_badge": "Headcount Cost vs AI Capex"
       },
       "nodes": [
         {
-          "id": "prompt",
-          "label": "User Prompt",
-          "sublabel": "make it pop",
-          "icon_slug": "gnometerminal",
+          "id": "corp_hq",
+          "label": "Microsoft Corp",
+          "sublabel": "Executive Org",
+          "icon_slug": "microsoft",
           "tier": 1,
-          "status": "normal"
-        },
-        {
-          "id": "agent",
-          "label": "AI Coding Agent",
-          "sublabel": "Claude / Cursor",
-          "icon_slug": "anthropic",
-          "tier": 2,
           "status": "warning"
         },
         {
-          "id": "output",
-          "label": "Target DOM",
-          "sublabel": "Purple Slop UI",
-          "icon_slug": "html5",
+          "id": "swe_pool",
+          "label": "Engineering Tier",
+          "sublabel": "Active Roster",
+          "icon_slug": "github",
           "tier": 3,
-          "status": "critical"
+          "status": "active"
         }
       ],
       "edges": [
         {
-          "id": "e1-2",
-          "source": "prompt",
-          "target": "agent",
-          "label": "Vague Directive",
-          "packet_color": "orange",
-          "animate_packets": true
-        },
-        {
-          "id": "e2-3",
-          "source": "agent",
-          "target": "output",
-          "label": "Emit Generic JSX",
+          "id": "e1",
+          "source": "corp_hq",
+          "target": "swe_pool",
+          "label": "Voluntary Separation Package",
           "packet_color": "crimson",
           "animate_packets": true
         }
@@ -87,423 +71,315 @@
       "benchmarks": [],
       "timeline_events": [],
       "callout_keywords": [
-        "identical UI slop",
-        "ubiquitous Inter",
-        "nested cards"
+        "voluntary severance",
+        "ultimatum"
       ]
     },
     {
       "scene_id": 2,
-      "chapter_title": "Context Injector",
-      "narration_text": "Impeccable solves this without API keys. It bootstraps product and design markdown files directly into the repository, injecting domain taste into prompt context.",
-      "start_sec": 12.228,
-      "duration_sec": 11.088,
-      "visual_type": "SystemGraph",
-      "camera_focus_node_id": "context_engine",
-      "telemetry": {
-        "incident_clock": "00:00:13",
-        "rps": 45,
-        "p99_latency_ms": 120,
-        "error_rate_pct": 45.0,
-        "system_status": "HEALTHY",
-        "tradeoff_badge": "Static Context vs Agent Freedom"
-      },
-      "nodes": [
-        {
-          "id": "prompt",
-          "label": "Agent CLI",
-          "sublabel": "/impeccable init",
-          "icon_slug": "gnometerminal",
-          "tier": 1,
-          "status": "normal"
-        },
-        {
-          "id": "agent",
-          "label": "AI Coding Agent",
-          "sublabel": "Harness Session",
-          "icon_slug": "anthropic",
-          "tier": 2,
-          "status": "normal"
-        },
-        {
-          "id": "context_engine",
-          "label": "Context Bridge",
-          "sublabel": "PRODUCT.md & DESIGN.md",
-          "icon_slug": "markdown",
-          "tier": 3,
-          "status": "active"
-        },
-        {
-          "id": "output",
-          "label": "Design Tokens",
-          "sublabel": "System Constraints",
-          "icon_slug": "css3",
-          "tier": 4,
-          "status": "normal"
-        }
-      ],
-      "edges": [
-        {
-          "id": "e1-2",
-          "source": "prompt",
-          "target": "agent",
-          "label": "Invoke Engine",
-          "packet_color": "cyan",
-          "animate_packets": true
-        },
-        {
-          "id": "e2-3",
-          "source": "agent",
-          "target": "context_engine",
-          "label": "Sync Rules",
-          "packet_color": "emerald",
-          "animate_packets": true
-        },
-        {
-          "id": "e3-4",
-          "source": "context_engine",
-          "target": "output",
-          "label": "Enforce Palettes",
-          "packet_color": "emerald",
-          "animate_packets": true
-        }
-      ],
-      "code_diff": null,
-      "benchmarks": [],
-      "timeline_events": [],
-      "callout_keywords": [
-        "API keys",
-        "bootstraps",
-        "markdown files"
-      ]
-    },
-    {
-      "scene_id": 3,
-      "chapter_title": "Deterministic Hook",
-      "narration_text": "Instead of waiting for human review, Impeccable intercepts agent tool calls with a design hook, executing sixty-two deterministic heuristics directly before saving files.",
-      "start_sec": 23.616,
-      "duration_sec": 10.152,
-      "visual_type": "CodeDiff",
-      "camera_focus_node_id": null,
-      "telemetry": {
-        "incident_clock": "00:00:27",
-        "rps": 60,
-        "p99_latency_ms": 15,
-        "error_rate_pct": 12.0,
-        "system_status": "HEALTHY",
-        "tradeoff_badge": "Deterministic AST vs Vision LLM"
-      },
-      "nodes": [],
-      "edges": [],
-      "code_diff": {
-        "language": "typescript",
-        "filename": "pricing-card.tsx",
-        "before_code": "<div className=\"bg-gradient-to-r from-purple-500 to-blue-500 p-4 font-sans text-gray-400 rounded-xl\">\n  <div className=\"bg-white/10 p-4 rounded-lg shadow-sm\">\n    <span className=\"inline-block p-2 bg-indigo-500 rounded-md\"><Icon /></span>\n    <h3 className=\"text-sm text-gray-200\">Enterprise</h3>\n  </div>\n</div>",
-        "after_code": "<article className=\"bg-slate-900 border border-slate-800 p-8 rounded-none font-serif text-slate-100\">\n  <header className=\"border-b border-slate-800 pb-4 mb-6\">\n    <h3 className=\"text-2xl font-light tracking-tight\">Enterprise Tier</h3>\n    <p className=\"text-sm text-slate-400 mt-1\">Dedicated cluster deployment</p>\n  </header>\n</article>",
-        "highlight_explanation": "Replaces generic purple gradient nested card antipattern with high-contrast, typographically distinct component structure."
-      },
-      "benchmarks": [],
-      "timeline_events": [],
-      "callout_keywords": [
-        "intercepts",
-        "design hook",
-        "sixty-two"
-      ]
-    },
-    {
-      "scene_id": 4,
-      "chapter_title": "Vocabulary Expansion",
-      "narration_text": "Vague prompts yield sludge. Twenty-four targeted agent commands like bolder, quieter, and harden provide specific surgical playbooks targeting narrow component surfaces.",
-      "start_sec": 34.068,
-      "duration_sec": 10.776,
-      "visual_type": "SystemGraph",
-      "camera_focus_node_id": "playbook",
-      "telemetry": {
-        "incident_clock": "00:00:41",
-        "rps": 85,
-        "p99_latency_ms": 22,
-        "error_rate_pct": 3.2,
-        "system_status": "HEALTHY",
-        "tradeoff_badge": "Domain Vocabulary vs Free-form Prompts"
-      },
-      "nodes": [
-        {
-          "id": "prompt",
-          "label": "Slash Command",
-          "sublabel": "/impeccable bolder",
-          "icon_slug": "gnometerminal",
-          "tier": 1,
-          "status": "normal"
-        },
-        {
-          "id": "playbook",
-          "label": "Design Playbook",
-          "sublabel": "Surgical Ruleset",
-          "icon_slug": "bookstack",
-          "tier": 2,
-          "status": "active"
-        },
-        {
-          "id": "agent",
-          "label": "Coding Agent",
-          "sublabel": "AST Rewriter",
-          "icon_slug": "anthropic",
-          "tier": 3,
-          "status": "normal"
-        },
-        {
-          "id": "component",
-          "label": "Component Target",
-          "sublabel": "Hero Section",
-          "icon_slug": "react",
-          "tier": 4,
-          "status": "normal"
-        }
-      ],
-      "edges": [
-        {
-          "id": "e1-2",
-          "source": "prompt",
-          "target": "playbook",
-          "label": "Load Heuristic",
-          "packet_color": "cyan",
-          "animate_packets": true
-        },
-        {
-          "id": "e2-3",
-          "source": "playbook",
-          "target": "agent",
-          "label": "Constrain LLM",
-          "packet_color": "cyan",
-          "animate_packets": true
-        },
-        {
-          "id": "e3-4",
-          "source": "agent",
-          "target": "component",
-          "label": "Patch JSX",
-          "packet_color": "emerald",
-          "animate_packets": true
-        }
-      ],
-      "code_diff": null,
-      "benchmarks": [],
-      "timeline_events": [],
-      "callout_keywords": [
-        "Vague prompts",
-        "Twenty-four",
-        "surgical"
-      ]
-    },
-    {
-      "scene_id": 5,
-      "chapter_title": "Realtime Iteration",
-      "narration_text": "Live mode mounts an interactive overlay onto your running dev server. Hot swap visual variants in the browser and write changes straight back to source code.",
-      "start_sec": 45.144,
-      "duration_sec": 9.312,
-      "visual_type": "SystemGraph",
-      "camera_focus_node_id": "live_overlay",
-      "telemetry": {
-        "incident_clock": "00:00:54",
-        "rps": 120,
-        "p99_latency_ms": 8,
-        "error_rate_pct": 0.4,
-        "system_status": "HEALTHY",
-        "tradeoff_badge": "In-browser Mutations vs Direct Commits"
-      },
-      "nodes": [
-        {
-          "id": "browser",
-          "label": "Browser DOM",
-          "sublabel": "Vite Dev Server",
-          "icon_slug": "vite",
-          "tier": 1,
-          "status": "normal"
-        },
-        {
-          "id": "live_overlay",
-          "label": "Impeccable Live",
-          "sublabel": "Hot-Swap Engine",
-          "icon_slug": "javascript",
-          "tier": 2,
-          "status": "active"
-        },
-        {
-          "id": "validator",
-          "label": "Validation Script",
-          "sublabel": "manual-edit-validate",
-          "icon_slug": "nodedotjs",
-          "tier": 3,
-          "status": "normal"
-        },
-        {
-          "id": "fs",
-          "label": "Local Filesystem",
-          "sublabel": "JSX Patch Commit",
-          "icon_slug": "git",
-          "tier": 4,
-          "status": "normal"
-        }
-      ],
-      "edges": [
-        {
-          "id": "e1-2",
-          "source": "browser",
-          "target": "live_overlay",
-          "label": "Select Element",
-          "packet_color": "cyan",
-          "animate_packets": true
-        },
-        {
-          "id": "e2-3",
-          "source": "live_overlay",
-          "target": "validator",
-          "label": "Send Patch",
-          "packet_color": "emerald",
-          "animate_packets": true
-        },
-        {
-          "id": "e3-4",
-          "source": "validator",
-          "target": "fs",
-          "label": "Write Disk",
-          "packet_color": "emerald",
-          "animate_packets": true
-        }
-      ],
-      "code_diff": null,
-      "benchmarks": [],
-      "timeline_events": [],
-      "callout_keywords": [
-        "Live mode",
-        "interactive overlay",
-        "Hot swap"
-      ]
-    },
-    {
-      "scene_id": 6,
-      "chapter_title": "Benchmark Latency",
-      "narration_text": "Zero-model deterministic linting runs in nine milliseconds. Compare that to multi-second vision-model audits that burn API budgets and trigger token throttles.",
-      "start_sec": 54.756,
-      "duration_sec": 10.128,
+      "chapter_title": "GENERATIONAL DIVIDE",
+      "narration_text": "A twenty-three-year-old junior engineer faces a frozen hiring landscape, while a fifty-year-old principal engineer calculates retirement pensions against aggressive cloud quotas.",
+      "start_sec": 8.964,
+      "duration_sec": 9.72,
       "visual_type": "BenchmarkChart",
       "camera_focus_node_id": null,
       "telemetry": {
-        "incident_clock": "00:01:07",
-        "rps": 180,
-        "p99_latency_ms": 9,
-        "error_rate_pct": 0.1,
-        "system_status": "HEALTHY",
-        "tradeoff_badge": "Cost & Speed vs Model Reasoning"
+        "incident_clock": "T+00:15:30",
+        "rps": 84500,
+        "p99_latency_ms": 125,
+        "error_rate_pct": 1.4,
+        "system_status": "DEGRADED",
+        "tradeoff_badge": "Institutional Knowledge vs New Tech"
       },
       "nodes": [],
       "edges": [],
       "code_diff": null,
       "benchmarks": [
         {
-          "label": "Impeccable Binary Detector",
-          "value": 9.2,
-          "unit": "ms",
+          "label": "L60 Junior SWE Market Openings",
+          "value": 14.2,
+          "unit": "k jobs",
+          "is_winner": false
+        },
+        {
+          "label": "L67 Partner/Principal SWE Buyout Multiplier",
+          "value": 48.0,
+          "unit": "weeks pay",
           "is_winner": true
-        },
-        {
-          "label": "ESLint + Custom AST Plugins",
-          "value": 64.0,
-          "unit": "ms",
-          "is_winner": false
-        },
-        {
-          "label": "Headless Chrome DevTools Scan",
-          "value": 410.0,
-          "unit": "ms",
-          "is_winner": false
-        },
-        {
-          "label": "Multimodal LLM Vision Audit",
-          "value": 3450.0,
-          "unit": "ms",
-          "is_winner": false
         }
       ],
       "timeline_events": [],
       "callout_keywords": [
-        "deterministic",
-        "nine milliseconds",
-        "API budgets"
+        "twenty-three-year-old",
+        "fifty-year-old"
+      ]
+    },
+    {
+      "scene_id": 3,
+      "chapter_title": "AI CAPEX SURGE",
+      "narration_text": "Billions of quarterly capital expenditures are shifting directly from human payroll to liquid-cooled GPU clusters powering modern Azure Copilot services.",
+      "start_sec": 18.984,
+      "duration_sec": 8.856,
+      "visual_type": "SystemGraph",
+      "camera_focus_node_id": "gpu_cluster",
+      "telemetry": {
+        "incident_clock": "T+01:02:14",
+        "rps": 140000,
+        "p99_latency_ms": 280,
+        "error_rate_pct": 3.8,
+        "system_status": "CRITICAL",
+        "tradeoff_badge": "Hardware Capex vs Payroll Budget"
+      },
+      "nodes": [
+        {
+          "id": "azure_gateway",
+          "label": "Azure Gateway",
+          "sublabel": "Traffic Ingress",
+          "icon_slug": "microsoftazure",
+          "tier": 2,
+          "status": "normal"
+        },
+        {
+          "id": "swe_pool",
+          "label": "Core Product Eng",
+          "sublabel": "Legacy Payroll",
+          "icon_slug": "github",
+          "tier": 3,
+          "status": "warning"
+        },
+        {
+          "id": "gpu_cluster",
+          "label": "H100 NVLink Cluster",
+          "sublabel": "80B Model Training",
+          "icon_slug": "nvidia",
+          "tier": 4,
+          "status": "critical"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e_gw_swe",
+          "source": "azure_gateway",
+          "target": "swe_pool",
+          "label": "Decreasing Headcount",
+          "packet_color": "orange",
+          "animate_packets": false
+        },
+        {
+          "id": "e_gw_gpu",
+          "source": "azure_gateway",
+          "target": "gpu_cluster",
+          "label": "$19B Capital Infusion",
+          "packet_color": "crimson",
+          "animate_packets": true
+        }
+      ],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [
+        "capital expenditures",
+        "GPU clusters"
+      ]
+    },
+    {
+      "scene_id": 4,
+      "chapter_title": "BUYOUT COMPENSATION",
+      "narration_text": "The voluntary exit packages offer up to twelve months of base salary with accelerated stock vesting, designed to entice top-tier salaries out quietly.",
+      "start_sec": 28.14,
+      "duration_sec": 8.832,
+      "visual_type": "BenchmarkChart",
+      "camera_focus_node_id": null,
+      "telemetry": {
+        "incident_clock": "T+02:40:00",
+        "rps": 120000,
+        "p99_latency_ms": 190,
+        "error_rate_pct": 2.1,
+        "system_status": "DEGRADED",
+        "tradeoff_badge": "Lump Sum vs Long-Term Vesting"
+      },
+      "nodes": [],
+      "edges": [],
+      "code_diff": null,
+      "benchmarks": [
+        {
+          "label": "Standard Involuntary Severance",
+          "value": 16.0,
+          "unit": "weeks",
+          "is_winner": false
+        },
+        {
+          "label": "Voluntary Separation Package",
+          "value": 48.0,
+          "unit": "weeks",
+          "is_winner": true
+        },
+        {
+          "label": "Accelerated Equity Vesting",
+          "value": 100.0,
+          "unit": "% unvested",
+          "is_winner": true
+        }
+      ],
+      "timeline_events": [],
+      "callout_keywords": [
+        "twelve months",
+        "accelerated stock"
+      ]
+    },
+    {
+      "scene_id": 5,
+      "chapter_title": "SILENT RESTRUCTURING",
+      "narration_text": "Engineering timelines show Big Tech transitioning from abrupt mass layoffs to voluntary severance programs, dodging regulatory WARN notices and public scrutiny.",
+      "start_sec": 37.272,
+      "duration_sec": 9.384,
+      "visual_type": "IncidentTimeline",
+      "camera_focus_node_id": null,
+      "telemetry": {
+        "incident_clock": "T+03:15:00",
+        "rps": 95000,
+        "p99_latency_ms": 140,
+        "error_rate_pct": 1.1,
+        "system_status": "DEGRADED",
+        "tradeoff_badge": "Public Optics vs Direct Layoffs"
+      },
+      "nodes": [],
+      "edges": [],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [
+        {
+          "timestamp_label": "2023 Q1",
+          "title": "Mandatory Mass Layoffs",
+          "detail": "10,000 employees cut abruptly; massive PR backlash and severance friction",
+          "severity": "critical"
+        },
+        {
+          "timestamp_label": "2024 Q3",
+          "title": "Stealth Performance Cuts",
+          "detail": "Calibration curves hardened to trim bottom 10% organically",
+          "severity": "warning"
+        },
+        {
+          "timestamp_label": "2025 Q1",
+          "title": "Voluntary Exit Program",
+          "detail": "Generous buyouts offered to high-band engineering staff across divisions",
+          "severity": "info"
+        }
+      ],
+      "callout_keywords": [
+        "mass layoffs",
+        "voluntary severance"
+      ]
+    },
+    {
+      "scene_id": 6,
+      "chapter_title": "ARCHITECTURAL DRAIN",
+      "narration_text": "When senior systems architects depart, mission-critical legacy pipelines risk catastrophic knowledge loss. Distributed databases do not manage their own schema migrations.",
+      "start_sec": 46.956,
+      "duration_sec": 10.896,
+      "visual_type": "SystemGraph",
+      "camera_focus_node_id": "storage_core",
+      "telemetry": {
+        "incident_clock": "T+04:10:00",
+        "rps": 65000,
+        "p99_latency_ms": 420,
+        "error_rate_pct": 6.7,
+        "system_status": "CRITICAL",
+        "tradeoff_badge": "Senior Payroll vs System Reliability"
+      },
+      "nodes": [
+        {
+          "id": "azure_gateway",
+          "label": "API Gateway",
+          "sublabel": "Traffic Ingress",
+          "icon_slug": "microsoftazure",
+          "tier": 2,
+          "status": "normal"
+        },
+        {
+          "id": "swe_pool",
+          "label": "Junior SRE Team",
+          "sublabel": "Low Context",
+          "icon_slug": "docker",
+          "tier": 3,
+          "status": "warning"
+        },
+        {
+          "id": "storage_core",
+          "label": "Core Cosmos Shards",
+          "sublabel": "Unowned Legacy Tier",
+          "icon_slug": "postgresql",
+          "tier": 5,
+          "status": "critical"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e_gw_sre",
+          "source": "azure_gateway",
+          "target": "swe_pool",
+          "label": "Traffic Surge",
+          "packet_color": "orange",
+          "animate_packets": true
+        },
+        {
+          "id": "e_sre_storage",
+          "source": "swe_pool",
+          "target": "storage_core",
+          "label": "Manual Failovers Failing",
+          "packet_color": "crimson",
+          "animate_packets": true
+        }
+      ],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [
+        "systems architects",
+        "knowledge loss"
       ]
     },
     {
       "scene_id": 7,
-      "chapter_title": "Deploy Guardrails",
-      "narration_text": "Run npx impeccable detect in CI pipelines or terminal pre-commits to automatically block slop before it ever reaches production pull requests.",
-      "start_sec": 65.184,
-      "duration_sec": 8.592,
-      "visual_type": "SystemGraph",
-      "camera_focus_node_id": "ci_runner",
+      "chapter_title": "THE ENGINEER VERDICT",
+      "narration_text": "Junior engineers must now weigh career stagnation inside a shrinking team against the payout of a lifetime to build their own systems.",
+      "start_sec": 58.152,
+      "duration_sec": 7.536,
+      "visual_type": "JobMarketCard",
+      "camera_focus_node_id": null,
       "telemetry": {
-        "incident_clock": "00:01:20",
-        "rps": 220,
-        "p99_latency_ms": 9,
-        "error_rate_pct": 0.0,
-        "system_status": "HEALTHY",
-        "tradeoff_badge": "Zero Regressions vs Build Time"
+        "incident_clock": "T+05:00:00",
+        "rps": 92000,
+        "p99_latency_ms": 115,
+        "error_rate_pct": 0.4,
+        "system_status": "RECOVERING",
+        "tradeoff_badge": "Company Tenure vs Career Autonomy"
       },
       "nodes": [
         {
-          "id": "agent",
-          "label": "Dev Environment",
-          "sublabel": "Agent Hook / CLI",
-          "icon_slug": "cursor",
+          "id": "engineer_choice",
+          "label": "Career Decision",
+          "sublabel": "Buyout vs Retain",
+          "icon_slug": "nodedotjs",
           "tier": 1,
-          "status": "normal"
-        },
-        {
-          "id": "ci_runner",
-          "label": "GitHub Actions",
-          "sublabel": "npx impeccable detect",
-          "icon_slug": "githubactions",
-          "tier": 2,
           "status": "active"
         },
         {
-          "id": "audit_rules",
-          "label": "Rule Engine",
-          "sublabel": "62 Quality Rules",
+          "id": "startup_tier",
+          "label": "Founder Runway",
+          "sublabel": "12 Months Cash",
           "icon_slug": "rust",
           "tier": 3,
-          "status": "normal"
-        },
-        {
-          "id": "prod_deploy",
-          "label": "Production Bundle",
-          "sublabel": "Verified Clean UI",
-          "icon_slug": "vercel",
-          "tier": 4,
           "status": "normal"
         }
       ],
       "edges": [
         {
-          "id": "e1-2",
-          "source": "agent",
-          "target": "ci_runner",
-          "label": "Git Push",
-          "packet_color": "cyan",
-          "animate_packets": true
-        },
-        {
-          "id": "e2-3",
-          "source": "ci_runner",
-          "target": "audit_rules",
-          "label": "Validate DOM/AST",
-          "packet_color": "cyan",
-          "animate_packets": true
-        },
-        {
-          "id": "e3-4",
-          "source": "audit_rules",
-          "target": "prod_deploy",
-          "label": "Exit Code 0",
+          "id": "e_choice_boot",
+          "source": "engineer_choice",
+          "target": "startup_tier",
+          "label": "Reinvest Severance",
           "packet_color": "emerald",
           "animate_packets": true
         }
@@ -512,808 +388,792 @@
       "benchmarks": [],
       "timeline_events": [],
       "callout_keywords": [
-        "detect in CI",
-        "terminal pre-commits",
-        "production pull"
+        "career stagnation",
+        "payout"
       ]
     }
   ],
   "words": [
     {
-      "word": "Every",
+      "word": "Microsoft",
       "start_sec": 0.0,
-      "end_sec": 0.497
+      "end_sec": 0.42
     },
     {
-      "word": "single",
-      "start_sec": 0.497,
-      "end_sec": 0.994
+      "word": "just",
+      "start_sec": 0.42,
+      "end_sec": 0.96
     },
     {
-      "word": "coding",
-      "start_sec": 0.994,
-      "end_sec": 1.491
+      "word": "presented",
+      "start_sec": 0.96,
+      "end_sec": 1.28
     },
     {
-      "word": "agent",
-      "start_sec": 1.491,
-      "end_sec": 1.988
+      "word": "engineering",
+      "start_sec": 1.28,
+      "end_sec": 1.62
     },
     {
-      "word": "generates",
-      "start_sec": 1.988,
-      "end_sec": 2.485
-    },
-    {
-      "word": "identical",
-      "start_sec": 2.485,
-      "end_sec": 2.982
-    },
-    {
-      "word": "UI",
-      "start_sec": 2.982,
-      "end_sec": 3.479
-    },
-    {
-      "word": "slop:",
-      "start_sec": 3.479,
-      "end_sec": 3.976
-    },
-    {
-      "word": "ubiquitous",
-      "start_sec": 3.976,
-      "end_sec": 4.473
-    },
-    {
-      "word": "Inter",
-      "start_sec": 4.473,
-      "end_sec": 4.97
-    },
-    {
-      "word": "font,",
-      "start_sec": 4.97,
-      "end_sec": 5.467
-    },
-    {
-      "word": "purple",
-      "start_sec": 5.467,
-      "end_sec": 5.964
-    },
-    {
-      "word": "gradients,",
-      "start_sec": 5.964,
-      "end_sec": 6.461
-    },
-    {
-      "word": "and",
-      "start_sec": 6.461,
-      "end_sec": 6.958
-    },
-    {
-      "word": "nested",
-      "start_sec": 6.958,
-      "end_sec": 7.455
-    },
-    {
-      "word": "cards.",
-      "start_sec": 7.455,
-      "end_sec": 7.952
-    },
-    {
-      "word": "Over",
-      "start_sec": 7.952,
-      "end_sec": 8.449
-    },
-    {
-      "word": "sixty-two",
-      "start_sec": 8.449,
-      "end_sec": 8.946
-    },
-    {
-      "word": "repeatable",
-      "start_sec": 8.946,
-      "end_sec": 9.443
-    },
-    {
-      "word": "design",
-      "start_sec": 9.443,
-      "end_sec": 9.94
-    },
-    {
-      "word": "flaws",
-      "start_sec": 9.94,
-      "end_sec": 10.437
-    },
-    {
-      "word": "ship",
-      "start_sec": 10.437,
-      "end_sec": 10.934
-    },
-    {
-      "word": "unchecked",
-      "start_sec": 10.934,
-      "end_sec": 11.431
-    },
-    {
-      "word": "daily.",
-      "start_sec": 11.431,
-      "end_sec": 11.928
-    },
-    {
-      "word": "Impeccable",
-      "start_sec": 12.228,
-      "end_sec": 12.71
-    },
-    {
-      "word": "solves",
-      "start_sec": 12.71,
-      "end_sec": 13.192
-    },
-    {
-      "word": "this",
-      "start_sec": 13.192,
-      "end_sec": 13.674
-    },
-    {
-      "word": "without",
-      "start_sec": 13.674,
-      "end_sec": 14.156
-    },
-    {
-      "word": "API",
-      "start_sec": 14.156,
-      "end_sec": 14.638
-    },
-    {
-      "word": "keys.",
-      "start_sec": 14.638,
-      "end_sec": 15.121
-    },
-    {
-      "word": "It",
-      "start_sec": 15.121,
-      "end_sec": 15.603
-    },
-    {
-      "word": "bootstraps",
-      "start_sec": 15.603,
-      "end_sec": 16.085
-    },
-    {
-      "word": "product",
-      "start_sec": 16.085,
-      "end_sec": 16.567
-    },
-    {
-      "word": "and",
-      "start_sec": 16.567,
-      "end_sec": 17.049
-    },
-    {
-      "word": "design",
-      "start_sec": 17.049,
-      "end_sec": 17.531
-    },
-    {
-      "word": "markdown",
-      "start_sec": 17.531,
-      "end_sec": 18.013
-    },
-    {
-      "word": "files",
-      "start_sec": 18.013,
-      "end_sec": 18.495
-    },
-    {
-      "word": "directly",
-      "start_sec": 18.495,
-      "end_sec": 18.977
-    },
-    {
-      "word": "into",
-      "start_sec": 18.977,
-      "end_sec": 19.459
-    },
-    {
-      "word": "the",
-      "start_sec": 19.459,
-      "end_sec": 19.941
-    },
-    {
-      "word": "repository,",
-      "start_sec": 19.941,
-      "end_sec": 20.423
-    },
-    {
-      "word": "injecting",
-      "start_sec": 20.423,
-      "end_sec": 20.906
-    },
-    {
-      "word": "domain",
-      "start_sec": 20.906,
-      "end_sec": 21.388
-    },
-    {
-      "word": "taste",
-      "start_sec": 21.388,
-      "end_sec": 21.87
-    },
-    {
-      "word": "into",
-      "start_sec": 21.87,
-      "end_sec": 22.352
-    },
-    {
-      "word": "prompt",
-      "start_sec": 22.352,
-      "end_sec": 22.834
-    },
-    {
-      "word": "context.",
-      "start_sec": 22.834,
-      "end_sec": 23.316
-    },
-    {
-      "word": "Instead",
-      "start_sec": 23.616,
-      "end_sec": 24.057
-    },
-    {
-      "word": "of",
-      "start_sec": 24.057,
-      "end_sec": 24.499
-    },
-    {
-      "word": "waiting",
-      "start_sec": 24.499,
-      "end_sec": 24.94
-    },
-    {
-      "word": "for",
-      "start_sec": 24.94,
-      "end_sec": 25.382
-    },
-    {
-      "word": "human",
-      "start_sec": 25.382,
-      "end_sec": 25.823
-    },
-    {
-      "word": "review,",
-      "start_sec": 25.823,
-      "end_sec": 26.264
-    },
-    {
-      "word": "Impeccable",
-      "start_sec": 26.264,
-      "end_sec": 26.706
-    },
-    {
-      "word": "intercepts",
-      "start_sec": 26.706,
-      "end_sec": 27.147
-    },
-    {
-      "word": "agent",
-      "start_sec": 27.147,
-      "end_sec": 27.589
-    },
-    {
-      "word": "tool",
-      "start_sec": 27.589,
-      "end_sec": 28.03
-    },
-    {
-      "word": "calls",
-      "start_sec": 28.03,
-      "end_sec": 28.471
+      "word": "teams",
+      "start_sec": 1.62,
+      "end_sec": 2.12
     },
     {
       "word": "with",
-      "start_sec": 28.471,
-      "end_sec": 28.913
-    },
-    {
-      "word": "a",
-      "start_sec": 28.913,
-      "end_sec": 29.354
-    },
-    {
-      "word": "design",
-      "start_sec": 29.354,
-      "end_sec": 29.795
-    },
-    {
-      "word": "hook,",
-      "start_sec": 29.795,
-      "end_sec": 30.237
-    },
-    {
-      "word": "executing",
-      "start_sec": 30.237,
-      "end_sec": 30.678
-    },
-    {
-      "word": "sixty-two",
-      "start_sec": 30.678,
-      "end_sec": 31.12
-    },
-    {
-      "word": "deterministic",
-      "start_sec": 31.12,
-      "end_sec": 31.561
-    },
-    {
-      "word": "heuristics",
-      "start_sec": 31.561,
-      "end_sec": 32.002
-    },
-    {
-      "word": "directly",
-      "start_sec": 32.002,
-      "end_sec": 32.444
-    },
-    {
-      "word": "before",
-      "start_sec": 32.444,
-      "end_sec": 32.885
-    },
-    {
-      "word": "saving",
-      "start_sec": 32.885,
-      "end_sec": 33.327
-    },
-    {
-      "word": "files.",
-      "start_sec": 33.327,
-      "end_sec": 33.768
-    },
-    {
-      "word": "Vague",
-      "start_sec": 34.068,
-      "end_sec": 34.581
-    },
-    {
-      "word": "prompts",
-      "start_sec": 34.581,
-      "end_sec": 35.094
-    },
-    {
-      "word": "yield",
-      "start_sec": 35.094,
-      "end_sec": 35.607
-    },
-    {
-      "word": "sludge.",
-      "start_sec": 35.607,
-      "end_sec": 36.121
-    },
-    {
-      "word": "Twenty-four",
-      "start_sec": 36.121,
-      "end_sec": 36.634
-    },
-    {
-      "word": "targeted",
-      "start_sec": 36.634,
-      "end_sec": 37.147
-    },
-    {
-      "word": "agent",
-      "start_sec": 37.147,
-      "end_sec": 37.66
-    },
-    {
-      "word": "commands",
-      "start_sec": 37.66,
-      "end_sec": 38.173
-    },
-    {
-      "word": "like",
-      "start_sec": 38.173,
-      "end_sec": 38.686
-    },
-    {
-      "word": "bolder,",
-      "start_sec": 38.686,
-      "end_sec": 39.199
-    },
-    {
-      "word": "quieter,",
-      "start_sec": 39.199,
-      "end_sec": 39.713
-    },
-    {
-      "word": "and",
-      "start_sec": 39.713,
-      "end_sec": 40.226
-    },
-    {
-      "word": "harden",
-      "start_sec": 40.226,
-      "end_sec": 40.739
-    },
-    {
-      "word": "provide",
-      "start_sec": 40.739,
-      "end_sec": 41.252
-    },
-    {
-      "word": "specific",
-      "start_sec": 41.252,
-      "end_sec": 41.765
-    },
-    {
-      "word": "surgical",
-      "start_sec": 41.765,
-      "end_sec": 42.278
-    },
-    {
-      "word": "playbooks",
-      "start_sec": 42.278,
-      "end_sec": 42.791
-    },
-    {
-      "word": "targeting",
-      "start_sec": 42.791,
-      "end_sec": 43.305
-    },
-    {
-      "word": "narrow",
-      "start_sec": 43.305,
-      "end_sec": 43.818
-    },
-    {
-      "word": "component",
-      "start_sec": 43.818,
-      "end_sec": 44.331
-    },
-    {
-      "word": "surfaces.",
-      "start_sec": 44.331,
-      "end_sec": 44.844
-    },
-    {
-      "word": "Live",
-      "start_sec": 45.144,
-      "end_sec": 45.502
-    },
-    {
-      "word": "mode",
-      "start_sec": 45.502,
-      "end_sec": 45.86
-    },
-    {
-      "word": "mounts",
-      "start_sec": 45.86,
-      "end_sec": 46.218
+      "start_sec": 2.12,
+      "end_sec": 2.42
     },
     {
       "word": "an",
-      "start_sec": 46.218,
-      "end_sec": 46.577
+      "start_sec": 2.42,
+      "end_sec": 2.52
     },
     {
-      "word": "interactive",
-      "start_sec": 46.577,
-      "end_sec": 46.935
+      "word": "ultimatum,",
+      "start_sec": 2.52,
+      "end_sec": 3.04
     },
     {
-      "word": "overlay",
-      "start_sec": 46.935,
-      "end_sec": 47.293
+      "word": "except",
+      "start_sec": 3.36,
+      "end_sec": 3.58
     },
     {
-      "word": "onto",
-      "start_sec": 47.293,
-      "end_sec": 47.651
+      "word": "months",
+      "start_sec": 3.58,
+      "end_sec": 3.92
     },
     {
-      "word": "your",
-      "start_sec": 47.651,
-      "end_sec": 48.009
+      "word": "of",
+      "start_sec": 3.92,
+      "end_sec": 4.12
     },
     {
-      "word": "running",
-      "start_sec": 48.009,
-      "end_sec": 48.367
+      "word": "voluntary",
+      "start_sec": 4.12,
+      "end_sec": 4.38
     },
     {
-      "word": "dev",
-      "start_sec": 48.367,
-      "end_sec": 48.726
+      "word": "severance",
+      "start_sec": 4.38,
+      "end_sec": 5.04
     },
     {
-      "word": "server.",
-      "start_sec": 48.726,
-      "end_sec": 49.084
+      "word": "pay",
+      "start_sec": 5.04,
+      "end_sec": 5.24
     },
     {
-      "word": "Hot",
-      "start_sec": 49.084,
-      "end_sec": 49.442
+      "word": "right",
+      "start_sec": 5.24,
+      "end_sec": 5.48
     },
     {
-      "word": "swap",
-      "start_sec": 49.442,
-      "end_sec": 49.8
-    },
-    {
-      "word": "visual",
-      "start_sec": 49.8,
-      "end_sec": 50.158
-    },
-    {
-      "word": "variants",
-      "start_sec": 50.158,
-      "end_sec": 50.516
-    },
-    {
-      "word": "in",
-      "start_sec": 50.516,
-      "end_sec": 50.874
-    },
-    {
-      "word": "the",
-      "start_sec": 50.874,
-      "end_sec": 51.233
-    },
-    {
-      "word": "browser",
-      "start_sec": 51.233,
-      "end_sec": 51.591
-    },
-    {
-      "word": "and",
-      "start_sec": 51.591,
-      "end_sec": 51.949
-    },
-    {
-      "word": "write",
-      "start_sec": 51.949,
-      "end_sec": 52.307
-    },
-    {
-      "word": "changes",
-      "start_sec": 52.307,
-      "end_sec": 52.665
-    },
-    {
-      "word": "straight",
-      "start_sec": 52.665,
-      "end_sec": 53.023
-    },
-    {
-      "word": "back",
-      "start_sec": 53.023,
-      "end_sec": 53.382
-    },
-    {
-      "word": "to",
-      "start_sec": 53.382,
-      "end_sec": 53.74
-    },
-    {
-      "word": "source",
-      "start_sec": 53.74,
-      "end_sec": 54.098
-    },
-    {
-      "word": "code.",
-      "start_sec": 54.098,
-      "end_sec": 54.456
-    },
-    {
-      "word": "Zero-model",
-      "start_sec": 54.756,
-      "end_sec": 55.238
-    },
-    {
-      "word": "deterministic",
-      "start_sec": 55.238,
-      "end_sec": 55.721
-    },
-    {
-      "word": "linting",
-      "start_sec": 55.721,
-      "end_sec": 56.203
-    },
-    {
-      "word": "runs",
-      "start_sec": 56.203,
-      "end_sec": 56.685
-    },
-    {
-      "word": "in",
-      "start_sec": 56.685,
-      "end_sec": 57.167
-    },
-    {
-      "word": "nine",
-      "start_sec": 57.167,
-      "end_sec": 57.65
-    },
-    {
-      "word": "milliseconds.",
-      "start_sec": 57.65,
-      "end_sec": 58.132
-    },
-    {
-      "word": "Compare",
-      "start_sec": 58.132,
-      "end_sec": 58.614
-    },
-    {
-      "word": "that",
-      "start_sec": 58.614,
-      "end_sec": 59.097
-    },
-    {
-      "word": "to",
-      "start_sec": 59.097,
-      "end_sec": 59.579
-    },
-    {
-      "word": "multi-second",
-      "start_sec": 59.579,
-      "end_sec": 60.061
-    },
-    {
-      "word": "vision-model",
-      "start_sec": 60.061,
-      "end_sec": 60.543
-    },
-    {
-      "word": "audits",
-      "start_sec": 60.543,
-      "end_sec": 61.026
-    },
-    {
-      "word": "that",
-      "start_sec": 61.026,
-      "end_sec": 61.508
-    },
-    {
-      "word": "burn",
-      "start_sec": 61.508,
-      "end_sec": 61.99
-    },
-    {
-      "word": "API",
-      "start_sec": 61.99,
-      "end_sec": 62.473
-    },
-    {
-      "word": "budgets",
-      "start_sec": 62.473,
-      "end_sec": 62.955
-    },
-    {
-      "word": "and",
-      "start_sec": 62.955,
-      "end_sec": 63.437
-    },
-    {
-      "word": "trigger",
-      "start_sec": 63.437,
-      "end_sec": 63.919
-    },
-    {
-      "word": "token",
-      "start_sec": 63.919,
-      "end_sec": 64.402
-    },
-    {
-      "word": "throttles.",
-      "start_sec": 64.402,
-      "end_sec": 64.884
-    },
-    {
-      "word": "Run",
-      "start_sec": 65.184,
-      "end_sec": 65.593
-    },
-    {
-      "word": "npx",
-      "start_sec": 65.593,
-      "end_sec": 66.002
-    },
-    {
-      "word": "impeccable",
-      "start_sec": 66.002,
-      "end_sec": 66.411
-    },
-    {
-      "word": "detect",
-      "start_sec": 66.411,
-      "end_sec": 66.821
-    },
-    {
-      "word": "in",
-      "start_sec": 66.821,
-      "end_sec": 67.23
-    },
-    {
-      "word": "CI",
-      "start_sec": 67.23,
-      "end_sec": 67.639
-    },
-    {
-      "word": "pipelines",
-      "start_sec": 67.639,
-      "end_sec": 68.048
+      "word": "now",
+      "start_sec": 5.48,
+      "end_sec": 5.78
     },
     {
       "word": "or",
-      "start_sec": 68.048,
-      "end_sec": 68.457
+      "start_sec": 5.78,
+      "end_sec": 6.02
     },
     {
-      "word": "terminal",
-      "start_sec": 68.457,
-      "end_sec": 68.866
+      "word": "brace",
+      "start_sec": 6.02,
+      "end_sec": 6.28
     },
     {
-      "word": "pre-commits",
-      "start_sec": 68.866,
-      "end_sec": 69.275
+      "word": "for",
+      "start_sec": 6.28,
+      "end_sec": 6.54
+    },
+    {
+      "word": "deep",
+      "start_sec": 6.54,
+      "end_sec": 6.74
+    },
+    {
+      "word": "reorganizations.",
+      "start_sec": 6.74,
+      "end_sec": 7.68
+    },
+    {
+      "word": "A",
+      "start_sec": 8.78,
+      "end_sec": 9.18
+    },
+    {
+      "word": "23",
+      "start_sec": 9.18,
+      "end_sec": 9.42
+    },
+    {
+      "word": "-year",
+      "start_sec": 9.42,
+      "end_sec": 9.84
+    },
+    {
+      "word": "-old",
+      "start_sec": 9.84,
+      "end_sec": 9.98
+    },
+    {
+      "word": "junior",
+      "start_sec": 9.98,
+      "end_sec": 10.18
+    },
+    {
+      "word": "engineer",
+      "start_sec": 10.18,
+      "end_sec": 10.76
+    },
+    {
+      "word": "faces",
+      "start_sec": 10.76,
+      "end_sec": 11.04
+    },
+    {
+      "word": "a",
+      "start_sec": 11.04,
+      "end_sec": 11.26
+    },
+    {
+      "word": "frozen",
+      "start_sec": 11.26,
+      "end_sec": 11.48
+    },
+    {
+      "word": "hiring",
+      "start_sec": 11.48,
+      "end_sec": 11.84
+    },
+    {
+      "word": "landscape,",
+      "start_sec": 11.84,
+      "end_sec": 12.44
+    },
+    {
+      "word": "while",
+      "start_sec": 12.84,
+      "end_sec": 13.06
+    },
+    {
+      "word": "a",
+      "start_sec": 13.06,
+      "end_sec": 13.2
+    },
+    {
+      "word": "50",
+      "start_sec": 13.2,
+      "end_sec": 13.38
+    },
+    {
+      "word": "-year",
+      "start_sec": 13.38,
+      "end_sec": 13.66
+    },
+    {
+      "word": "-old",
+      "start_sec": 13.66,
+      "end_sec": 13.8
+    },
+    {
+      "word": "principal",
+      "start_sec": 13.8,
+      "end_sec": 14.02
+    },
+    {
+      "word": "engineer",
+      "start_sec": 14.02,
+      "end_sec": 14.56
+    },
+    {
+      "word": "calculates",
+      "start_sec": 14.56,
+      "end_sec": 14.98
+    },
+    {
+      "word": "retirement",
+      "start_sec": 14.98,
+      "end_sec": 15.4
+    },
+    {
+      "word": "pensions",
+      "start_sec": 15.4,
+      "end_sec": 15.98
+    },
+    {
+      "word": "against",
+      "start_sec": 15.98,
+      "end_sec": 16.4
+    },
+    {
+      "word": "aggressive",
+      "start_sec": 16.4,
+      "end_sec": 16.64
+    },
+    {
+      "word": "cloud",
+      "start_sec": 16.64,
+      "end_sec": 17.14
+    },
+    {
+      "word": "quotas.",
+      "start_sec": 17.14,
+      "end_sec": 17.66
+    },
+    {
+      "word": "Billions",
+      "start_sec": 18.8,
+      "end_sec": 19.48
+    },
+    {
+      "word": "of",
+      "start_sec": 19.48,
+      "end_sec": 19.64
+    },
+    {
+      "word": "quarterly",
+      "start_sec": 19.64,
+      "end_sec": 19.86
+    },
+    {
+      "word": "capital",
+      "start_sec": 19.86,
+      "end_sec": 20.36
+    },
+    {
+      "word": "expenditures",
+      "start_sec": 20.36,
+      "end_sec": 20.88
+    },
+    {
+      "word": "are",
+      "start_sec": 20.88,
+      "end_sec": 21.24
+    },
+    {
+      "word": "shifting",
+      "start_sec": 21.24,
+      "end_sec": 21.46
+    },
+    {
+      "word": "directly",
+      "start_sec": 21.46,
+      "end_sec": 21.9
+    },
+    {
+      "word": "from",
+      "start_sec": 21.9,
+      "end_sec": 22.24
+    },
+    {
+      "word": "human",
+      "start_sec": 22.24,
+      "end_sec": 22.5
+    },
+    {
+      "word": "payroll",
+      "start_sec": 22.5,
+      "end_sec": 22.76
     },
     {
       "word": "to",
-      "start_sec": 69.275,
-      "end_sec": 69.685
+      "start_sec": 22.76,
+      "end_sec": 23.12
     },
     {
-      "word": "automatically",
-      "start_sec": 69.685,
-      "end_sec": 70.094
+      "word": "liquid",
+      "start_sec": 23.12,
+      "end_sec": 23.3
     },
     {
-      "word": "block",
-      "start_sec": 70.094,
-      "end_sec": 70.503
+      "word": "-cooled",
+      "start_sec": 23.3,
+      "end_sec": 23.8
     },
     {
-      "word": "slop",
-      "start_sec": 70.503,
-      "end_sec": 70.912
+      "word": "GPU",
+      "start_sec": 23.8,
+      "end_sec": 24.08
     },
     {
-      "word": "before",
-      "start_sec": 70.912,
-      "end_sec": 71.321
+      "word": "clusters",
+      "start_sec": 24.08,
+      "end_sec": 24.62
     },
     {
-      "word": "it",
-      "start_sec": 71.321,
-      "end_sec": 71.73
+      "word": "powering",
+      "start_sec": 24.62,
+      "end_sec": 25.1
     },
     {
-      "word": "ever",
-      "start_sec": 71.73,
-      "end_sec": 72.139
+      "word": "modern",
+      "start_sec": 25.1,
+      "end_sec": 25.42
     },
     {
-      "word": "reaches",
-      "start_sec": 72.139,
-      "end_sec": 72.549
+      "word": "Azure",
+      "start_sec": 25.42,
+      "end_sec": 25.78
     },
     {
-      "word": "production",
-      "start_sec": 72.549,
-      "end_sec": 72.958
+      "word": "Copilot",
+      "start_sec": 25.78,
+      "end_sec": 26.26
     },
     {
-      "word": "pull",
-      "start_sec": 72.958,
-      "end_sec": 73.367
+      "word": "services.",
+      "start_sec": 26.26,
+      "end_sec": 26.64
     },
     {
-      "word": "requests.",
-      "start_sec": 73.367,
-      "end_sec": 73.776
+      "word": "The",
+      "start_sec": 27.68,
+      "end_sec": 28.36
+    },
+    {
+      "word": "voluntary",
+      "start_sec": 28.36,
+      "end_sec": 28.74
+    },
+    {
+      "word": "exit",
+      "start_sec": 28.74,
+      "end_sec": 29.14
+    },
+    {
+      "word": "packages",
+      "start_sec": 29.14,
+      "end_sec": 29.56
+    },
+    {
+      "word": "offer",
+      "start_sec": 29.56,
+      "end_sec": 30.02
+    },
+    {
+      "word": "up",
+      "start_sec": 30.02,
+      "end_sec": 30.28
+    },
+    {
+      "word": "to",
+      "start_sec": 30.28,
+      "end_sec": 30.4
+    },
+    {
+      "word": "12",
+      "start_sec": 30.4,
+      "end_sec": 30.7
+    },
+    {
+      "word": "months",
+      "start_sec": 30.7,
+      "end_sec": 30.9
+    },
+    {
+      "word": "of",
+      "start_sec": 30.9,
+      "end_sec": 31.1
+    },
+    {
+      "word": "base",
+      "start_sec": 31.1,
+      "end_sec": 31.28
+    },
+    {
+      "word": "salary",
+      "start_sec": 31.28,
+      "end_sec": 31.6
+    },
+    {
+      "word": "with",
+      "start_sec": 31.6,
+      "end_sec": 31.92
+    },
+    {
+      "word": "accelerated",
+      "start_sec": 31.92,
+      "end_sec": 32.24
+    },
+    {
+      "word": "stock",
+      "start_sec": 32.24,
+      "end_sec": 32.78
+    },
+    {
+      "word": "vesting,",
+      "start_sec": 32.78,
+      "end_sec": 33.34
+    },
+    {
+      "word": "designed",
+      "start_sec": 33.52,
+      "end_sec": 33.8
+    },
+    {
+      "word": "to",
+      "start_sec": 33.8,
+      "end_sec": 34.06
+    },
+    {
+      "word": "entice",
+      "start_sec": 34.06,
+      "end_sec": 34.36
+    },
+    {
+      "word": "top",
+      "start_sec": 34.36,
+      "end_sec": 34.6
+    },
+    {
+      "word": "-tier",
+      "start_sec": 34.6,
+      "end_sec": 34.82
+    },
+    {
+      "word": "salaries",
+      "start_sec": 34.82,
+      "end_sec": 35.34
+    },
+    {
+      "word": "out",
+      "start_sec": 35.34,
+      "end_sec": 35.52
+    },
+    {
+      "word": "quietly.",
+      "start_sec": 35.52,
+      "end_sec": 35.86
+    },
+    {
+      "word": "Engineering",
+      "start_sec": 37.38,
+      "end_sec": 37.7
+    },
+    {
+      "word": "timelines",
+      "start_sec": 37.7,
+      "end_sec": 38.2
+    },
+    {
+      "word": "show",
+      "start_sec": 38.2,
+      "end_sec": 38.7
+    },
+    {
+      "word": "big",
+      "start_sec": 38.7,
+      "end_sec": 38.92
+    },
+    {
+      "word": "tech",
+      "start_sec": 38.92,
+      "end_sec": 39.16
+    },
+    {
+      "word": "transitioning",
+      "start_sec": 39.16,
+      "end_sec": 39.62
+    },
+    {
+      "word": "from",
+      "start_sec": 39.62,
+      "end_sec": 40.04
+    },
+    {
+      "word": "abrupt",
+      "start_sec": 40.04,
+      "end_sec": 40.22
+    },
+    {
+      "word": "mass",
+      "start_sec": 40.22,
+      "end_sec": 40.6
+    },
+    {
+      "word": "layoffs",
+      "start_sec": 40.6,
+      "end_sec": 41.04
+    },
+    {
+      "word": "to",
+      "start_sec": 41.04,
+      "end_sec": 41.36
+    },
+    {
+      "word": "voluntary",
+      "start_sec": 41.36,
+      "end_sec": 41.56
+    },
+    {
+      "word": "severance",
+      "start_sec": 41.56,
+      "end_sec": 42.3
+    },
+    {
+      "word": "programs,",
+      "start_sec": 42.3,
+      "end_sec": 42.58
+    },
+    {
+      "word": "dodging",
+      "start_sec": 43.1,
+      "end_sec": 43.36
+    },
+    {
+      "word": "regulatory",
+      "start_sec": 43.36,
+      "end_sec": 43.76
+    },
+    {
+      "word": "worn",
+      "start_sec": 43.76,
+      "end_sec": 44.24
+    },
+    {
+      "word": "notices",
+      "start_sec": 44.24,
+      "end_sec": 44.58
+    },
+    {
+      "word": "and",
+      "start_sec": 44.58,
+      "end_sec": 44.96
+    },
+    {
+      "word": "public",
+      "start_sec": 44.96,
+      "end_sec": 45.24
+    },
+    {
+      "word": "scrutiny.",
+      "start_sec": 45.24,
+      "end_sec": 45.54
+    },
+    {
+      "word": "When",
+      "start_sec": 46.86,
+      "end_sec": 47.24
+    },
+    {
+      "word": "senior",
+      "start_sec": 47.24,
+      "end_sec": 47.5
+    },
+    {
+      "word": "systems",
+      "start_sec": 47.5,
+      "end_sec": 48.0
+    },
+    {
+      "word": "architect",
+      "start_sec": 48.0,
+      "end_sec": 48.4
+    },
+    {
+      "word": "depart,",
+      "start_sec": 48.4,
+      "end_sec": 48.92
+    },
+    {
+      "word": "mission",
+      "start_sec": 49.24,
+      "end_sec": 49.42
+    },
+    {
+      "word": "-critical",
+      "start_sec": 49.42,
+      "end_sec": 49.74
+    },
+    {
+      "word": "legacy",
+      "start_sec": 49.74,
+      "end_sec": 50.28
+    },
+    {
+      "word": "pipelines",
+      "start_sec": 50.28,
+      "end_sec": 50.62
+    },
+    {
+      "word": "risk",
+      "start_sec": 50.62,
+      "end_sec": 51.12
+    },
+    {
+      "word": "catastrophic",
+      "start_sec": 51.12,
+      "end_sec": 51.5
+    },
+    {
+      "word": "knowledge",
+      "start_sec": 51.5,
+      "end_sec": 52.16
+    },
+    {
+      "word": "loss.",
+      "start_sec": 52.16,
+      "end_sec": 52.48
+    },
+    {
+      "word": "Distributed",
+      "start_sec": 53.44,
+      "end_sec": 53.98
+    },
+    {
+      "word": "databases",
+      "start_sec": 53.98,
+      "end_sec": 54.44
+    },
+    {
+      "word": "do",
+      "start_sec": 54.44,
+      "end_sec": 54.86
+    },
+    {
+      "word": "not",
+      "start_sec": 54.86,
+      "end_sec": 55.0
+    },
+    {
+      "word": "manage",
+      "start_sec": 55.0,
+      "end_sec": 55.34
+    },
+    {
+      "word": "their",
+      "start_sec": 55.34,
+      "end_sec": 55.6
+    },
+    {
+      "word": "own",
+      "start_sec": 55.6,
+      "end_sec": 55.8
+    },
+    {
+      "word": "schema",
+      "start_sec": 55.8,
+      "end_sec": 56.12
+    },
+    {
+      "word": "migrations.",
+      "start_sec": 56.12,
+      "end_sec": 56.94
+    },
+    {
+      "word": "Junior",
+      "start_sec": 57.86,
+      "end_sec": 58.5
+    },
+    {
+      "word": "engineers",
+      "start_sec": 58.5,
+      "end_sec": 59.02
+    },
+    {
+      "word": "must",
+      "start_sec": 59.02,
+      "end_sec": 59.34
+    },
+    {
+      "word": "now",
+      "start_sec": 59.34,
+      "end_sec": 59.6
+    },
+    {
+      "word": "weigh",
+      "start_sec": 59.6,
+      "end_sec": 59.84
+    },
+    {
+      "word": "career",
+      "start_sec": 59.84,
+      "end_sec": 60.08
+    },
+    {
+      "word": "stagnation",
+      "start_sec": 60.08,
+      "end_sec": 60.42
+    },
+    {
+      "word": "inside",
+      "start_sec": 60.42,
+      "end_sec": 61.16
+    },
+    {
+      "word": "a",
+      "start_sec": 61.16,
+      "end_sec": 61.38
+    },
+    {
+      "word": "shrinking",
+      "start_sec": 61.38,
+      "end_sec": 61.58
+    },
+    {
+      "word": "team",
+      "start_sec": 61.58,
+      "end_sec": 62.0
+    },
+    {
+      "word": "against",
+      "start_sec": 62.0,
+      "end_sec": 62.28
+    },
+    {
+      "word": "the",
+      "start_sec": 62.28,
+      "end_sec": 62.48
+    },
+    {
+      "word": "payout",
+      "start_sec": 62.48,
+      "end_sec": 62.68
+    },
+    {
+      "word": "of",
+      "start_sec": 62.68,
+      "end_sec": 62.92
+    },
+    {
+      "word": "a",
+      "start_sec": 62.92,
+      "end_sec": 63.0
+    },
+    {
+      "word": "lifetime",
+      "start_sec": 63.0,
+      "end_sec": 63.2
+    },
+    {
+      "word": "to",
+      "start_sec": 63.2,
+      "end_sec": 63.64
+    },
+    {
+      "word": "build",
+      "start_sec": 63.64,
+      "end_sec": 63.8
+    },
+    {
+      "word": "their",
+      "start_sec": 63.8,
+      "end_sec": 64.02
+    },
+    {
+      "word": "own",
+      "start_sec": 64.02,
+      "end_sec": 64.2
+    },
+    {
+      "word": "systems.",
+      "start_sec": 64.2,
+      "end_sec": 64.56
     }
   ],
-  "total_duration_sec": 73.776
+  "total_duration_sec": 65.688
 }

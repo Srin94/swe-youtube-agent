@@ -10,9 +10,27 @@ export interface ResolvedIcon {
 
 const cache = new Map<string, ResolvedIcon | null>();
 
+// Common LLM slug variants -> canonical simple-icons slugs. Brands removed from
+// simple-icons for trademark reasons (microsoft, windows, azure, openai, ...)
+// resolve to null and render as a text-only node (no icon).
+const ALIASES: Record<string, string> = {
+  node: "nodedotjs",
+  nodejs: "nodedotjs",
+  golang: "go",
+  postgres: "postgresql",
+  postgre: "postgresql",
+  k8s: "kubernetes",
+  vuejs: "vuedotjs",
+  nextjs: "nextdotjs",
+  githubactions: "github",
+  aws: "amazonwebservices",
+  amazon: "amazonwebservices",
+};
+
 const toKey = (slug: string): string => {
-  const s = slug.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+  let s = slug.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
   if (!s) return "";
+  s = ALIASES[s] ?? s;
   return "si" + s.charAt(0).toUpperCase() + s.slice(1);
 };
 
