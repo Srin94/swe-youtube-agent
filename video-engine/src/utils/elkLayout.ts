@@ -10,8 +10,8 @@
 
 import type { GraphEdge, GraphNode } from "../types/schema";
 
-export const NODE_WIDTH = 172;
-export const NODE_HEIGHT = 92;
+export const NODE_WIDTH = 215;
+export const NODE_HEIGHT = 96;
 const LAYER_GAP = 130; // elk.layered.spacing.nodeNodeBetweenLayers
 const NODE_GAP = 75; // elk.spacing.nodeNode
 const PAD = 40;

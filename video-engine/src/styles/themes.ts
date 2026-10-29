@@ -31,40 +31,42 @@ export interface Theme {
   shikiTheme: string;
 }
 
+// Dark "blueprint" variant (system design / deep dives / new releases). Blue +
+// violet accents on a deep navy stage — the clean, glowing ByteMonk look.
 export const ARCHITECT_PAPER: Theme = {
   id: "ARCHITECT_PAPER",
-  canvasBg: "#F4F1EA",
-  gridColor: "#E2DDD2",
-  gridKind: "rule",
-  cardBg: "#FFFFFF",
-  cardShadow: "4px 4px 0px #18181B",
-  borderStyle: "2px solid #18181B",
-  textPrimary: "#18181B",
-  textMuted: "#6B6459",
-  accentPrimary: "#FF4F00",
-  accentSecondary: "#1D4ED8",
-  accentCritical: "#D90429",
+  canvasBg: "#0A0E16",
+  gridColor: "#1A2233",
+  gridKind: "dot",
+  cardBg: "#121A28",
+  cardShadow: "0 10px 30px rgba(0,0,0,0.5)",
+  borderStyle: "1px solid #223049",
+  textPrimary: "#EAF0F8",
+  textMuted: "#8092AC",
+  accentPrimary: "#4EA8FF",
+  accentSecondary: "#7C5CFF",
+  accentCritical: "#FF5C7A",
   fontHeading: "'Space Grotesk', 'Segoe UI', sans-serif",
   fontMono: "'IBM Plex Mono', 'Consolas', monospace",
   statusColors: {
-    normal: "#18181B",
-    active: "#FF4F00",
-    warning: "#B45309",
-    critical: "#D90429",
+    normal: "#8092AC",
+    active: "#4EA8FF",
+    warning: "#F2B84B",
+    critical: "#FF5C7A",
   },
   systemStatusColors: {
-    HEALTHY: "#15803D",
-    DEGRADED: "#B45309",
-    CRITICAL: "#D90429",
-    RECOVERING: "#1D4ED8",
+    HEALTHY: "#2BD4A0",
+    DEGRADED: "#F2B84B",
+    CRITICAL: "#FF5C7A",
+    RECOVERING: "#4EA8FF",
   },
   packetColors: {
-    cyan: "#0891B2",
-    orange: "#FF4F00",
-    crimson: "#D90429",
-    emerald: "#059669",
+    cyan: "#38E8D0",
+    orange: "#F2B84B",
+    crimson: "#FF5C7A",
+    emerald: "#2BD4A0",
   },
-  shikiTheme: "github-light",
+  shikiTheme: "github-dark",
 };
 
 export const WAR_ROOM_HUD: Theme = {

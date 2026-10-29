@@ -146,10 +146,13 @@ MAX_ARTICLE_CHARS = 18_000
 # Audio / TTS
 # ---------------------------------------------------------------------------
 KOKORO_VOICE = os.getenv("KOKORO_VOICE", "am_michael")
-KOKORO_SPEED = 1.04
-EDGE_TTS_VOICE = "en-US-ChristopherNeural"
-EDGE_TTS_RATE = "+8%"
-SCENE_GAP_MS = 300
+KOKORO_SPEED = float(os.getenv("KOKORO_SPEED", "1.0"))  # calmer than 1.04
+# Warmer, more conversational default (Azure HD "multilingual" voice). If the
+# edge endpoint doesn't accept it, the synth falls through this chain in order.
+EDGE_TTS_VOICE = os.getenv("EDGE_TTS_VOICE", "en-US-AndrewMultilingualNeural")
+EDGE_TTS_FALLBACK_VOICES = ["en-US-GuyNeural", "en-US-ChristopherNeural"]
+EDGE_TTS_RATE = os.getenv("EDGE_TTS_RATE", "-3%")  # slightly slower, less rushed
+SCENE_GAP_MS = 340  # a touch more breath between scenes
 AUDIO_SAMPLE_RATE = 24_000  # Kokoro native; resampled to 16k for whisper
 WHISPER_MODEL = "base.en"
 WHISPER_COMPUTE_TYPE = "int8"

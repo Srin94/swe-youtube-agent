@@ -70,7 +70,7 @@ export const BenchmarkChart: React.FC<Props> = ({ scene, theme, localFrame, fps 
             <div
               style={{
                 height: 34,
-                background: theme.id === "WAR_ROOM_HUD" ? "#1A1F2B" : "#ECE7DC",
+                background: "rgba(255,255,255,0.06)",
                 borderRadius: 6,
                 border: theme.borderStyle,
                 overflow: "hidden",

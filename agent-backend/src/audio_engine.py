@@ -100,27 +100,31 @@ def _synth_kokoro(kokoro, text: str, out_path: Path) -> bool:
 # ---------------------------------------------------------------------------
 # edge-tts (fallback)
 # ---------------------------------------------------------------------------
-async def _edge_save(text: str, mp3_path: Path) -> None:
+async def _edge_save(text: str, mp3_path: Path, voice: str) -> None:
     import edge_tts  # type: ignore
 
-    comm = edge_tts.Communicate(
-        text, voice=config.EDGE_TTS_VOICE, rate=config.EDGE_TTS_RATE
-    )
+    comm = edge_tts.Communicate(text, voice=voice, rate=config.EDGE_TTS_RATE)
     await comm.save(str(mp3_path))
 
 
 def _synth_edge(text: str, out_path: Path) -> bool:
-    try:
-        mp3_tmp = out_path.with_suffix(".mp3")
-        asyncio.run(_edge_save(text, mp3_tmp))
-        seg = AudioSegment.from_file(mp3_tmp)
-        seg = seg.set_channels(1).set_frame_rate(TARGET_SR)
-        seg.export(out_path, format="wav")
-        mp3_tmp.unlink(missing_ok=True)
-        return True
-    except Exception as exc:  # noqa: BLE001
-        print(f"[audio] edge-tts synth failed ({exc}).")
-        return False
+    """Try the preferred voice, then each fallback, before giving up.
+
+    The warmer HD voices aren't on every edge endpoint build, so a name
+    mismatch must not silence a scene — we fall through to a plain voice.
+    """
+    voices = [config.EDGE_TTS_VOICE, *getattr(config, "EDGE_TTS_FALLBACK_VOICES", [])]
+    mp3_tmp = out_path.with_suffix(".mp3")
+    for voice in voices:
+        try:
+            asyncio.run(_edge_save(text, mp3_tmp, voice))
+            seg = AudioSegment.from_file(mp3_tmp).set_channels(1).set_frame_rate(TARGET_SR)
+            seg.export(out_path, format="wav")
+            mp3_tmp.unlink(missing_ok=True)
+            return True
+        except Exception as exc:  # noqa: BLE001
+            print(f"[audio] edge-tts voice '{voice}' failed ({exc}); trying next.")
+    return False
 
 
 # ---------------------------------------------------------------------------

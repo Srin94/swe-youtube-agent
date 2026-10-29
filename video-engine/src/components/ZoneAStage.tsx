@@ -14,9 +14,9 @@ interface Props {
   fps: number;
 }
 
+// Full-bleed scene renderer. No breadcrumb, no chapter badge, no card frame —
+// the visual owns the whole stage (the header lives in MasterComposition).
 export const ZoneAStage: React.FC<Props> = ({ scene, theme, localFrame, fps }) => {
-  const breadcrumb = `SCENE ${String(scene.scene_id).padStart(2, "0")} // ${scene.visual_type}`;
-
   const renderScene = () => {
     switch (scene.visual_type) {
       case "SystemGraph":
@@ -35,56 +35,8 @@ export const ZoneAStage: React.FC<Props> = ({ scene, theme, localFrame, fps }) =
   };
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100%",
-        background: theme.cardBg,
-        border: theme.borderStyle,
-        boxShadow: theme.cardShadow,
-        borderRadius: 10,
-        overflow: "hidden",
-      }}
-    >
-      {/* Top-left breadcrumb */}
-      <div
-        style={{
-          position: "absolute",
-          top: 14,
-          left: 18,
-          zIndex: 5,
-          fontFamily: theme.fontMono,
-          fontSize: 16,
-          letterSpacing: 2,
-          color: theme.textMuted,
-          textTransform: "uppercase",
-        }}
-      >
-        {breadcrumb}
-      </div>
-
-      {/* Chapter title badge, top-right of the stage */}
-      <div
-        style={{
-          position: "absolute",
-          top: 14,
-          right: 18,
-          zIndex: 5,
-          fontFamily: theme.fontHeading,
-          fontSize: 18,
-          fontWeight: 700,
-          color: theme.accentPrimary,
-          textTransform: "uppercase",
-          letterSpacing: 1,
-        }}
-      >
-        {scene.chapter_title}
-      </div>
-
-      <div style={{ position: "absolute", inset: 0, paddingTop: 48 }}>
-        {renderScene()}
-      </div>
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      {renderScene()}
     </div>
   );
 };
