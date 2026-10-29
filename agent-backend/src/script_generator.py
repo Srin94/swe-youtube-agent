@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
@@ -192,6 +193,44 @@ def _get_client():
     return genai.Client(api_key=config.require_gemini())
 
 
+# Transient server-side conditions worth retrying. 503 "high demand" is common
+# on the free Gemini tier; 429 can be a short rate-limit burst (vs. a hard daily
+# quota). We back off and retry rather than crash the whole pipeline.
+_RETRYABLE_MARKERS = (
+    "503", "UNAVAILABLE", "500", "502", "504",
+    "OVERLOAD", "HIGH DEMAND", "429", "RESOURCE_EXHAUSTED",
+)
+_RETRY_DELAYS = (4, 10, 25, 60)  # seconds between attempts (max ~99s total)
+
+
+def _is_retryable(exc: Exception) -> bool:
+    code = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+    if code in (500, 502, 503, 504, 429):
+        return True
+    msg = str(exc).upper()
+    return any(marker in msg for marker in _RETRYABLE_MARKERS)
+
+
+def _generate_resilient(client, **kwargs):
+    """Call Gemini's generate_content with backoff on transient overload.
+
+    Retries on 503/overload and short 429 bursts; re-raises anything else (and
+    the final attempt) so genuine errors still surface.
+    """
+    for attempt in range(len(_RETRY_DELAYS) + 1):
+        try:
+            return client.models.generate_content(**kwargs)
+        except Exception as exc:  # noqa: BLE001
+            if attempt == len(_RETRY_DELAYS) or not _is_retryable(exc):
+                raise
+            wait = _RETRY_DELAYS[attempt]
+            print(
+                f"[script] Gemini transient error ({exc}); "
+                f"retry {attempt + 1}/{len(_RETRY_DELAYS)} in {wait}s..."
+            )
+            time.sleep(wait)
+
+
 # ---------------------------------------------------------------------------
 # Topic selection (shortlist -> single winner)
 # ---------------------------------------------------------------------------
@@ -230,7 +269,8 @@ def select_topic(candidates: list) -> int:
     )
     try:
         client = _get_client()
-        resp = client.models.generate_content(
+        resp = _generate_resilient(
+            client,
             model=config.GEMINI_MODEL,
             contents=f"{_TOPIC_SELECT_PROMPT}\n\nCANDIDATES:\n{listing}",
             config={
@@ -319,7 +359,8 @@ def generate_script(
         f"HEADLINE: {topic_title}\n\n"
         f"SOURCE ARTICLE (markdown, may be truncated):\n{article_markdown}"
     )
-    resp = client.models.generate_content(
+    resp = _generate_resilient(
+        client,
         model=config.GEMINI_MODEL,
         contents=[_SYSTEM_PROMPT, user_content],
         config={
