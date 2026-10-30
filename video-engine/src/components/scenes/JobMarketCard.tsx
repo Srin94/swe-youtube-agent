@@ -44,6 +44,11 @@ export const JobMarketCard: React.FC<Props> = ({ scene, theme, localFrame, fps }
               config: { damping: 16, stiffness: 130 },
             });
             const color = m.is_winner ? theme.accentPrimary : theme.textPrimary;
+            const dec = Number.isInteger(m.value) ? 0 : 1;
+            const shownVal = (m.value * appear).toLocaleString("en-US", {
+              minimumFractionDigits: dec,
+              maximumFractionDigits: dec,
+            });
             return (
               <div
                 key={m.label + i}
@@ -78,7 +83,7 @@ export const JobMarketCard: React.FC<Props> = ({ scene, theme, localFrame, fps }
                     marginTop: 8,
                   }}
                 >
-                  {m.value.toLocaleString()}
+                  {shownVal}
                   <span style={{ fontSize: 22, color: theme.textMuted, marginLeft: 6 }}>
                     {m.unit}
                   </span>

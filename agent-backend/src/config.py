@@ -191,6 +191,10 @@ VIDEO_HEIGHT = 1080
 VIDEO_FPS = 60
 REMOTION_COMPOSITION_ID = "SWEMasterVideo"
 
+# On-screen channel brand (wordmark + outro CTA). Keep in sync with the actual
+# YouTube channel name.
+CHANNEL_NAME = os.getenv("CHANNEL_NAME", "Blast Radius")
+
 # ---------------------------------------------------------------------------
 # YouTube
 # ---------------------------------------------------------------------------

@@ -1,158 +1,159 @@
 {
-  "topic_category": "INCIDENT_POSTMORTEM",
-  "theme_id": "WAR_ROOM_HUD",
-  "youtube_title": "How One Expired Cert Took Down 20% of the Internet",
-  "youtube_description": "A breakdown of the Cloudflare edge outage.\n\n0:00 The Hook\n0:06 Baseline\n0:12 Bottleneck\n0:19 The Fix\n0:27 The Numbers\n0:35 Takeaway",
+  "topic_category": "SYSTEM_DESIGN",
+  "theme_id": "ARCHITECT_PAPER",
+  "youtube_title": "Why Postgres Got 40x Slower at 10M Rows",
+  "youtube_description": "A missing index turned a 200ms query into a 9-second table scan. Here's the teardown.\n\n0:00 Overview\n0:08 The Damage\n0:14 Baseline\n0:21 The Bottleneck\n0:28 The Fix\n0:36 The Numbers\n0:43 Wrap Up",
   "youtube_tags": [
-    "cloudflare",
-    "outage",
-    "post-mortem",
+    "postgres",
+    "database",
+    "indexing",
     "system design",
-    "SRE",
-    "tls"
+    "performance",
+    "backend"
   ],
-  "pinned_comment": "Fail open or fail closed on an expired cert in the hot path? What blast radius would you accept?",
-  "source_url": "https://blog.cloudflare.com/mock-postmortem",
+  "pinned_comment": "Partial index, covering index, or just denormalize? What would you have shipped here?",
+  "source_url": "https://example.com/mock-postgres",
   "thumbnail": {
-    "headline_text": "CERT KILLED THE EDGE",
-    "badge_text": "POST-MORTEM",
-    "left_icon_slug": "cloudflare",
-    "right_icon_slug": "letsencrypt",
-    "connector_style": "broken_arrow"
+    "headline_text": "9s TO 200ms",
+    "badge_text": "SYSTEM DESIGN",
+    "left_icon_slug": "postgresql",
+    "right_icon_slug": "rust",
+    "connector_style": "upgrade_arrow"
   },
   "scenes": [
     {
       "scene_id": 1,
-      "chapter_title": "The Hook",
-      "visual_type": "IncidentTimeline",
-      "narration_text": "At 14:52 UTC, Cloudflare started returning 500s to twenty percent of the internet. One expired certificate cascaded into a global edge meltdown.",
+      "chapter_title": "Overview",
+      "visual_type": "Intro",
+      "narration_text": "A single missing index made Postgres forty times slower overnight. Here's exactly what broke, and how one line fixed it.",
       "camera_focus_node_id": null,
       "hud": {
-        "context_label": "INCIDENT CLOCK",
-        "context_value": "T+00:00:00",
-        "status_text": "HEALTHY",
-        "status_level": "good",
+        "context_label": "",
+        "context_value": "",
+        "status_text": "",
+        "status_level": "info",
         "stats": [
           {
-            "label": "RPS",
-            "value": "4.2M/s",
+            "label": "SIGNAL",
+            "value": "—",
             "emphasis": "normal"
-          },
-          {
-            "label": "p99",
-            "value": "38ms",
-            "emphasis": "good"
-          },
-          {
-            "label": "ERROR",
-            "value": "0.1%",
-            "emphasis": "good"
           }
         ],
-        "insight": "Edge Speed vs Cert Freshness"
+        "insight": ""
       },
       "nodes": [],
       "edges": [],
       "code_diff": null,
       "benchmarks": [],
-      "timeline_events": [
-        {
-          "timestamp_label": "14:52",
-          "title": "Cert expires",
-          "detail": "Edge TLS cert silently lapses",
-          "severity": "warning"
-        },
-        {
-          "timestamp_label": "14:54",
-          "title": "500s spike",
-          "detail": "20% of requests fail at the edge",
-          "severity": "critical"
-        },
-        {
-          "timestamp_label": "14:58",
-          "title": "Pages down",
-          "detail": "Dashboard + API unreachable",
-          "severity": "critical"
-        }
+      "timeline_events": [],
+      "callout_keywords": [],
+      "agenda_items": [
+        "The damage",
+        "Where it broke",
+        "The one-line fix",
+        "The real numbers"
       ],
-      "callout_keywords": [
-        "expired",
-        "certificate",
-        "meltdown"
-      ],
+      "hero_stat_value": null,
+      "hero_stat_label": null,
+      "hero_stat_sub": null,
       "start_sec": 0.0,
-      "duration_sec": 8.46
+      "duration_sec": 8.0
     },
     {
       "scene_id": 2,
-      "chapter_title": "Baseline Arch",
-      "visual_type": "SystemGraph",
-      "narration_text": "Here is the normal request path. Clients hit the edge, the edge terminates TLS, and proxies traffic back to origin servers. Clean and fast.",
+      "chapter_title": "The Damage",
+      "visual_type": "StatHero",
+      "narration_text": "The same query that used to return in two hundred milliseconds was suddenly taking nine full seconds. Forty times slower.",
       "camera_focus_node_id": null,
       "hud": {
-        "context_label": "INCIDENT CLOCK",
-        "context_value": "T+00:02:00",
-        "status_text": "DEGRADED",
-        "status_level": "warning",
+        "context_label": "SCALE",
+        "context_value": "10M rows",
+        "status_text": "BOTTLENECK",
+        "status_level": "critical",
         "stats": [
           {
-            "label": "RPS",
-            "value": "4.1M/s",
-            "emphasis": "normal"
-          },
+            "label": "REGRESSION",
+            "value": "40x",
+            "emphasis": "critical"
+          }
+        ],
+        "insight": ""
+      },
+      "nodes": [],
+      "edges": [],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [
+        "Forty times"
+      ],
+      "agenda_items": [],
+      "hero_stat_value": "40x",
+      "hero_stat_label": "Slower past 10M rows",
+      "hero_stat_sub": "A 200ms query became a 9-second table scan",
+      "start_sec": 8.0,
+      "duration_sec": 6.0
+    },
+    {
+      "scene_id": 3,
+      "chapter_title": "Baseline",
+      "visual_type": "SystemGraph",
+      "narration_text": "The stack was simple. A Next.js front end hit a Node API, which ran a filtered lookup against a single Postgres table.",
+      "camera_focus_node_id": null,
+      "hud": {
+        "context_label": "SCALE",
+        "context_value": "1M rows",
+        "status_text": "STABLE",
+        "status_level": "good",
+        "stats": [
           {
             "label": "p99",
-            "value": "41ms",
-            "emphasis": "good"
-          },
-          {
-            "label": "ERROR",
-            "value": "0.4%",
+            "value": "210ms",
             "emphasis": "good"
           }
         ],
-        "insight": "Low Latency vs Single Cert Authority"
+        "insight": ""
       },
       "nodes": [
         {
-          "id": "client",
-          "label": "Clients",
-          "sublabel": "4.1M rps",
-          "icon_slug": "googlechrome",
+          "id": "web",
+          "label": "Web App",
+          "sublabel": "Next.js",
+          "icon_slug": "nextdotjs",
           "tier": 1,
           "status": "normal"
         },
         {
-          "id": "edge",
-          "label": "Edge TLS",
-          "sublabel": "p99: 41ms",
-          "icon_slug": "cloudflare",
-          "tier": 2,
+          "id": "api",
+          "label": "API",
+          "sublabel": "Node service",
+          "icon_slug": "nodedotjs",
+          "tier": 3,
           "status": "active"
         },
         {
-          "id": "origin",
-          "label": "Origin",
-          "sublabel": "nginx",
-          "icon_slug": "nginx",
-          "tier": 3,
+          "id": "pg",
+          "label": "Postgres",
+          "sublabel": "users table",
+          "icon_slug": "postgresql",
+          "tier": 5,
           "status": "normal"
         }
       ],
       "edges": [
         {
           "id": "e1",
-          "source": "client",
-          "target": "edge",
-          "label": "HTTPS",
+          "source": "web",
+          "target": "api",
+          "label": null,
           "packet_color": "cyan",
           "animate_packets": true
         },
         {
           "id": "e2",
-          "source": "edge",
-          "target": "origin",
-          "label": "proxy",
+          "source": "api",
+          "target": "pg",
+          "label": null,
           "packet_color": "emerald",
           "animate_packets": true
         }
@@ -161,100 +162,76 @@
       "benchmarks": [],
       "timeline_events": [],
       "callout_keywords": [
-        "edge",
-        "TLS",
-        "origin"
+        "Postgres table"
       ],
-      "start_sec": 8.76,
-      "duration_sec": 9.23
+      "agenda_items": [],
+      "hero_stat_value": null,
+      "hero_stat_label": null,
+      "hero_stat_sub": null,
+      "start_sec": 14.0,
+      "duration_sec": 7.0
     },
     {
-      "scene_id": 3,
-      "chapter_title": "Bottleneck",
+      "scene_id": 4,
+      "chapter_title": "The Bottleneck",
       "visual_type": "SystemGraph",
-      "narration_text": "Then the expired cert forced every edge node to reject handshakes. The retry storm hammered a shared validation service, which became the true bottleneck.",
-      "camera_focus_node_id": "validator",
+      "narration_text": "As the table crossed ten million rows, Postgres stopped using the primary key and fell back to a full sequential scan on every request.",
+      "camera_focus_node_id": "pg",
       "hud": {
-        "context_label": "INCIDENT CLOCK",
-        "context_value": "T+00:06:00",
-        "status_text": "CRITICAL",
+        "context_label": "SCALE",
+        "context_value": "10M rows",
+        "status_text": "BOTTLENECK",
         "status_level": "critical",
         "stats": [
           {
-            "label": "RPS",
-            "value": "5.9M/s",
-            "emphasis": "normal"
-          },
-          {
             "label": "p99",
-            "value": "2400ms",
-            "emphasis": "critical"
-          },
-          {
-            "label": "ERROR",
-            "value": "21.0%",
+            "value": "9100ms",
             "emphasis": "critical"
           }
         ],
-        "insight": "Central Validation vs Blast Radius"
+        "insight": ""
       },
       "nodes": [
         {
-          "id": "client",
-          "label": "Clients",
-          "sublabel": "5.9M rps",
-          "icon_slug": "googlechrome",
+          "id": "web",
+          "label": "Web App",
+          "sublabel": "Next.js",
+          "icon_slug": "nextdotjs",
           "tier": 1,
-          "status": "warning"
+          "status": "normal"
         },
         {
-          "id": "edge",
-          "label": "Edge TLS",
-          "sublabel": "handshake fail",
-          "icon_slug": "cloudflare",
-          "tier": 2,
-          "status": "critical"
-        },
-        {
-          "id": "validator",
-          "label": "Cert Validator",
-          "sublabel": "p99: 2400ms",
-          "icon_slug": "letsencrypt",
+          "id": "api",
+          "label": "API",
+          "sublabel": "waiting 9s",
+          "icon_slug": "nodedotjs",
           "tier": 3,
-          "status": "critical"
+          "status": "warning"
         },
         {
-          "id": "origin",
-          "label": "Origin",
-          "sublabel": "starved",
-          "icon_slug": "nginx",
-          "tier": 4,
-          "status": "warning"
+          "id": "pg",
+          "label": "Postgres",
+          "sublabel": "seq scan 9.1s",
+          "icon_slug": "postgresql",
+          "tier": 5,
+          "status": "critical"
         }
       ],
       "edges": [
         {
           "id": "e1",
-          "source": "client",
-          "target": "edge",
-          "label": "retry storm",
-          "packet_color": "crimson",
+          "source": "web",
+          "target": "api",
+          "label": null,
+          "packet_color": "cyan",
           "animate_packets": true
         },
         {
           "id": "e2",
-          "source": "edge",
-          "target": "validator",
-          "label": "validate",
+          "source": "api",
+          "target": "pg",
+          "label": null,
           "packet_color": "crimson",
-          "animate_packets": true
-        },
-        {
-          "id": "e3",
-          "source": "validator",
-          "target": "origin",
-          "label": "proxy",
-          "packet_color": "orange",
           "animate_packets": true
         }
       ],
@@ -262,928 +239,142 @@
       "benchmarks": [],
       "timeline_events": [],
       "callout_keywords": [
-        "retry",
-        "storm",
-        "bottleneck"
+        "sequential scan"
       ],
-      "start_sec": 18.29,
-      "duration_sec": 9.23
+      "agenda_items": [],
+      "hero_stat_value": null,
+      "hero_stat_label": null,
+      "hero_stat_sub": null,
+      "start_sec": 21.0,
+      "duration_sec": 7.0
     },
     {
-      "scene_id": 4,
+      "scene_id": 5,
       "chapter_title": "The Fix",
       "visual_type": "CodeDiff",
-      "narration_text": "The fix was a two line change: cache validation results and fail open on a stale cert instead of hard rejecting every single handshake.",
+      "narration_text": "The fix was one line: a B-tree index on the exact column in the where clause. Postgres could finally jump straight to the rows.",
       "camera_focus_node_id": null,
       "hud": {
-        "context_label": "INCIDENT CLOCK",
-        "context_value": "T+00:28:00",
-        "status_text": "RECOVERING",
-        "status_level": "info",
+        "context_label": "SCALE",
+        "context_value": "10M rows",
+        "status_text": "SOLVED",
+        "status_level": "good",
         "stats": [
           {
-            "label": "RPS",
-            "value": "4.6M/s",
-            "emphasis": "normal"
-          },
-          {
             "label": "p99",
-            "value": "180ms",
-            "emphasis": "warning"
-          },
-          {
-            "label": "ERROR",
-            "value": "3.2%",
-            "emphasis": "warning"
+            "value": "220ms",
+            "emphasis": "good"
           }
         ],
-        "insight": "Fail Open vs Security Risk"
+        "insight": ""
       },
       "nodes": [],
       "edges": [],
       "code_diff": {
-        "language": "go",
-        "filename": "edge/tls_validate.go",
-        "before_code": "func validate(cert *Cert) error {\n    if cert.Expired() {\n        return ErrReject\n    }\n    return callValidator(cert)\n}",
-        "after_code": "func validate(cert *Cert) error {\n    if v, ok := cache.Get(cert.ID); ok {\n        return v\n    }\n    if cert.Expired() {\n        return nil // fail open, log + alert\n    }\n    return cache.SetAndReturn(cert.ID, callValidator(cert))\n}",
-        "highlight_explanation": "Cache + fail-open kills the retry storm"
+        "language": "sql",
+        "filename": "migrations/add_index.sql",
+        "before_code": "SELECT * FROM users\nWHERE email = $1;\n-- plan: Seq Scan (9.1s)",
+        "after_code": "CREATE INDEX idx_users_email\n  ON users (email);\n\nSELECT * FROM users\nWHERE email = $1;\n-- plan: Index Scan (0.2s)",
+        "highlight_explanation": "One B-tree index removes the full table scan."
       },
       "benchmarks": [],
       "timeline_events": [],
       "callout_keywords": [
-        "cache",
-        "fail",
-        "open"
+        "one line"
       ],
-      "start_sec": 27.82,
-      "duration_sec": 9.23
-    },
-    {
-      "scene_id": 5,
-      "chapter_title": "The Numbers",
-      "visual_type": "BenchmarkChart",
-      "narration_text": "The impact in hard numbers. Tail latency dropped from twenty four hundred milliseconds back to twelve, and error rate collapsed from twenty one percent to near zero.",
-      "camera_focus_node_id": null,
-      "hud": {
-        "context_label": "INCIDENT CLOCK",
-        "context_value": "T+00:45:00",
-        "status_text": "HEALTHY",
-        "status_level": "good",
-        "stats": [
-          {
-            "label": "RPS",
-            "value": "4.3M/s",
-            "emphasis": "normal"
-          },
-          {
-            "label": "p99",
-            "value": "12ms",
-            "emphasis": "good"
-          },
-          {
-            "label": "ERROR",
-            "value": "0.2%",
-            "emphasis": "good"
-          }
-        ],
-        "insight": "Recovery Speed vs Audit Debt"
-      },
-      "nodes": [],
-      "edges": [],
-      "code_diff": null,
-      "benchmarks": [
-        {
-          "label": "p99 during incident",
-          "value": 2400,
-          "unit": "ms",
-          "is_winner": false
-        },
-        {
-          "label": "p99 after fix",
-          "value": 12,
-          "unit": "ms",
-          "is_winner": true
-        },
-        {
-          "label": "peak error rate",
-          "value": 21.0,
-          "unit": "%",
-          "is_winner": false
-        }
-      ],
-      "timeline_events": [],
-      "callout_keywords": [
-        "twelve",
-        "error",
-        "zero"
-      ],
-      "start_sec": 37.35,
-      "duration_sec": 10.38
+      "agenda_items": [],
+      "hero_stat_value": null,
+      "hero_stat_label": null,
+      "hero_stat_sub": null,
+      "start_sec": 28.0,
+      "duration_sec": 8.0
     },
     {
       "scene_id": 6,
-      "chapter_title": "The Takeaway",
+      "chapter_title": "The Numbers",
       "visual_type": "BenchmarkChart",
-      "narration_text": "The lesson for your systems: any central dependency in the hot path is a global kill switch. Cache aggressively, and decide your fail mode before the outage.",
+      "narration_text": "After the index shipped, the same query dropped from nine thousand one hundred milliseconds back down to two hundred and twenty.",
       "camera_focus_node_id": null,
       "hud": {
-        "context_label": "INCIDENT CLOCK",
-        "context_value": "VERDICT",
-        "status_text": "HEALTHY",
+        "context_label": "SCALE",
+        "context_value": "10M rows",
+        "status_text": "SOLVED",
         "status_level": "good",
         "stats": [
           {
-            "label": "RPS",
-            "value": "4.3M/s",
-            "emphasis": "normal"
-          },
-          {
             "label": "p99",
-            "value": "12ms",
-            "emphasis": "good"
-          },
-          {
-            "label": "ERROR",
-            "value": "0.1%",
+            "value": "220ms",
             "emphasis": "good"
           }
         ],
-        "insight": "Fail Open vs Fail Closed"
+        "insight": ""
       },
       "nodes": [],
       "edges": [],
       "code_diff": null,
       "benchmarks": [
         {
-          "label": "Users affected (M)",
-          "value": 1200,
-          "unit": "M",
+          "label": "Seq Scan (before)",
+          "value": 9100,
+          "unit": "ms",
           "is_winner": false
         },
         {
-          "label": "Time to mitigate (min)",
-          "value": 28,
-          "unit": "min",
+          "label": "Index Scan (after)",
+          "value": 220,
+          "unit": "ms",
           "is_winner": true
-        },
-        {
-          "label": "Root causes",
-          "value": 1,
-          "unit": "cert",
-          "is_winner": false
         }
       ],
       "timeline_events": [],
       "callout_keywords": [
-        "central",
-        "dependency",
-        "cache"
+        "two hundred"
       ],
-      "start_sec": 48.03,
-      "duration_sec": 10.38
+      "agenda_items": [],
+      "hero_stat_value": null,
+      "hero_stat_label": null,
+      "hero_stat_sub": null,
+      "start_sec": 36.0,
+      "duration_sec": 7.0
+    },
+    {
+      "scene_id": 7,
+      "chapter_title": "Wrap Up",
+      "visual_type": "Outro",
+      "narration_text": "That's the whole story: profile the query plan, index the hot column, and re-check at scale. If this helped, subscribe and tell me your worst index story.",
+      "camera_focus_node_id": null,
+      "hud": {
+        "context_label": "",
+        "context_value": "",
+        "status_text": "",
+        "status_level": "info",
+        "stats": [
+          {
+            "label": "SIGNAL",
+            "value": "—",
+            "emphasis": "normal"
+          }
+        ],
+        "insight": ""
+      },
+      "nodes": [],
+      "edges": [],
+      "code_diff": null,
+      "benchmarks": [],
+      "timeline_events": [],
+      "callout_keywords": [],
+      "agenda_items": [
+        "Read the query plan",
+        "Index the hot column",
+        "Re-test at real scale"
+      ],
+      "hero_stat_value": null,
+      "hero_stat_label": null,
+      "hero_stat_sub": null,
+      "start_sec": 43.0,
+      "duration_sec": 7.0
     }
   ],
-  "words": [
-    {
-      "word": "At",
-      "start_sec": 0.0,
-      "end_sec": 0.385
-    },
-    {
-      "word": "14:52",
-      "start_sec": 0.385,
-      "end_sec": 0.769
-    },
-    {
-      "word": "UTC,",
-      "start_sec": 0.769,
-      "end_sec": 1.154
-    },
-    {
-      "word": "Cloudflare",
-      "start_sec": 1.154,
-      "end_sec": 1.538
-    },
-    {
-      "word": "started",
-      "start_sec": 1.538,
-      "end_sec": 1.923
-    },
-    {
-      "word": "returning",
-      "start_sec": 1.923,
-      "end_sec": 2.307
-    },
-    {
-      "word": "500s",
-      "start_sec": 2.307,
-      "end_sec": 2.692
-    },
-    {
-      "word": "to",
-      "start_sec": 2.692,
-      "end_sec": 3.076
-    },
-    {
-      "word": "twenty",
-      "start_sec": 3.076,
-      "end_sec": 3.461
-    },
-    {
-      "word": "percent",
-      "start_sec": 3.461,
-      "end_sec": 3.845
-    },
-    {
-      "word": "of",
-      "start_sec": 3.845,
-      "end_sec": 4.23
-    },
-    {
-      "word": "the",
-      "start_sec": 4.23,
-      "end_sec": 4.615
-    },
-    {
-      "word": "internet.",
-      "start_sec": 4.615,
-      "end_sec": 4.999
-    },
-    {
-      "word": "One",
-      "start_sec": 4.999,
-      "end_sec": 5.384
-    },
-    {
-      "word": "expired",
-      "start_sec": 5.384,
-      "end_sec": 5.768
-    },
-    {
-      "word": "certificate",
-      "start_sec": 5.768,
-      "end_sec": 6.153
-    },
-    {
-      "word": "cascaded",
-      "start_sec": 6.153,
-      "end_sec": 6.537
-    },
-    {
-      "word": "into",
-      "start_sec": 6.537,
-      "end_sec": 6.922
-    },
-    {
-      "word": "a",
-      "start_sec": 6.922,
-      "end_sec": 7.306
-    },
-    {
-      "word": "global",
-      "start_sec": 7.306,
-      "end_sec": 7.691
-    },
-    {
-      "word": "edge",
-      "start_sec": 7.691,
-      "end_sec": 8.075
-    },
-    {
-      "word": "meltdown.",
-      "start_sec": 8.075,
-      "end_sec": 8.46
-    },
-    {
-      "word": "Here",
-      "start_sec": 8.76,
-      "end_sec": 9.145
-    },
-    {
-      "word": "is",
-      "start_sec": 9.145,
-      "end_sec": 9.529
-    },
-    {
-      "word": "the",
-      "start_sec": 9.529,
-      "end_sec": 9.914
-    },
-    {
-      "word": "normal",
-      "start_sec": 9.914,
-      "end_sec": 10.298
-    },
-    {
-      "word": "request",
-      "start_sec": 10.298,
-      "end_sec": 10.683
-    },
-    {
-      "word": "path.",
-      "start_sec": 10.683,
-      "end_sec": 11.068
-    },
-    {
-      "word": "Clients",
-      "start_sec": 11.068,
-      "end_sec": 11.452
-    },
-    {
-      "word": "hit",
-      "start_sec": 11.452,
-      "end_sec": 11.837
-    },
-    {
-      "word": "the",
-      "start_sec": 11.837,
-      "end_sec": 12.221
-    },
-    {
-      "word": "edge,",
-      "start_sec": 12.221,
-      "end_sec": 12.606
-    },
-    {
-      "word": "the",
-      "start_sec": 12.606,
-      "end_sec": 12.99
-    },
-    {
-      "word": "edge",
-      "start_sec": 12.99,
-      "end_sec": 13.375
-    },
-    {
-      "word": "terminates",
-      "start_sec": 13.375,
-      "end_sec": 13.76
-    },
-    {
-      "word": "TLS,",
-      "start_sec": 13.76,
-      "end_sec": 14.144
-    },
-    {
-      "word": "and",
-      "start_sec": 14.144,
-      "end_sec": 14.529
-    },
-    {
-      "word": "proxies",
-      "start_sec": 14.529,
-      "end_sec": 14.913
-    },
-    {
-      "word": "traffic",
-      "start_sec": 14.913,
-      "end_sec": 15.298
-    },
-    {
-      "word": "back",
-      "start_sec": 15.298,
-      "end_sec": 15.683
-    },
-    {
-      "word": "to",
-      "start_sec": 15.683,
-      "end_sec": 16.067
-    },
-    {
-      "word": "origin",
-      "start_sec": 16.067,
-      "end_sec": 16.452
-    },
-    {
-      "word": "servers.",
-      "start_sec": 16.452,
-      "end_sec": 16.836
-    },
-    {
-      "word": "Clean",
-      "start_sec": 16.836,
-      "end_sec": 17.221
-    },
-    {
-      "word": "and",
-      "start_sec": 17.221,
-      "end_sec": 17.605
-    },
-    {
-      "word": "fast.",
-      "start_sec": 17.605,
-      "end_sec": 17.99
-    },
-    {
-      "word": "Then",
-      "start_sec": 18.29,
-      "end_sec": 18.675
-    },
-    {
-      "word": "the",
-      "start_sec": 18.675,
-      "end_sec": 19.059
-    },
-    {
-      "word": "expired",
-      "start_sec": 19.059,
-      "end_sec": 19.444
-    },
-    {
-      "word": "cert",
-      "start_sec": 19.444,
-      "end_sec": 19.828
-    },
-    {
-      "word": "forced",
-      "start_sec": 19.828,
-      "end_sec": 20.213
-    },
-    {
-      "word": "every",
-      "start_sec": 20.213,
-      "end_sec": 20.598
-    },
-    {
-      "word": "edge",
-      "start_sec": 20.598,
-      "end_sec": 20.982
-    },
-    {
-      "word": "node",
-      "start_sec": 20.982,
-      "end_sec": 21.367
-    },
-    {
-      "word": "to",
-      "start_sec": 21.367,
-      "end_sec": 21.751
-    },
-    {
-      "word": "reject",
-      "start_sec": 21.751,
-      "end_sec": 22.136
-    },
-    {
-      "word": "handshakes.",
-      "start_sec": 22.136,
-      "end_sec": 22.52
-    },
-    {
-      "word": "The",
-      "start_sec": 22.52,
-      "end_sec": 22.905
-    },
-    {
-      "word": "retry",
-      "start_sec": 22.905,
-      "end_sec": 23.29
-    },
-    {
-      "word": "storm",
-      "start_sec": 23.29,
-      "end_sec": 23.674
-    },
-    {
-      "word": "hammered",
-      "start_sec": 23.674,
-      "end_sec": 24.059
-    },
-    {
-      "word": "a",
-      "start_sec": 24.059,
-      "end_sec": 24.443
-    },
-    {
-      "word": "shared",
-      "start_sec": 24.443,
-      "end_sec": 24.828
-    },
-    {
-      "word": "validation",
-      "start_sec": 24.828,
-      "end_sec": 25.213
-    },
-    {
-      "word": "service,",
-      "start_sec": 25.213,
-      "end_sec": 25.597
-    },
-    {
-      "word": "which",
-      "start_sec": 25.597,
-      "end_sec": 25.982
-    },
-    {
-      "word": "became",
-      "start_sec": 25.982,
-      "end_sec": 26.366
-    },
-    {
-      "word": "the",
-      "start_sec": 26.366,
-      "end_sec": 26.751
-    },
-    {
-      "word": "true",
-      "start_sec": 26.751,
-      "end_sec": 27.135
-    },
-    {
-      "word": "bottleneck.",
-      "start_sec": 27.135,
-      "end_sec": 27.52
-    },
-    {
-      "word": "The",
-      "start_sec": 27.82,
-      "end_sec": 28.205
-    },
-    {
-      "word": "fix",
-      "start_sec": 28.205,
-      "end_sec": 28.589
-    },
-    {
-      "word": "was",
-      "start_sec": 28.589,
-      "end_sec": 28.974
-    },
-    {
-      "word": "a",
-      "start_sec": 28.974,
-      "end_sec": 29.358
-    },
-    {
-      "word": "two",
-      "start_sec": 29.358,
-      "end_sec": 29.743
-    },
-    {
-      "word": "line",
-      "start_sec": 29.743,
-      "end_sec": 30.128
-    },
-    {
-      "word": "change:",
-      "start_sec": 30.128,
-      "end_sec": 30.512
-    },
-    {
-      "word": "cache",
-      "start_sec": 30.512,
-      "end_sec": 30.897
-    },
-    {
-      "word": "validation",
-      "start_sec": 30.897,
-      "end_sec": 31.281
-    },
-    {
-      "word": "results",
-      "start_sec": 31.281,
-      "end_sec": 31.666
-    },
-    {
-      "word": "and",
-      "start_sec": 31.666,
-      "end_sec": 32.05
-    },
-    {
-      "word": "fail",
-      "start_sec": 32.05,
-      "end_sec": 32.435
-    },
-    {
-      "word": "open",
-      "start_sec": 32.435,
-      "end_sec": 32.82
-    },
-    {
-      "word": "on",
-      "start_sec": 32.82,
-      "end_sec": 33.204
-    },
-    {
-      "word": "a",
-      "start_sec": 33.204,
-      "end_sec": 33.589
-    },
-    {
-      "word": "stale",
-      "start_sec": 33.589,
-      "end_sec": 33.973
-    },
-    {
-      "word": "cert",
-      "start_sec": 33.973,
-      "end_sec": 34.358
-    },
-    {
-      "word": "instead",
-      "start_sec": 34.358,
-      "end_sec": 34.742
-    },
-    {
-      "word": "of",
-      "start_sec": 34.743,
-      "end_sec": 35.127
-    },
-    {
-      "word": "hard",
-      "start_sec": 35.127,
-      "end_sec": 35.512
-    },
-    {
-      "word": "rejecting",
-      "start_sec": 35.512,
-      "end_sec": 35.896
-    },
-    {
-      "word": "every",
-      "start_sec": 35.896,
-      "end_sec": 36.281
-    },
-    {
-      "word": "single",
-      "start_sec": 36.281,
-      "end_sec": 36.665
-    },
-    {
-      "word": "handshake.",
-      "start_sec": 36.665,
-      "end_sec": 37.05
-    },
-    {
-      "word": "The",
-      "start_sec": 37.35,
-      "end_sec": 37.734
-    },
-    {
-      "word": "impact",
-      "start_sec": 37.734,
-      "end_sec": 38.119
-    },
-    {
-      "word": "in",
-      "start_sec": 38.119,
-      "end_sec": 38.503
-    },
-    {
-      "word": "hard",
-      "start_sec": 38.503,
-      "end_sec": 38.888
-    },
-    {
-      "word": "numbers.",
-      "start_sec": 38.888,
-      "end_sec": 39.272
-    },
-    {
-      "word": "Tail",
-      "start_sec": 39.272,
-      "end_sec": 39.657
-    },
-    {
-      "word": "latency",
-      "start_sec": 39.657,
-      "end_sec": 40.041
-    },
-    {
-      "word": "dropped",
-      "start_sec": 40.041,
-      "end_sec": 40.426
-    },
-    {
-      "word": "from",
-      "start_sec": 40.426,
-      "end_sec": 40.81
-    },
-    {
-      "word": "twenty",
-      "start_sec": 40.81,
-      "end_sec": 41.194
-    },
-    {
-      "word": "four",
-      "start_sec": 41.194,
-      "end_sec": 41.579
-    },
-    {
-      "word": "hundred",
-      "start_sec": 41.579,
-      "end_sec": 41.963
-    },
-    {
-      "word": "milliseconds",
-      "start_sec": 41.963,
-      "end_sec": 42.348
-    },
-    {
-      "word": "back",
-      "start_sec": 42.348,
-      "end_sec": 42.732
-    },
-    {
-      "word": "to",
-      "start_sec": 42.732,
-      "end_sec": 43.117
-    },
-    {
-      "word": "twelve,",
-      "start_sec": 43.117,
-      "end_sec": 43.501
-    },
-    {
-      "word": "and",
-      "start_sec": 43.501,
-      "end_sec": 43.886
-    },
-    {
-      "word": "error",
-      "start_sec": 43.886,
-      "end_sec": 44.27
-    },
-    {
-      "word": "rate",
-      "start_sec": 44.27,
-      "end_sec": 44.654
-    },
-    {
-      "word": "collapsed",
-      "start_sec": 44.654,
-      "end_sec": 45.039
-    },
-    {
-      "word": "from",
-      "start_sec": 45.039,
-      "end_sec": 45.423
-    },
-    {
-      "word": "twenty",
-      "start_sec": 45.423,
-      "end_sec": 45.808
-    },
-    {
-      "word": "one",
-      "start_sec": 45.808,
-      "end_sec": 46.192
-    },
-    {
-      "word": "percent",
-      "start_sec": 46.192,
-      "end_sec": 46.577
-    },
-    {
-      "word": "to",
-      "start_sec": 46.577,
-      "end_sec": 46.961
-    },
-    {
-      "word": "near",
-      "start_sec": 46.961,
-      "end_sec": 47.346
-    },
-    {
-      "word": "zero.",
-      "start_sec": 47.346,
-      "end_sec": 47.73
-    },
-    {
-      "word": "The",
-      "start_sec": 48.03,
-      "end_sec": 48.414
-    },
-    {
-      "word": "lesson",
-      "start_sec": 48.414,
-      "end_sec": 48.799
-    },
-    {
-      "word": "for",
-      "start_sec": 48.799,
-      "end_sec": 49.183
-    },
-    {
-      "word": "your",
-      "start_sec": 49.183,
-      "end_sec": 49.568
-    },
-    {
-      "word": "systems:",
-      "start_sec": 49.568,
-      "end_sec": 49.952
-    },
-    {
-      "word": "any",
-      "start_sec": 49.952,
-      "end_sec": 50.337
-    },
-    {
-      "word": "central",
-      "start_sec": 50.337,
-      "end_sec": 50.721
-    },
-    {
-      "word": "dependency",
-      "start_sec": 50.721,
-      "end_sec": 51.106
-    },
-    {
-      "word": "in",
-      "start_sec": 51.106,
-      "end_sec": 51.49
-    },
-    {
-      "word": "the",
-      "start_sec": 51.49,
-      "end_sec": 51.874
-    },
-    {
-      "word": "hot",
-      "start_sec": 51.874,
-      "end_sec": 52.259
-    },
-    {
-      "word": "path",
-      "start_sec": 52.259,
-      "end_sec": 52.643
-    },
-    {
-      "word": "is",
-      "start_sec": 52.643,
-      "end_sec": 53.028
-    },
-    {
-      "word": "a",
-      "start_sec": 53.028,
-      "end_sec": 53.412
-    },
-    {
-      "word": "global",
-      "start_sec": 53.412,
-      "end_sec": 53.797
-    },
-    {
-      "word": "kill",
-      "start_sec": 53.797,
-      "end_sec": 54.181
-    },
-    {
-      "word": "switch.",
-      "start_sec": 54.181,
-      "end_sec": 54.566
-    },
-    {
-      "word": "Cache",
-      "start_sec": 54.566,
-      "end_sec": 54.95
-    },
-    {
-      "word": "aggressively,",
-      "start_sec": 54.95,
-      "end_sec": 55.334
-    },
-    {
-      "word": "and",
-      "start_sec": 55.334,
-      "end_sec": 55.719
-    },
-    {
-      "word": "decide",
-      "start_sec": 55.719,
-      "end_sec": 56.103
-    },
-    {
-      "word": "your",
-      "start_sec": 56.103,
-      "end_sec": 56.488
-    },
-    {
-      "word": "fail",
-      "start_sec": 56.488,
-      "end_sec": 56.872
-    },
-    {
-      "word": "mode",
-      "start_sec": 56.872,
-      "end_sec": 57.257
-    },
-    {
-      "word": "before",
-      "start_sec": 57.257,
-      "end_sec": 57.641
-    },
-    {
-      "word": "the",
-      "start_sec": 57.641,
-      "end_sec": 58.026
-    },
-    {
-      "word": "outage.",
-      "start_sec": 58.026,
-      "end_sec": 58.41
-    }
-  ],
-  "total_duration_sec": 58.71
+  "words": [],
+  "total_duration_sec": 50.0
 }

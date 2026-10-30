@@ -134,7 +134,14 @@ class SceneSpec(BaseModel):
     start_sec: float = 0.0
     duration_sec: float = 7.0
     visual_type: Literal[
-        "SystemGraph", "CodeDiff", "BenchmarkChart", "IncidentTimeline", "JobMarketCard"
+        "Intro",
+        "StatHero",
+        "SystemGraph",
+        "CodeDiff",
+        "BenchmarkChart",
+        "IncidentTimeline",
+        "JobMarketCard",
+        "Outro",
     ]
     camera_focus_node_id: Optional[str] = Field(
         default=None, description="Node ID to zoom into, or null for full view"
@@ -148,6 +155,26 @@ class SceneSpec(BaseModel):
     callout_keywords: List[str] = Field(
         default_factory=list,
         description="2-3 exact words in narration_text to highlight on screen",
+    )
+    agenda_items: List[str] = Field(
+        default_factory=list,
+        description="Intro scene: 3-4 short 'what we'll cover' lines (3-5 words "
+        "each). Outro scene: 2-3 one-line recap takeaways. Empty for all other "
+        "visual types.",
+    )
+    hero_stat_value: Optional[str] = Field(
+        default=None,
+        description="StatHero scene ONLY: the single oversized number WITH unit, "
+        "e.g. '20%', '125ms', '$180k', '3.2x'. Null for other visual types.",
+    )
+    hero_stat_label: Optional[str] = Field(
+        default=None,
+        description="StatHero scene ONLY: short label under the number, e.g. "
+        "'OF THE INTERNET WENT DOWN', 'LATENCY CUT'.",
+    )
+    hero_stat_sub: Optional[str] = Field(
+        default=None,
+        description="StatHero scene ONLY: optional one-line context under the label.",
     )
 
 
@@ -297,30 +324,41 @@ into a tightly-paced, highly-visual 65-110 second video as a strict JSON \
 VideoRenderPayload.
 
 NON-NEGOTIABLE RETENTION RULES:
-1. HOOK (Scene 1, 0:00-0:07): open with a HARD metric, failure event, or a \
-surprising architectural contradiction. NEVER open with "In today's video", \
-"Welcome back", or "Hey everyone".
-2. PACING: produce 7 to 9 scenes. Each scene narration is 15-30 spoken words. \
-Total spoken duration must land between 65 and 110 seconds.
+1. STRUCTURE (mandatory bookends): the FIRST scene MUST be visual_type "Intro" \
+and the LAST scene MUST be visual_type "Outro".
+   - Intro (0:00-0:08): a punchy cold open. narration_text states the ONE \
+provocative promise of the video (a hard number or contradiction), then "here's \
+what we'll break down". Fill agenda_items with 3-4 short 'what we'll cover' lines \
+(3-5 words each, e.g. 'The root cause', 'How the fix works', 'The real numbers'). \
+NEVER "Welcome back" / "Hey everyone" / "In today's video".
+   - Outro: narration_text thanks the viewer and asks them to SUBSCRIBE and \
+comment. Fill agenda_items with 2-3 one-line recap takeaways.
+2. PACING: produce 8 to 11 scenes TOTAL (including Intro + Outro). Each scene \
+narration is 15-30 spoken words. Total spoken duration 80-135 seconds.
 3. PROGRESSIVE GRAPH EVOLUTION: when visual_type == "SystemGraph", scene N \
 starts with 3-4 baseline nodes; scene N+1 ADDS the bottleneck / cache / queue / \
-shard node so the architecture visibly evolves. Reuse node ids across scenes.
+shard node so the architecture visibly evolves. Reuse node ids across scenes. \
+Keep node label <= 16 chars and sublabel <= 22 chars so nothing overflows.
 4. THEME SELECTION (strict): INCIDENT_POSTMORTEM and JOB_MARKET => "WAR_ROOM_HUD". \
 SYSTEM_DESIGN and NEW_TECH_RELEASE => "ARCHITECT_PAPER".
-5. VISUAL VARIETY + NO EMPTY SCENES (critical): pick the visual_type that fits \
-each beat AND fully populate its data field. A scene whose data is empty renders \
-blank and is unacceptable — especially Scene 1.
-   - SystemGraph  -> MUST have >=3 nodes and >=2 edges.
-   - CodeDiff     -> MUST have code_diff with before_code and after_code.
+5. VISUAL VARIETY + NO EMPTY SCENES (critical): between the Intro and Outro, \
+VARY the visual_type every beat — never the same type back-to-back more than \
+once. Use StatHero for the single most dramatic number in the story (right after \
+the Intro is ideal). Fully populate each scene's data field; an empty data field \
+renders blank and is unacceptable.
+   - Intro       -> MUST have 3-4 agenda_items.
+   - StatHero    -> MUST set hero_stat_value (number+unit) and hero_stat_label.
+   - SystemGraph -> MUST have >=3 nodes and >=2 edges.
+   - CodeDiff    -> MUST have code_diff; keep EACH line <= 46 characters and \
+<= 6 lines per side so code never overflows the panel.
    - BenchmarkChart -> MUST have >=2 benchmarks.
    - IncidentTimeline -> MUST have >=3 timeline_events.
-   - JobMarketCard -> MUST have >=3 benchmarks (e.g. roles cut, severance weeks, \
-hiring delta, comp) and MAY add timeline_events for notable moments.
-   Pick visual_type by topic: INCIDENT_POSTMORTEM favors IncidentTimeline + \
+   - JobMarketCard -> MUST have >=3 benchmarks and MAY add timeline_events.
+   - Outro       -> MUST have 2-3 agenda_items (recap).
+   Pick types by topic: INCIDENT_POSTMORTEM favors StatHero + IncidentTimeline + \
 SystemGraph; SYSTEM_DESIGN favors SystemGraph + CodeDiff + BenchmarkChart; \
-NEW_TECH_RELEASE favors BenchmarkChart + CodeDiff + SystemGraph; JOB_MARKET \
-favors JobMarketCard + BenchmarkChart + IncidentTimeline. Do NOT use an empty \
-JobMarketCard as the hook.
+NEW_TECH_RELEASE favors StatHero + BenchmarkChart + CodeDiff; JOB_MARKET favors \
+StatHero + JobMarketCard + BenchmarkChart.
 6. HUD (category-adaptive, strict): fill each scene's `hud` with metrics that \
 FIT THE TOPIC. Never put RPS / p99 / latency / error-rate / "INCIDENT CLOCK" on \
 a JOB_MARKET or NEW_TECH_RELEASE video.
@@ -380,10 +418,88 @@ def generate_script(
     # Guarantee the source url round-trips even if the model omitted it.
     payload.source_url = payload.source_url or source_url
 
-    # Repair any empty scenes so Zone A is never blank, then seed timings.
+    # Guarantee the Intro/Outro bookends, repair any empty scenes so Zone A is
+    # never blank, then seed timings.
+    _ensure_intro_outro(payload)
     _repair_scenes(payload)
+    _renumber_scenes(payload)
     _seed_provisional_timings(payload)
     return payload
+
+
+# ---------------------------------------------------------------------------
+# Intro / Outro bookends (deterministic safety net)
+# ---------------------------------------------------------------------------
+def _default_hud() -> SceneHud:
+    return SceneHud(
+        context_label="",
+        context_value="",
+        status_text="",
+        status_level="info",
+        stats=[HudStat(label="SIGNAL", value="—")],
+        insight="",
+    )
+
+
+def _make_intro(payload: VideoRenderPayload) -> SceneSpec:
+    """Build an agenda intro from the body scenes' chapter titles."""
+    agenda = [
+        s.chapter_title
+        for s in payload.scenes
+        if s.chapter_title and s.visual_type not in ("Intro", "Outro")
+    ][:4]
+    if not agenda:
+        agenda = ["The root cause", "How it works", "The real numbers"]
+    return SceneSpec(
+        scene_id=0,
+        chapter_title="Overview",
+        narration_text=(
+            f"{payload.youtube_title.rstrip('.')}. Here's what we'll break down."
+        ),
+        visual_type="Intro",
+        hud=_default_hud(),
+        agenda_items=agenda,
+    )
+
+
+def _make_outro(payload: VideoRenderPayload) -> SceneSpec:
+    recap = [
+        s.chapter_title
+        for s in payload.scenes
+        if s.chapter_title and s.visual_type not in ("Intro", "Outro")
+    ]
+    recap = recap[-3:] if recap else ["The takeaway"]
+    return SceneSpec(
+        scene_id=999,
+        chapter_title="Wrap Up",
+        narration_text=(
+            f"That's the breakdown. If it helped, subscribe to {config.CHANNEL_NAME} "
+            "for more deep dives, and drop your take in the comments."
+        ),
+        visual_type="Outro",
+        hud=_default_hud(),
+        agenda_items=recap,
+    )
+
+
+def _ensure_intro_outro(payload: VideoRenderPayload) -> None:
+    """Force the first scene to be an Intro and the last to be an Outro."""
+    scenes = payload.scenes
+    if not scenes:
+        return
+    if scenes[0].visual_type != "Intro":
+        scenes.insert(0, _make_intro(payload))
+    elif not scenes[0].agenda_items:
+        scenes[0].agenda_items = _make_intro(payload).agenda_items
+    if scenes[-1].visual_type != "Outro":
+        scenes.append(_make_outro(payload))
+    elif not scenes[-1].agenda_items:
+        scenes[-1].agenda_items = _make_outro(payload).agenda_items
+
+
+def _renumber_scenes(payload: VideoRenderPayload) -> None:
+    for i, sc in enumerate(payload.scenes, start=1):
+        sc.scene_id = i
 
 
 # ---------------------------------------------------------------------------
@@ -430,6 +546,15 @@ def _repair_scenes(payload: VideoRenderPayload) -> None:
     for sc in payload.scenes:
         if not sc.hud.stats:
             sc.hud.stats = [HudStat(label="SIGNAL", value="—")]
+
+        # StatHero needs its one big number; borrow from HUD if the model missed.
+        if sc.visual_type == "StatHero" and not sc.hero_stat_value:
+            first = sc.hud.stats[0]
+            sc.hero_stat_value = first.value
+            sc.hero_stat_label = sc.hero_stat_label or first.label
+            continue
+        if sc.visual_type in ("Intro", "Outro", "StatHero"):
+            continue
 
         empty = (
             (sc.visual_type == "SystemGraph" and len(sc.nodes) < 2)

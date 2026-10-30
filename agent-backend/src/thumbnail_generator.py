@@ -20,43 +20,40 @@ except ImportError:  # pragma: no cover
     from script_generator import ThumbnailSpec, VideoRenderPayload  # type: ignore
 
 
-# Theme color maps mirror themes.ts / requirement section 6.6.
+# Theme color maps mirror the (now dark) themes.ts. Both themes are dramatic
+# dark stages so the thumbnail matches the video it fronts.
 _THEMES: Dict[str, Dict[str, str]] = {
+    # Dark "blueprint" — system design / deep dives / new releases.
     "ARCHITECT_PAPER": {
-        "canvas_bg": "#F4F1EA",
-        "card_bg": "#FFFFFF",
-        # Icon chips sit on a light surface so brand logos of any color stay
-        # legible (e.g. near-black GitHub, which vanished on the dark card).
-        "icon_chip_bg": "#FFFFFF",
-        "grid": "#E2DDD2",
-        "text_primary": "#18181B",
-        "accent": "#FF4F00",
-        "accent_critical": "#D90429",
-        "border": "2px solid #18181B",
+        "canvas_bg": "#0A0E16",
+        "canvas_bg2": "#101A2E",
+        "card_bg": "#121A28",
+        "grid": "#1A2233",
+        "text_primary": "#EAF0F8",
+        "text_muted": "#8092AC",
+        "accent": "#4EA8FF",
+        "accent_2": "#7C5CFF",
+        "accent_critical": "#FF5C7A",
+        "accent_glow": "rgba(78,168,255,0.45)",
+        "accent2_glow": "rgba(124,92,255,0.40)",
         "font_heading": "'Space Grotesk', 'Segoe UI', sans-serif",
-        "badge_shadow": "4px 4px 0px #18181B",
-        "card_shadow": "4px 4px 0px #18181B",
-        "grid_pattern": (
-            "linear-gradient(#E2DDD2 1px, transparent 1px),"
-            "linear-gradient(90deg, #E2DDD2 1px, transparent 1px)"
-        ),
+        "font_mono": "'IBM Plex Mono', 'Consolas', monospace",
     },
+    # Carbon SRE console — outages / incidents / job news.
     "WAR_ROOM_HUD": {
         "canvas_bg": "#0B0C10",
+        "canvas_bg2": "#0E1620",
         "card_bg": "#12151E",
-        # Light chip on the carbon console keeps brand logos legible.
-        "icon_chip_bg": "#F2F4F7",
         "grid": "#1F2430",
         "text_primary": "#F3F4F6",
+        "text_muted": "#8A93A6",
         "accent": "#00F5D4",
+        "accent_2": "#FFB000",
         "accent_critical": "#FF2A54",
-        "border": "1px solid #2A303C",
+        "accent_glow": "rgba(0,245,212,0.40)",
+        "accent2_glow": "rgba(255,176,0,0.35)",
         "font_heading": "'JetBrains Mono', 'Consolas', monospace",
-        "badge_shadow": "0 0 0 2px #2A303C",
-        "card_shadow": "0 0 24px rgba(0,245,212,0.15)",
-        "grid_pattern": (
-            "radial-gradient(#1F2430 1.5px, transparent 1.5px)"
-        ),
+        "font_mono": "'JetBrains Mono', 'Consolas', monospace",
     },
 }
 
@@ -105,11 +102,9 @@ def _fetch_icon_svg(slug: str) -> str:
                 return svg
     except Exception as exc:  # noqa: BLE001
         print(f"[thumbnail] icon unavailable for '{slug}' -> letter badge ({exc})")
-    # Fallback: first letter, dark on the light chip.
+    # Fallback: first letter in the tile.
     letter = (slug[:1] or "?").upper()
-    return (
-        f'<span style="font-size:92px;font-weight:900;color:#18181B">{letter}</span>'
-    )
+    return f'<span class="fallback">{letter}</span>'
 
 
 def _headline_html(text: str, accent_last_word: bool = True) -> str:
@@ -133,17 +128,19 @@ def _fill_template(spec: ThumbnailSpec, theme_id: str) -> str:
 
     replacements = {
         "__CANVAS_BG__": theme["canvas_bg"],
+        "__CANVAS_BG2__": theme["canvas_bg2"],
         "__CARD_BG__": theme["card_bg"],
-        "__ICON_CHIP_BG__": theme["icon_chip_bg"],
         "__GRID__": theme["grid"],
         "__TEXT_PRIMARY__": theme["text_primary"],
+        "__TEXT_MUTED__": theme["text_muted"],
         "__ACCENT__": theme["accent"],
+        "__ACCENT_2__": theme["accent_2"],
         "__ACCENT_CRITICAL__": theme["accent_critical"],
-        "__BORDER__": theme["border"],
+        "__ACCENT_GLOW__": theme["accent_glow"],
+        "__ACCENT2_GLOW__": theme["accent2_glow"],
         "__FONT_HEADING__": theme["font_heading"],
-        "__BADGE_SHADOW__": theme["badge_shadow"],
-        "__CARD_SHADOW__": theme["card_shadow"],
-        "__GRID_PATTERN__": theme["grid_pattern"],
+        "__FONT_MONO__": theme["font_mono"],
+        "__CHANNEL_NAME__": config.CHANNEL_NAME.upper(),
         "__BADGE_TEXT__": spec.badge_text.upper(),
         "__LEFT_ICON__": _fetch_icon_svg(spec.left_icon_slug),
         "__RIGHT_ICON__": _fetch_icon_svg(spec.right_icon_slug),

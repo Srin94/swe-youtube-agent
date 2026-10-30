@@ -46,6 +46,11 @@ export const BenchmarkChart: React.FC<Props> = ({ scene, theme, localFrame, fps 
         });
         const widthPct = x(Math.abs(b.value)) * grow;
         const barColor = b.is_winner ? theme.accentPrimary : theme.textMuted;
+        const dec = Number.isInteger(b.value) ? 0 : 1;
+        const shownVal = (b.value * grow).toLocaleString("en-US", {
+          minimumFractionDigits: dec,
+          maximumFractionDigits: dec,
+        });
         return (
           <div key={b.label + i}>
             <div
@@ -64,7 +69,7 @@ export const BenchmarkChart: React.FC<Props> = ({ scene, theme, localFrame, fps 
                 {b.label}
               </span>
               <span style={{ fontFamily: theme.fontMono }}>
-                {b.value.toLocaleString()} {b.unit}
+                {shownVal} {b.unit}
               </span>
             </div>
             <div

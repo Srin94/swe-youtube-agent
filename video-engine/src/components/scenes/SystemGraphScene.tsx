@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { interpolate, spring } from "remotion";
+import { spring } from "remotion";
 import type { SceneSpec } from "../../types/schema";
 import type { Theme } from "../../styles/themes";
 import { computeLayeredLayout, NODE_WIDTH, NODE_HEIGHT } from "../../utils/elkLayout";
@@ -74,27 +74,13 @@ export const SystemGraphScene: React.FC<Props> = ({ scene, theme, localFrame, fp
     return set;
   }, [focusNode, scene.edges]);
 
-  // Camera: interpolate the viewBox from full-graph to a gentle push on focus.
-  const zoom = focusNode ? 1.28 : 1;
-  const fullVB = { x: 0, y: 0, w: layout.width, h: layout.height };
-  const targetVB = focusNode
-    ? {
-        w: layout.width / zoom,
-        h: layout.height / zoom,
-        x: focusNode.cx - layout.width / zoom / 2,
-        y: focusNode.cy - layout.height / zoom / 2,
-      }
-    : fullVB;
-  const k = interpolate(localFrame, [0, 30], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const vb = {
-    x: fullVB.x + (targetVB.x - fullVB.x) * k,
-    y: fullVB.y + (targetVB.y - fullVB.y) * k,
-    w: fullVB.w + (targetVB.w - fullVB.w) * k,
-    h: fullVB.h + (targetVB.h - fullVB.h) * k,
-  };
+  // No camera push: always fit the WHOLE graph so a node can never leave the
+  // frame. Focus is shown by dimming siblings + glowing the focused node.
+  // A margin keeps glow rings from clipping at the frame edge.
+  const M = 40;
+  const vb = { x: -M, y: -M, w: layout.width + M * 2, h: layout.height + M * 2 };
+  // Gentle pulse for the focused node's glow.
+  const pulse = 0.5 + 0.5 * Math.sin(localFrame * 0.12);
 
   return (
     <div style={{ width: "100%", height: "100%", padding: 8 }}>
@@ -104,6 +90,25 @@ export const SystemGraphScene: React.FC<Props> = ({ scene, theme, localFrame, fp
         viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
         preserveAspectRatio="xMidYMid meet"
       >
+        <defs>
+          <radialGradient id="focusGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={theme.accentPrimary} stopOpacity={0.22} />
+            <stop offset="55%" stopColor={theme.accentPrimary} stopOpacity={0.08} />
+            <stop offset="100%" stopColor={theme.accentPrimary} stopOpacity={0} />
+          </radialGradient>
+        </defs>
+
+        {/* Soft spotlight behind the focused node (pure emphasis, never clips). */}
+        {focusNode ? (
+          <circle
+            cx={focusNode.cx}
+            cy={focusNode.cy}
+            r={300}
+            fill="url(#focusGlow)"
+            opacity={0.7 + 0.3 * pulse}
+          />
+        ) : null}
+
         {/* ---- Edges: a dim track + a brighter line + a glowing packet stream ---- */}
         {layout.edges.map((e) => {
           const dx = Math.max(40, (e.tx - e.sx) * 0.5);
@@ -158,10 +163,11 @@ export const SystemGraphScene: React.FC<Props> = ({ scene, theme, localFrame, fp
             config: { damping: 16, stiffness: 150 },
           });
           const dim = focusNode && !adjacent.has(n.id);
+          const isFocus = !!focusNode && n.id === focusNode.id;
           const statusColor = theme.statusColors[n.status];
           const isAccent = n.status !== "normal";
           const icon = getIcon(n.icon_slug);
-          const s = 0.92 + enter * 0.08;
+          const s = (0.92 + enter * 0.08) * (isFocus ? 1.05 : 1);
           const rise = (1 - enter) * 20;
           // Text area to the right of the chip, and labels fitted to it.
           const labelX = 16 + CHIP + 16;
@@ -179,6 +185,20 @@ export const SystemGraphScene: React.FC<Props> = ({ scene, theme, localFrame, fp
               <g
                 transform={`translate(${NODE_WIDTH / 2}, ${NODE_HEIGHT / 2}) scale(${s}) translate(${-NODE_WIDTH / 2}, ${-NODE_HEIGHT / 2})`}
               >
+                {/* pulsing focus ring on the camera-focused node */}
+                {isFocus ? (
+                  <rect
+                    x={-9}
+                    y={-9}
+                    width={NODE_WIDTH + 18}
+                    height={NODE_HEIGHT + 18}
+                    rx={20}
+                    fill="none"
+                    stroke={theme.accentPrimary}
+                    strokeWidth={3}
+                    strokeOpacity={0.5 + 0.4 * pulse}
+                  />
+                ) : null}
                 {/* soft glow ring for accented (active/warning/critical) nodes */}
                 {isAccent ? (
                   <rect

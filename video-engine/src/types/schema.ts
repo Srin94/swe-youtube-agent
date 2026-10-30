@@ -72,11 +72,14 @@ export interface TimelineEventItem {
 }
 
 export type VisualType =
+  | "Intro"
+  | "StatHero"
   | "SystemGraph"
   | "CodeDiff"
   | "BenchmarkChart"
   | "IncidentTimeline"
-  | "JobMarketCard";
+  | "JobMarketCard"
+  | "Outro";
 
 export interface SceneSpec {
   scene_id: number;
@@ -93,6 +96,12 @@ export interface SceneSpec {
   benchmarks: BenchmarkItem[];
   timeline_events: TimelineEventItem[];
   callout_keywords: string[];
+  // Intro: the "what we'll cover" agenda lines. Outro: recap lines.
+  agenda_items?: string[];
+  // StatHero: one oversized count-up metric (the punchy hook / mid-roll beat).
+  hero_stat_value?: string | null;
+  hero_stat_label?: string | null;
+  hero_stat_sub?: string | null;
 }
 
 export type ConnectorStyle = "vs_bolt" | "broken_arrow" | "upgrade_arrow";
