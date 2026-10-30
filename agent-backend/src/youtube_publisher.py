@@ -82,6 +82,31 @@ def _set_thumbnail(youtube, video_id: str) -> None:
     print("[youtube] Custom thumbnail set.")
 
 
+def _alert_thumbnail_rejected(video_id: str, exc: Exception) -> None:
+    """Tell the operator (via Telegram) that YouTube refused the custom thumbnail.
+
+    The video is already public with an auto-generated frame, so this is a
+    heads-up to upload output/thumbnail.png manually. The most common cause is a
+    channel that isn't verified for custom thumbnails. Best-effort: never raises.
+    """
+    try:
+        try:
+            from . import telegram_gate
+        except ImportError:  # pragma: no cover
+            import telegram_gate  # type: ignore
+        telegram_gate.notify(
+            "⚠️ Custom thumbnail REJECTED by YouTube.\n"
+            "The video published with an auto-generated frame instead.\n"
+            "Most likely the channel isn't verified for custom thumbnails "
+            "(verify at youtube.com/verify), then upload output/thumbnail.png "
+            "manually in YouTube Studio.\n"
+            f"Video: https://youtu.be/{video_id}\n"
+            f"Reason: {exc}"
+        )
+    except Exception as notify_exc:  # noqa: BLE001
+        print(f"[youtube] thumbnail-rejected alert failed ({notify_exc}).")
+
+
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=2, min=2, max=20))
 def _post_comment(youtube, video_id: str, text: str) -> None:
     youtube.commentThreads().insert(
@@ -115,6 +140,7 @@ def publish(payload: VideoRenderPayload) -> Optional[str]:
         _set_thumbnail(youtube, video_id)
     except Exception as exc:  # noqa: BLE001
         print(f"[youtube] Thumbnail set failed (non-fatal): {exc}")
+        _alert_thumbnail_rejected(video_id, exc)
 
     try:
         _post_comment(youtube, video_id, payload.pinned_comment)

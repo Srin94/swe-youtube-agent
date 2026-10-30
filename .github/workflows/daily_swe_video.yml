@@ -78,6 +78,22 @@ jobs:
             python main.py
           fi
 
+      # Keep the render outputs even when the run isn't approved/published, so the
+      # thumbnail and video are downloadable from the run page (the runner is wiped
+      # otherwise). if: always() => captured on failure/timeout/cancel too.
+      - name: Upload Render Artifacts (thumbnail + video)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-outputs
+          path: |
+            agent-backend/output/thumbnail.png
+            agent-backend/output/thumbnail_filled.html
+            agent-backend/output/final_video.mp4
+            agent-backend/output/render_payload.json
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Commit Updated SQLite Deduplication Database
         run: |
           git config user.name "github-actions[bot]"

@@ -50,6 +50,22 @@ def _call(method: str, **params):
         return resp.json()
 
 
+def notify(text: str) -> None:
+    """Best-effort one-way message to the operator (plain text, no buttons).
+
+    No-op when Telegram isn't configured. Used to surface post-approval events —
+    e.g. a custom thumbnail YouTube rejected — that would otherwise only hit the
+    runner logs. Plain text (no parse_mode) so a raw error string with Markdown
+    metacharacters can never 400 the send.
+    """
+    if not config.has_telegram():
+        return
+    try:
+        _call("sendMessage", chat_id=config.TELEGRAM_CHAT_ID, text=text)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[telegram] notify failed ({exc}).")
+
+
 # Telegram Bot API caps uploads at 50 MB; stay just under it.
 _TG_MAX_UPLOAD = 49 * 1024 * 1024
 
@@ -63,10 +79,20 @@ def _send_preview(payload: VideoRenderPayload) -> None:
     """
     import json as _json
 
+    # Surface whether the custom thumbnail actually rendered, so a missing one is
+    # visible at approval time instead of silently becoming a YouTube auto-frame.
+    thumb_ok = config.THUMBNAIL_PATH.exists() and config.THUMBNAIL_PATH.stat().st_size > 0
+    thumb_line = (
+        "\U0001F5BC️ Thumbnail: generated"
+        if thumb_ok
+        else "⚠️ Thumbnail: NOT generated — YouTube would use an auto-frame"
+    )
+
     caption = (
         f"\U0001F3AC *{_md(payload.youtube_title)}*\n\n"
         f"Theme: `{payload.theme_id}`  |  Category: `{payload.topic_category}`\n"
-        f"Duration: `{payload.total_duration_sec:.0f}s`  |  Scenes: `{len(payload.scenes)}`\n\n"
+        f"Duration: `{payload.total_duration_sec:.0f}s`  |  Scenes: `{len(payload.scenes)}`\n"
+        f"{thumb_line}\n\n"
         f"*Pinned comment:*\n{_md(payload.pinned_comment)}\n\n"
         f"Source: {payload.source_url}"
     )
