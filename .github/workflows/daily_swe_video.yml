@@ -2,7 +2,8 @@ name: Daily SWE YouTube Video Agent
 
 on:
   schedule:
-    - cron: '30 5 * * *' # Runs daily at 05:30 UTC (11:00 AM IST)
+    - cron: '33 5 * * *' # Runs daily at 05:33 UTC (11:03 AM IST). Odd minute,
+      # off the busy :00/:30 marks, so GitHub is far less likely to delay/drop it.
   workflow_dispatch:
     inputs:
       custom_topic:
