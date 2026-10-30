@@ -182,6 +182,12 @@ MUSIC_FADE_MS = int(os.getenv("MUSIC_FADE_MS", "2500"))  # fade in/out length
 THUMBNAIL_WIDTH = 1280
 THUMBNAIL_HEIGHT = 720
 SIMPLEICONS_CDN = "https://cdn.simpleicons.org/{slug}"
+# The thumbnail icon tiles are dark, so a near-black brand color (Anthropic
+# #191919, GitHub #181717, Vercel, ...) renders almost invisible. Any logo whose
+# brand color falls below this rough luminance (0=black .. 1=white) is re-fetched
+# recolored to ICON_LIGHT_COLOR; bright brands (git, postgres, ...) keep theirs.
+ICON_DARK_LUMA_CUTOFF = float(os.getenv("ICON_DARK_LUMA_CUTOFF", "0.3"))
+ICON_LIGHT_COLOR = os.getenv("ICON_LIGHT_COLOR", "EAF0F8")
 
 # ---------------------------------------------------------------------------
 # Video

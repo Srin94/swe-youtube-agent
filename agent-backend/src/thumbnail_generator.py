@@ -8,6 +8,7 @@ and screenshots the page to `output/thumbnail.png`.
 
 from __future__ import annotations
 
+import re
 from typing import Dict
 
 import httpx
@@ -82,11 +83,27 @@ _CONNECTOR_GLYPH = {
 }
 
 
+def _relative_luminance(hex_color: str) -> float:
+    """Rough sRGB-weighted luminance in [0, 1] for a '#RRGGBB' string.
+
+    Unparseable input returns 1.0 (treated as bright) so the brand color is
+    kept rather than needlessly recolored.
+    """
+    h = hex_color.lstrip("#")
+    try:
+        r, g, b = (int(h[i : i + 2], 16) / 255 for i in (0, 2, 4))
+    except (ValueError, IndexError):
+        return 1.0
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
 def _fetch_icon_svg(slug: str) -> str:
     """Return inline <svg> markup for a simple-icons slug, or a text fallback.
 
-    The chip background is always light, so the letter fallback uses a dark
-    color (brand SVGs keep their own colors, which read fine on the light chip).
+    The icon tiles are dark, so a near-black brand color (Anthropic #191919,
+    GitHub #181717, ...) would be nearly invisible. When the brand color is too
+    dark we re-fetch the glyph recolored to a light tone; bright brands (git,
+    postgres, ...) keep their own color. Falls back to a letter badge offline.
     """
     if not slug:
         return ""
@@ -95,10 +112,21 @@ def _fetch_icon_svg(slug: str) -> str:
     try:
         url = config.SIMPLEICONS_CDN.format(slug=normalized)
         with httpx.Client(timeout=10.0) as client:
-            resp = client.get(url, headers={"User-Agent": config.USER_AGENT})
+            headers = {"User-Agent": config.USER_AGENT}
+            resp = client.get(url, headers=headers)
             resp.raise_for_status()
             svg = resp.text
             if "<svg" in svg:
+                # The CDN encodes the brand color as fill="#RRGGBB" on the <svg>.
+                match = re.search(r"#[0-9a-fA-F]{6}", svg)
+                if match and _relative_luminance(match.group(0)) < config.ICON_DARK_LUMA_CUTOFF:
+                    try:
+                        recolored = client.get(f"{url}/{config.ICON_LIGHT_COLOR}", headers=headers)
+                        recolored.raise_for_status()
+                        if "<svg" in recolored.text:
+                            return recolored.text
+                    except Exception as exc:  # noqa: BLE001
+                        print(f"[thumbnail] recolor failed for '{normalized}' ({exc}); using brand color.")
                 return svg
     except Exception as exc:  # noqa: BLE001
         print(f"[thumbnail] icon unavailable for '{slug}' -> letter badge ({exc})")
