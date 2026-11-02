@@ -74,12 +74,26 @@ export interface TimelineEventItem {
 export type VisualType =
   | "Intro"
   | "StatHero"
+  | "ScenarioWorld"
   | "SystemGraph"
   | "CodeDiff"
   | "BenchmarkChart"
   | "IncidentTimeline"
   | "JobMarketCard"
   | "Outro";
+
+// Drives the ScenarioWorld visual: the animated CSS faux-3D "living world".
+// The crowd of glowing units is the scenario's mass actor; online_fraction
+// lights/darkens them and status recolors the whole stage.
+export interface SceneWorld {
+  headline_line1: string;
+  headline_line2: string;
+  section_label: string;
+  metric_prefix: string;
+  population: number;
+  online_fraction: number; // 0..1
+  status: "normal" | "warning" | "critical";
+}
 
 // One concrete, named participant that recurs across scenes (e.g. "450
 // drivers", "the pricing engine"). The viewer follows characters, not boxes.
@@ -128,6 +142,8 @@ export interface SceneSpec {
   hero_stat_value?: string | null;
   hero_stat_label?: string | null;
   hero_stat_sub?: string | null;
+  // ScenarioWorld scene only: data driving the animated living-world visual.
+  world?: SceneWorld | null;
 }
 
 export type ConnectorStyle = "vs_bolt" | "broken_arrow" | "upgrade_arrow";

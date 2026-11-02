@@ -2,6 +2,7 @@ import React from "react";
 import { Composition, staticFile } from "remotion";
 import "./global.css";
 import { MasterComposition } from "./MasterComposition";
+import { ScenarioWorldDemo } from "./components/ScenarioWorldDemo";
 import type { VideoRenderPayload } from "./types/schema";
 import { FALLBACK_PAYLOAD } from "./fallbackPayload";
 
@@ -28,25 +29,44 @@ const loadPayload = async (): Promise<VideoRenderPayload> => {
 
 export const RemotionRoot: React.FC = () => {
   return (
-    <Composition
-      id="SWEMasterVideo"
-      component={MasterComposition}
-      durationInFrames={Math.ceil(FALLBACK_PAYLOAD.total_duration_sec * FPS)}
-      fps={FPS}
-      width={WIDTH}
-      height={HEIGHT}
-      defaultProps={{ payload: FALLBACK_PAYLOAD }}
-      calculateMetadata={async () => {
-        const payload = await loadPayload();
-        const duration = Math.max(
-          1,
-          Math.ceil((payload.total_duration_sec || 1) * FPS),
-        );
-        return {
-          durationInFrames: duration,
-          props: { payload },
-        };
-      }}
-    />
+    <>
+      <Composition
+        id="SWEMasterVideo"
+        component={MasterComposition}
+        durationInFrames={Math.ceil(FALLBACK_PAYLOAD.total_duration_sec * FPS)}
+        fps={FPS}
+        width={WIDTH}
+        height={HEIGHT}
+        defaultProps={{ payload: FALLBACK_PAYLOAD }}
+        calculateMetadata={async () => {
+          const payload = await loadPayload();
+          const duration = Math.max(
+            1,
+            Math.ceil((payload.total_duration_sec || 1) * FPS),
+          );
+          return {
+            durationInFrames: duration,
+            props: { payload },
+          };
+        }}
+      />
+
+      {/* Stage-2 proving ground: the animated CSS faux-3D scenario world driven
+          through a two-beat mini-story. Rendered on its own so it can be
+          iterated without touching the main video. */}
+      <Composition
+        id="ScenarioWorldDemo"
+        component={ScenarioWorldDemo}
+        durationInFrames={9 * FPS}
+        fps={FPS}
+        width={WIDTH}
+        height={HEIGHT}
+        defaultProps={{ payload: FALLBACK_PAYLOAD }}
+        calculateMetadata={async () => {
+          const payload = await loadPayload();
+          return { props: { payload } };
+        }}
+      />
+    </>
   );
 };

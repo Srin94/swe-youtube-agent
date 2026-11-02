@@ -11,6 +11,7 @@ import {
 import type { SceneSpec, VideoRenderPayload } from "./types/schema";
 import { getTheme, gridBackground } from "./styles/themes";
 import { ZoneAStage } from "./components/ZoneAStage";
+import { ScenarioWorld } from "./components/ScenarioWorld";
 
 export type MasterProps = {
   payload: VideoRenderPayload;
@@ -92,6 +93,47 @@ export const MasterComposition: React.FC<MasterProps> = ({ payload }) => {
   const orb2y = 70 + 6 * Math.sin(frame * 0.013);
 
   const progress = durationInFrames > 1 ? frame / (durationInFrames - 1) : 0;
+
+  // ScenarioWorld beats take over the whole frame (the animated living-world
+  // carries its own header/kicker/headline/pill/progress). Detail scenes
+  // (CodeDiff, BenchmarkChart, ...) still render through the normal stage below.
+  if (active.scene.visual_type === "ScenarioWorld" && active.scene.world) {
+    const w = active.scene.world;
+    return (
+      <AbsoluteFill
+        style={{
+          backgroundColor: theme.canvasBg,
+          fontFamily: theme.fontHeading,
+          color: theme.textPrimary,
+          overflow: "hidden",
+        }}
+      >
+        {hasAudio ? <Audio src={staticFile("assets/narration.wav")} /> : null}
+        <ScenarioWorld
+          theme={theme}
+          frame={frame}
+          localFrame={active.localFrame}
+          fps={fps}
+          channelName={CHANNEL_NAME}
+          sectionLabel={w.section_label}
+          sectionValue={active.scene.hud?.context_value || undefined}
+          headlineLines={[w.headline_line1, w.headline_line2]}
+          accentLine={1}
+          population={w.population}
+          onlineFraction={w.online_fraction}
+          status={w.status}
+          pillPrefix={w.metric_prefix}
+          actors={(payload.scenario?.actors || []).map((a) => ({
+            name: a.name,
+            role: a.role,
+          }))}
+          beatText={active.scene.story_beat || undefined}
+          progress={progress}
+          selfContained
+        />
+      </AbsoluteFill>
+    );
+  }
 
   return (
     <AbsoluteFill

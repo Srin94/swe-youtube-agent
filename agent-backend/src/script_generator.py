@@ -127,6 +127,45 @@ class TimelineEventItem(BaseModel):
     severity: Literal["info", "warning", "critical", "resolved"]
 
 
+class SceneWorld(BaseModel):
+    """Drives the ScenarioWorld visual: the animated CSS faux-3D 'living world'.
+
+    The crowd of glowing units IS the scenario's mass actor; `online_fraction`
+    lights or darkens them and the pill counts toward it, and `status` recolors
+    the whole stage (normal=calm, warning/critical=the failure). This is how the
+    one running story is shown as a moving scene instead of an abstract diagram.
+    """
+
+    headline_line1: str = Field(
+        description="Top headline line, punchy. <= 22 chars. e.g. '42,000 shoppers,'"
+    )
+    headline_line2: str = Field(
+        description="Second headline line (gets the accent color). <= 22 chars. "
+        "e.g. 'one cache key'"
+    )
+    section_label: str = Field(
+        description="Mono kicker label for this beat: 'the setup', 'the problem', "
+        "'the fix', 'the payoff'. <= 18 chars."
+    )
+    metric_prefix: str = Field(
+        default="online",
+        description="Label before the live count in the pill: 'online', 'requests', "
+        "'drivers', 'healthy'. <= 12 chars.",
+    )
+    population: int = Field(
+        description="The crowd size the pill counts against, e.g. 42000, 500, 10000."
+    )
+    online_fraction: float = Field(
+        description="0.0-1.0 share of the crowd currently lit/healthy. 1.0 = all "
+        "online (calm setup); low = collapsed (the failure beat)."
+    )
+    status: Literal["normal", "warning", "critical"] = Field(
+        default="normal",
+        description="normal = calm (accent color), warning/critical = the failure "
+        "(amber/red). Drives the whole stage's color.",
+    )
+
+
 class SceneSpec(BaseModel):
     scene_id: int
     chapter_title: str = Field(description="Short 2-4 word HUD chapter title")
@@ -136,6 +175,7 @@ class SceneSpec(BaseModel):
     visual_type: Literal[
         "Intro",
         "StatHero",
+        "ScenarioWorld",
         "SystemGraph",
         "CodeDiff",
         "BenchmarkChart",
@@ -183,6 +223,11 @@ class SceneSpec(BaseModel):
         "in the running story rather than abstract architecture. <= 120 chars. "
         "e.g. '450 drivers quietly switch their app off, so the map looks empty.' "
         "Fill for every non-bookend scene.",
+    )
+    world: Optional[SceneWorld] = Field(
+        default=None,
+        description="ScenarioWorld scene ONLY: the data driving the animated "
+        "living-world visual (headline, live metric, crowd status). Null otherwise.",
     )
 
 
@@ -456,6 +501,13 @@ the Intro is ideal). Fully populate each scene's data field; an empty data field
 renders blank and is unacceptable.
    - Intro       -> MUST have 3-4 agenda_items.
    - StatHero    -> MUST set hero_stat_value (number+unit) and hero_stat_label.
+   - ScenarioWorld -> MUST set `world` (headline_line1/2, section_label, \
+population, online_fraction, status). This is the NARRATIVE SPINE: use it for \
+2-4 beats that show the scenario as a living world — the calm setup \
+(status normal, online_fraction ~1.0), the failure/turn (status critical, \
+online_fraction low), and the payoff (status normal again, recovered). The \
+headline is 2 short lines; population/online_fraction are the live quantity the \
+crowd animates (e.g. 42000 -> 8% online during a stampede).
    - SystemGraph -> MUST have >=3 nodes and >=2 edges.
    - CodeDiff    -> MUST have code_diff; keep EACH line <= 46 characters and \
 <= 6 lines per side so code never overflows the panel.
@@ -465,10 +517,21 @@ renders blank and is unacceptable.
    - Outro       -> MUST have 2-3 agenda_items (recap).
    - EVERY non-bookend scene -> MUST set `story_beat` (one concrete scenario \
 sentence) so the visual is always anchored to the running story.
-   Pick types by topic: INCIDENT_POSTMORTEM favors StatHero + IncidentTimeline + \
-SystemGraph; SYSTEM_DESIGN favors SystemGraph + CodeDiff + BenchmarkChart; \
-NEW_TECH_RELEASE favors StatHero + BenchmarkChart + CodeDiff; JOB_MARKET favors \
-StatHero + JobMarketCard + BenchmarkChart.
+   - FILL OR DROP: a detail scene you cannot FULLY populate must NOT be emitted \
+— use a ScenarioWorld beat in its place. Never output an empty SystemGraph (no \
+nodes), an empty CodeDiff (no code_diff), or an empty chart; empty detail scenes \
+all collapse into identical bar charts and wreck the pacing.
+   - Use AT MOST ONE BenchmarkChart in the whole video (two only if they compare \
+genuinely different number sets), and NEVER place two scenes of the same \
+visual_type back-to-back. When in doubt between a detail scene and a \
+ScenarioWorld beat, choose ScenarioWorld.
+   HYBRID STRUCTURE (preferred): ScenarioWorld carries the story beats (setup, \
+turn, payoff) and the specialized visuals carry the detail. Pick types by topic: \
+INCIDENT_POSTMORTEM favors ScenarioWorld + StatHero + IncidentTimeline; \
+SYSTEM_DESIGN favors ScenarioWorld + SystemGraph + CodeDiff; NEW_TECH_RELEASE \
+favors ScenarioWorld + StatHero + BenchmarkChart + CodeDiff; JOB_MARKET favors \
+ScenarioWorld + StatHero + JobMarketCard. Aim for 2-4 ScenarioWorld beats per \
+video, interleaved with 2-4 detail scenes.
 6. HUD (category-adaptive, strict): fill each scene's `hud` with metrics that \
 FIT THE TOPIC. Never put RPS / p99 / latency / error-rate / "INCIDENT CLOCK" on \
 a JOB_MARKET or NEW_TECH_RELEASE video.
@@ -680,10 +743,59 @@ def _stats_to_benchmarks(scene: "SceneSpec") -> None:
         scene.benchmarks = items
 
 
+def _ensure_world(sc: "SceneSpec", payload: VideoRenderPayload) -> None:
+    """Guarantee a ScenarioWorld scene has a usable `world` block.
+
+    Synthesizes sensible defaults from the scenario setting, the HUD status, and
+    the scene's chapter/keywords so the animated world always has something real
+    to drive even if the model left `world` null or half-filled.
+    """
+    status = {"critical": "critical", "warning": "warning"}.get(
+        sc.hud.status_level, "normal"
+    )
+    setting = (payload.scenario.setting if payload.scenario else "") or ""
+    m = re.search(r"[\d,]{2,}", setting)
+    pop = None
+    if m:
+        try:
+            pop = int(m.group(0).replace(",", ""))
+        except ValueError:
+            pop = None
+    pop = pop or 500
+    frac = 0.08 if status == "critical" else 0.45 if status == "warning" else 1.0
+
+    if sc.world is None:
+        kws = sc.callout_keywords[:2]
+        sc.world = SceneWorld(
+            headline_line1=(sc.chapter_title or "The system")[:22],
+            headline_line2=(" ".join(kws) if kws else "under pressure")[:22],
+            section_label="the problem" if status != "normal" else "the setup",
+            metric_prefix="online",
+            population=pop,
+            online_fraction=frac,
+            status=status,
+        )
+        return
+    w = sc.world
+    if not w.population or w.population < 1:
+        w.population = pop
+    w.online_fraction = min(1.0, max(0.0, w.online_fraction))
+    if not w.headline_line1.strip():
+        w.headline_line1 = (sc.chapter_title or "The system")[:22]
+    if not w.section_label.strip():
+        w.section_label = "the problem" if status != "normal" else "the setup"
+
+
 def _repair_scenes(payload: VideoRenderPayload) -> None:
-    """Guarantee each scene's visual has data; convert empties to a bar chart
-    built from the (category-appropriate) HUD stats."""
-    for sc in payload.scenes:
+    """Guarantee each scene's visual has data.
+
+    An empty detail scene is turned into a ScenarioWorld beat (always fillable
+    from the scenario, and more cinematic) rather than a bar chart — unless that
+    would stack two ScenarioWorlds back-to-back, in which case it falls back to a
+    BenchmarkChart from the HUD stats. This keeps the visual rhythm varied even
+    when the model under-fills several detail scenes in a row.
+    """
+    for i, sc in enumerate(payload.scenes):
         if not sc.hud.stats:
             sc.hud.stats = [HudStat(label="SIGNAL", value="—")]
 
@@ -696,6 +808,11 @@ def _repair_scenes(payload: VideoRenderPayload) -> None:
         if sc.visual_type in ("Intro", "Outro", "StatHero"):
             continue
 
+        # ScenarioWorld needs its `world` block, not the node/chart data.
+        if sc.visual_type == "ScenarioWorld":
+            _ensure_world(sc, payload)
+            continue
+
         empty = (
             (sc.visual_type == "SystemGraph" and len(sc.nodes) < 2)
             or (sc.visual_type == "CodeDiff" and sc.code_diff is None)
@@ -705,14 +822,20 @@ def _repair_scenes(payload: VideoRenderPayload) -> None:
         )
         if not empty:
             continue
-        # Fall back: render the HUD stats as a bar chart so Zone A is populated.
+        # Prefer turning an empty detail scene into a ScenarioWorld beat (always
+        # fillable from the scenario, more cinematic) over piling on bar charts.
+        # Never duplicate the previous scene's type, so no two of the same visual
+        # ever land back-to-back.
+        prev_type = payload.scenes[i - 1].visual_type if i > 0 else None
+        fallback = "ScenarioWorld" if prev_type != "ScenarioWorld" else "BenchmarkChart"
         print(
             f"[script] Scene {sc.scene_id} ({sc.visual_type}) had no data; "
-            "repairing to BenchmarkChart from HUD stats."
+            f"repairing to {fallback}."
         )
-        if sc.visual_type not in ("BenchmarkChart", "JobMarketCard"):
-            sc.visual_type = "BenchmarkChart"
-        if not sc.benchmarks:
+        sc.visual_type = fallback
+        if fallback == "ScenarioWorld":
+            _ensure_world(sc, payload)
+        elif not sc.benchmarks:
             _stats_to_benchmarks(sc)
 
 
