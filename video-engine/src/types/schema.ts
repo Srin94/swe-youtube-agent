@@ -81,10 +81,36 @@ export type VisualType =
   | "JobMarketCard"
   | "Outro";
 
+// One concrete, named participant that recurs across scenes (e.g. "450
+// drivers", "the pricing engine"). The viewer follows characters, not boxes.
+export interface ScenarioActor {
+  name: string;
+  role: string;
+  icon_slug: string;
+}
+
+// Ties one technical term to its plain real-world meaning inside the scenario.
+export interface ConceptMapping {
+  term: string;
+  plain_meaning: string;
+}
+
+// The single concrete real-world story the WHOLE video is built around. Stage-2
+// rendering animates this as a persistent world; keep it concrete + quantitative.
+export interface Scenario {
+  setting: string;
+  analogy: string;
+  actors: ScenarioActor[];
+  concept_mappings: ConceptMapping[];
+  plain_takeaway: string;
+}
+
 export interface SceneSpec {
   scene_id: number;
   chapter_title: string;
   narration_text: string;
+  // One concrete sentence of what happens in the scenario during this scene.
+  story_beat?: string | null;
   start_sec: number;
   duration_sec: number;
   visual_type: VisualType;
@@ -130,6 +156,8 @@ export interface VideoRenderPayload {
   youtube_tags: string[];
   pinned_comment: string;
   source_url: string;
+  // The single concrete real-world scenario the whole video is built around.
+  scenario?: Scenario | null;
   thumbnail: ThumbnailSpec;
   scenes: SceneSpec[];
   words: WordTimestamp[];

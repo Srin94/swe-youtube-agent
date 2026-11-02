@@ -13,6 +13,46 @@
   ],
   "pinned_comment": "Partial index, covering index, or just denormalize? What would you have shipped here?",
   "source_url": "https://example.com/mock-postgres",
+  "scenario": {
+    "setting": "A food-delivery app's orders table hits 10M rows on a busy Friday; the order-history page that loaded instantly now hangs for 9 seconds.",
+    "analogy": "It's like finding one order by flipping through every page of a 10-million-page ledger, because nobody added the alphabetical tabs.",
+    "actors": [
+      {
+        "name": "orders table",
+        "role": "holds every order ever placed",
+        "icon_slug": "postgresql"
+      },
+      {
+        "name": "query planner",
+        "role": "decides how to find a row",
+        "icon_slug": ""
+      },
+      {
+        "name": "the missing index",
+        "role": "the tab page never added",
+        "icon_slug": ""
+      }
+    ],
+    "concept_mappings": [
+      {
+        "term": "sequential scan",
+        "plain_meaning": "reading all 10M rows one by one to find a few"
+      },
+      {
+        "term": "B-tree index",
+        "plain_meaning": "sorted tab pages that jump straight to the row"
+      },
+      {
+        "term": "query planner",
+        "plain_meaning": "the clerk who picks search-every-page vs use-the-tabs"
+      },
+      {
+        "term": "p99 latency",
+        "plain_meaning": "how slow it feels for the unluckiest 1 in 100 loads"
+      }
+    ],
+    "plain_takeaway": "Without the right index your database re-reads the whole table on every lookup, and that cost stays invisible until the table gets big."
+  },
   "thumbnail": {
     "headline_text": "9s TO 200ms",
     "badge_text": "SYSTEM DESIGN",
@@ -26,6 +66,7 @@
       "chapter_title": "Overview",
       "visual_type": "Intro",
       "narration_text": "A single missing index made Postgres forty times slower overnight. Here's exactly what broke, and how one line fixed it.",
+      "story_beat": null,
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "",
@@ -64,6 +105,7 @@
       "chapter_title": "The Damage",
       "visual_type": "StatHero",
       "narration_text": "The same query that used to return in two hundred milliseconds was suddenly taking nine full seconds. Forty times slower.",
+      "story_beat": "The order-history page that felt instant now spins for 9 full seconds on every open.",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "SCALE",
@@ -99,6 +141,7 @@
       "chapter_title": "Baseline",
       "visual_type": "SystemGraph",
       "narration_text": "The stack was simple. A Next.js front end hit a Node API, which ran a filtered lookup against a single Postgres table.",
+      "story_beat": "The app asks the orders table for one customer's recent orders; fast while the table is small.",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "SCALE",
@@ -176,6 +219,7 @@
       "chapter_title": "The Bottleneck",
       "visual_type": "SystemGraph",
       "narration_text": "As the table crossed ten million rows, Postgres stopped using the primary key and fell back to a full sequential scan on every request.",
+      "story_beat": "Past 10M rows the query planner abandons the tabs and reads every single row.",
       "camera_focus_node_id": "pg",
       "hud": {
         "context_label": "SCALE",
@@ -253,6 +297,7 @@
       "chapter_title": "The Fix",
       "visual_type": "CodeDiff",
       "narration_text": "The fix was one line: a B-tree index on the exact column in the where clause. Postgres could finally jump straight to the rows.",
+      "story_beat": "Someone adds the missing tab pages: one index on the exact column being searched.",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "SCALE",
@@ -294,6 +339,7 @@
       "chapter_title": "The Numbers",
       "visual_type": "BenchmarkChart",
       "narration_text": "After the index shipped, the same query dropped from nine thousand one hundred milliseconds back down to two hundred and twenty.",
+      "story_beat": "With the tabs back, the same lookup jumps straight to the row, 9s down to 200ms.",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "SCALE",
@@ -342,6 +388,7 @@
       "chapter_title": "Wrap Up",
       "visual_type": "Outro",
       "narration_text": "That's the whole story: profile the query plan, index the hot column, and re-check at scale. If this helped, subscribe and tell me your worst index story.",
+      "story_beat": null,
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "",

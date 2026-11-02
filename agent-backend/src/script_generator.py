@@ -176,6 +176,85 @@ class SceneSpec(BaseModel):
         default=None,
         description="StatHero scene ONLY: optional one-line context under the label.",
     )
+    story_beat: Optional[str] = Field(
+        default=None,
+        description="One concrete sentence describing what happens IN THE SCENARIO "
+        "during this scene (uses the scenario's named actors), grounding the visual "
+        "in the running story rather than abstract architecture. <= 120 chars. "
+        "e.g. '450 drivers quietly switch their app off, so the map looks empty.' "
+        "Fill for every non-bookend scene.",
+    )
+
+
+class ScenarioActor(BaseModel):
+    """One concrete, named participant in the real-world scenario.
+
+    Actors recur across scenes so the viewer follows the SAME characters the
+    whole video (e.g. '450 drivers', 'the pricing engine', 'the airport queue')
+    instead of meeting a new abstract box every beat.
+    """
+
+    name: str = Field(
+        description="Concrete name/handle, e.g. '450 drivers', 'Pricing engine', "
+        "'Checkout cart'. <= 24 chars."
+    )
+    role: str = Field(
+        description="What they do in the story, in plain words. <= 40 chars."
+    )
+    icon_slug: str = Field(
+        default="",
+        description="Optional simple-icons slug for this actor, or '' for none.",
+    )
+
+
+class ConceptMapping(BaseModel):
+    """Ties one piece of technical jargon to its plain real-world meaning.
+
+    This is the explicit anti-jargon contract: every key term the narration uses
+    must be grounded here in everyday language tied to the scenario.
+    """
+
+    term: str = Field(
+        description="The technical term, e.g. 'surge pricing', 'virtual queue', "
+        "'anomaly detection', 'write-ahead log'."
+    )
+    plain_meaning: str = Field(
+        description="What it means INSIDE THIS SCENARIO, in everyday words a "
+        "non-engineer gets instantly. <= 70 chars."
+    )
+
+
+class Scenario(BaseModel):
+    """The single concrete real-world story the whole video is built around.
+
+    The anti-jargon lever: instead of narrating abstract architecture, every
+    scene advances ONE tangible situation with named `actors`, and each technical
+    concept is grounded via `concept_mappings`. Stage-2 rendering will animate
+    this story as a persistent world, so keep it concrete and quantitative.
+    """
+
+    setting: str = Field(
+        description="The concrete situation in one line, e.g. '500 Uber drivers "
+        "waiting at SFO airport during a Friday-night surge'. <= 120 chars."
+    )
+    analogy: str = Field(
+        description="An everyday 'it's like...' comparison a non-engineer gets "
+        "instantly, e.g. 'It's like everyone in a stadium standing up to see "
+        "better — so nobody sees better.' <= 140 chars."
+    )
+    actors: List[ScenarioActor] = Field(
+        default_factory=list,
+        description="2-4 named concrete participants that recur across scenes.",
+    )
+    concept_mappings: List[ConceptMapping] = Field(
+        default_factory=list,
+        description="2-4 jargon -> plain-meaning pairs grounding the key terms in "
+        "the scenario. Every technical term the narration leans on appears here.",
+    )
+    plain_takeaway: str = Field(
+        description="The one-sentence 'so what' a smart friend would remember, in "
+        "human terms (no jargon). <= 160 chars."
+    )
 
 
 class ThumbnailSpec(BaseModel):
@@ -200,6 +279,11 @@ class VideoRenderPayload(BaseModel):
         description="Opinionated engineering trade-off question to spark comments"
     )
     source_url: str
+    scenario: Optional[Scenario] = Field(
+        default=None,
+        description="The single concrete real-world scenario the WHOLE video is "
+        "built around. Every scene must advance this one story (see Scenario).",
+    )
     thumbnail: ThumbnailSpec
     scenes: List[SceneSpec]
     words: List[WordTimestamp] = Field(default_factory=list)
@@ -324,6 +408,30 @@ into a tightly-paced, highly-visual 65-110 second video as a strict JSON \
 VideoRenderPayload.
 
 NON-NEGOTIABLE RETENTION RULES:
+0. SCENARIO-FIRST (the most important rule — this is what separates us from \
+every other faceless tech channel): before anything else, invent ONE concrete, \
+specific, real-world scenario and build the ENTIRE video around it. Fill the \
+top-level `scenario` object:
+   - setting: a tangible situation with REAL numbers and a REAL place/moment \
+(e.g. '500 drivers idling at SFO airport on a Friday night', not 'a distributed \
+system under load').
+   - analogy: one everyday 'it's like...' comparison a non-engineer gets \
+instantly (stadium crowds, a restaurant queue, a highway on-ramp, a bank teller \
+line). The analogy must actually MAP to the mechanism, not just be decoration.
+   - actors: 2-4 NAMED concrete participants (e.g. '450 drivers', 'the pricing \
+engine', 'the airport queue'). These SAME actors recur across scenes — the \
+viewer follows characters, not abstract boxes.
+   - concept_mappings: for EVERY technical term you will say, give its plain \
+meaning inside the scenario. If a term has no mapping, do not use it.
+   - plain_takeaway: the one human-language sentence a viewer repeats to a \
+friend afterwards.
+   Then every scene's narration_text must ADVANCE THIS ONE STORY using the named \
+actors, and every scene MUST set `story_beat` to one concrete sentence of what \
+happens in the scenario at that moment. Teach the engineering THROUGH the story. \
+BANNED unless immediately grounded in the scenario in the same sentence: \
+'leverages', 'robust', 'scalable', 'under the hood', 'at scale', naked metrics \
+with no actor. Prefer 'the queue' over 'the buffer', 'waiting room' over \
+'staging', 'bouncer' over 'rate limiter' — then name the real term once, mapped.
 1. STRUCTURE (mandatory bookends): the FIRST scene MUST be visual_type "Intro" \
 and the LAST scene MUST be visual_type "Outro".
    - Intro (0:00-0:08): a punchy cold open. narration_text states the ONE \
@@ -355,6 +463,8 @@ renders blank and is unacceptable.
    - IncidentTimeline -> MUST have >=3 timeline_events.
    - JobMarketCard -> MUST have >=3 benchmarks and MAY add timeline_events.
    - Outro       -> MUST have 2-3 agenda_items (recap).
+   - EVERY non-bookend scene -> MUST set `story_beat` (one concrete scenario \
+sentence) so the visual is always anchored to the running story.
    Pick types by topic: INCIDENT_POSTMORTEM favors StatHero + IncidentTimeline + \
 SystemGraph; SYSTEM_DESIGN favors SystemGraph + CodeDiff + BenchmarkChart; \
 NEW_TECH_RELEASE favors StatHero + BenchmarkChart + CodeDiff; JOB_MARKET favors \
@@ -418,6 +528,10 @@ def generate_script(
     # Guarantee the source url round-trips even if the model omitted it.
     payload.source_url = payload.source_url or source_url
 
+    # Guarantee a scenario exists so the whole pipeline (and Stage-2 rendering)
+    # always has a concrete story to anchor to, even if the model skipped it.
+    _ensure_scenario(payload)
+
     # Guarantee the Intro/Outro bookends, repair any empty scenes so Zone A is
     # never blank, then seed timings.
     _ensure_intro_outro(payload)
@@ -425,6 +539,32 @@ def generate_script(
     _renumber_scenes(payload)
     _seed_provisional_timings(payload)
     return payload
+
+
+# ---------------------------------------------------------------------------
+# Scenario safety net (so the story anchor is never missing)
+# ---------------------------------------------------------------------------
+def _ensure_scenario(payload: VideoRenderPayload) -> None:
+    """Guarantee a usable `scenario` even if the model omitted or half-filled it.
+
+    A thin synthesized scenario (built from the title) is better than None: it
+    keeps downstream consumers — and Stage-2 rendering — able to assume the
+    field is always present. A real model-authored scenario is left untouched
+    apart from backfilling the one-line takeaway.
+    """
+    title = payload.youtube_title.rstrip(".").strip()
+    sc = payload.scenario
+    if sc and sc.setting.strip():
+        if not sc.plain_takeaway.strip():
+            sc.plain_takeaway = f"{title}." if title else "Here's how it really works."
+        return
+    payload.scenario = Scenario(
+        setting=title or "A real production system under pressure",
+        analogy="",
+        actors=[],
+        concept_mappings=[],
+        plain_takeaway=f"{title}." if title else "Here's how it really works.",
+    )
 
 
 # ---------------------------------------------------------------------------
