@@ -64,9 +64,10 @@
     {
       "scene_id": 1,
       "chapter_title": "Overview",
-      "visual_type": "Intro",
       "narration_text": "A single missing index made Postgres forty times slower overnight. Here's exactly what broke, and how one line fixed it.",
-      "story_beat": null,
+      "start_sec": 0.0,
+      "duration_sec": 8.0,
+      "visual_type": "Intro",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "",
@@ -97,15 +98,16 @@
       "hero_stat_value": null,
       "hero_stat_label": null,
       "hero_stat_sub": null,
-      "start_sec": 0.0,
-      "duration_sec": 8.0
+      "story_beat": null,
+      "world": null
     },
     {
       "scene_id": 2,
       "chapter_title": "The Damage",
-      "visual_type": "StatHero",
       "narration_text": "The same query that used to return in two hundred milliseconds was suddenly taking nine full seconds. Forty times slower.",
-      "story_beat": "The order-history page that felt instant now spins for 9 full seconds on every open.",
+      "start_sec": 8.0,
+      "duration_sec": 6.0,
+      "visual_type": "StatHero",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "SCALE",
@@ -133,15 +135,16 @@
       "hero_stat_value": "40x",
       "hero_stat_label": "Slower past 10M rows",
       "hero_stat_sub": "A 200ms query became a 9-second table scan",
-      "start_sec": 8.0,
-      "duration_sec": 6.0
+      "story_beat": "The order-history page that felt instant now spins for 9 full seconds on every open.",
+      "world": null
     },
     {
       "scene_id": 3,
       "chapter_title": "Baseline",
-      "visual_type": "SystemGraph",
       "narration_text": "The stack was simple. A Next.js front end hit a Node API, which ran a filtered lookup against a single Postgres table.",
-      "story_beat": "The app asks the orders table for one customer's recent orders; fast while the table is small.",
+      "start_sec": 14.0,
+      "duration_sec": 7.0,
+      "visual_type": "SystemGraph",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "SCALE",
@@ -211,15 +214,16 @@
       "hero_stat_value": null,
       "hero_stat_label": null,
       "hero_stat_sub": null,
-      "start_sec": 14.0,
-      "duration_sec": 7.0
+      "story_beat": "The app asks the orders table for one customer's recent orders; fast while the table is small.",
+      "world": null
     },
     {
       "scene_id": 4,
       "chapter_title": "The Bottleneck",
-      "visual_type": "SystemGraph",
       "narration_text": "As the table crossed ten million rows, Postgres stopped using the primary key and fell back to a full sequential scan on every request.",
-      "story_beat": "Past 10M rows the query planner abandons the tabs and reads every single row.",
+      "start_sec": 21.0,
+      "duration_sec": 7.0,
+      "visual_type": "ScenarioWorld",
       "camera_focus_node_id": "pg",
       "hud": {
         "context_label": "SCALE",
@@ -289,15 +293,24 @@
       "hero_stat_value": null,
       "hero_stat_label": null,
       "hero_stat_sub": null,
-      "start_sec": 21.0,
-      "duration_sec": 7.0
+      "story_beat": "Past 10M rows the query planner abandons the tabs and reads every single row.",
+      "world": {
+        "headline_line1": "10 million rows,",
+        "headline_line2": "no index",
+        "section_label": "the problem",
+        "metric_prefix": "fast reads",
+        "population": 10000000,
+        "online_fraction": 0.08,
+        "status": "critical"
+      }
     },
     {
       "scene_id": 5,
       "chapter_title": "The Fix",
-      "visual_type": "CodeDiff",
       "narration_text": "The fix was one line: a B-tree index on the exact column in the where clause. Postgres could finally jump straight to the rows.",
-      "story_beat": "Someone adds the missing tab pages: one index on the exact column being searched.",
+      "start_sec": 28.0,
+      "duration_sec": 8.0,
+      "visual_type": "CodeDiff",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "SCALE",
@@ -331,15 +344,16 @@
       "hero_stat_value": null,
       "hero_stat_label": null,
       "hero_stat_sub": null,
-      "start_sec": 28.0,
-      "duration_sec": 8.0
+      "story_beat": "Someone adds the missing tab pages: one index on the exact column being searched.",
+      "world": null
     },
     {
       "scene_id": 6,
       "chapter_title": "The Numbers",
-      "visual_type": "BenchmarkChart",
       "narration_text": "After the index shipped, the same query dropped from nine thousand one hundred milliseconds back down to two hundred and twenty.",
-      "story_beat": "With the tabs back, the same lookup jumps straight to the row, 9s down to 200ms.",
+      "start_sec": 36.0,
+      "duration_sec": 7.0,
+      "visual_type": "BenchmarkChart",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "SCALE",
@@ -361,13 +375,13 @@
       "benchmarks": [
         {
           "label": "Seq Scan (before)",
-          "value": 9100,
+          "value": 9100.0,
           "unit": "ms",
           "is_winner": false
         },
         {
           "label": "Index Scan (after)",
-          "value": 220,
+          "value": 220.0,
           "unit": "ms",
           "is_winner": true
         }
@@ -380,15 +394,16 @@
       "hero_stat_value": null,
       "hero_stat_label": null,
       "hero_stat_sub": null,
-      "start_sec": 36.0,
-      "duration_sec": 7.0
+      "story_beat": "With the tabs back, the same lookup jumps straight to the row, 9s down to 200ms.",
+      "world": null
     },
     {
       "scene_id": 7,
       "chapter_title": "Wrap Up",
-      "visual_type": "Outro",
       "narration_text": "That's the whole story: profile the query plan, index the hot column, and re-check at scale. If this helped, subscribe and tell me your worst index story.",
-      "story_beat": null,
+      "start_sec": 43.0,
+      "duration_sec": 7.0,
+      "visual_type": "Outro",
       "camera_focus_node_id": null,
       "hud": {
         "context_label": "",
@@ -418,8 +433,8 @@
       "hero_stat_value": null,
       "hero_stat_label": null,
       "hero_stat_sub": null,
-      "start_sec": 43.0,
-      "duration_sec": 7.0
+      "story_beat": null,
+      "world": null
     }
   ],
   "words": [],
