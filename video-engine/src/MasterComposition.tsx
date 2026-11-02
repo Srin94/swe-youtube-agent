@@ -11,7 +11,7 @@ import {
 import type { SceneSpec, VideoRenderPayload } from "./types/schema";
 import { getTheme, gridBackground } from "./styles/themes";
 import { ZoneAStage } from "./components/ZoneAStage";
-import { ScenarioWorld } from "./components/ScenarioWorld";
+import { IconWorld } from "./components/IconWorld";
 
 export type MasterProps = {
   payload: VideoRenderPayload;
@@ -109,7 +109,7 @@ export const MasterComposition: React.FC<MasterProps> = ({ payload }) => {
         }}
       >
         {hasAudio ? <Audio src={staticFile("assets/narration.wav")} /> : null}
-        <ScenarioWorld
+        <IconWorld
           theme={theme}
           frame={frame}
           localFrame={active.localFrame}
@@ -119,10 +119,13 @@ export const MasterComposition: React.FC<MasterProps> = ({ payload }) => {
           sectionValue={active.scene.hud?.context_value || undefined}
           headlineLines={[w.headline_line1, w.headline_line2]}
           accentLine={1}
+          unit={w.unit_icon ?? "person"}
+          formation={w.formation ?? "field"}
           population={w.population}
-          onlineFraction={w.online_fraction}
+          activeFraction={w.online_fraction}
           status={w.status}
-          pillPrefix={w.metric_prefix}
+          metricPrefix={w.metric_prefix}
+          gateLabel={w.gate_label ?? undefined}
           actors={(payload.scenario?.actors || []).map((a) => ({
             name: a.name,
             role: a.role,

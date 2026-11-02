@@ -85,13 +85,30 @@ export type VisualType =
 // Drives the ScenarioWorld visual: the animated CSS faux-3D "living world".
 // The crowd of glowing units is the scenario's mass actor; online_fraction
 // lights/darkens them and status recolors the whole stage.
+export type CrowdUnit =
+  | "person"
+  | "car"
+  | "ticket"
+  | "server"
+  | "box"
+  | "request"
+  | "database"
+  | "file";
+
+export type CrowdFormation = "rush" | "queue" | "jam" | "field" | "scatter";
+
 export interface SceneWorld {
+  // What the countable thing in this line literally is + how it moves. Optional
+  // for back-compat with older payloads (MasterComposition falls back).
+  unit_icon?: CrowdUnit;
+  formation?: CrowdFormation;
+  gate_label?: string | null;
   headline_line1: string;
   headline_line2: string;
   section_label: string;
   metric_prefix: string;
   population: number;
-  online_fraction: number; // 0..1
+  online_fraction: number; // 0..1 — share that got through / is active / lit
   status: "normal" | "warning" | "critical";
 }
 

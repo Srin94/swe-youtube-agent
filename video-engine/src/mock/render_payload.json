@@ -295,6 +295,9 @@
       "hero_stat_sub": null,
       "story_beat": "Past 10M rows the query planner abandons the tabs and reads every single row.",
       "world": {
+        "unit_icon": "file",
+        "formation": "field",
+        "gate_label": null,
         "headline_line1": "10 million rows,",
         "headline_line2": "no index",
         "section_label": "the problem",

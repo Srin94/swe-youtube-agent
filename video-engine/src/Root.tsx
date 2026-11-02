@@ -3,6 +3,8 @@ import { Composition, staticFile } from "remotion";
 import "./global.css";
 import { MasterComposition } from "./MasterComposition";
 import { ScenarioWorldDemo } from "./components/ScenarioWorldDemo";
+import { IconCrowdDemo } from "./components/IconCrowdDemo";
+import { IconWorldProbe } from "./components/IconWorldProbe";
 import type { VideoRenderPayload } from "./types/schema";
 import { FALLBACK_PAYLOAD } from "./fallbackPayload";
 
@@ -65,6 +67,42 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={async () => {
           const payload = await loadPayload();
           return { props: { payload } };
+        }}
+      />
+
+      {/* Literal icon-crowd proof: 150 person-glyphs rush one gate, then jam
+          when crowd control is removed. Self-contained (no payload needed). */}
+      <Composition
+        id="IconCrowdDemo"
+        component={IconCrowdDemo}
+        durationInFrames={9 * FPS}
+        fps={FPS}
+        width={WIDTH}
+        height={HEIGHT}
+      />
+
+      {/* Look-dev probe: drive IconWorld in any formation via --props. */}
+      <Composition
+        id="IconWorldProbe"
+        component={IconWorldProbe}
+        durationInFrames={8 * FPS}
+        fps={FPS}
+        width={WIDTH}
+        height={HEIGHT}
+        defaultProps={{
+          formation: "rush" as const,
+          unit: "person" as const,
+          population: 100000,
+          activeFraction: 0.18,
+          status: "critical" as const,
+          headline1: "100,000 fans,",
+          headline2: "one entrance",
+          sectionLabel: "flash sale",
+          sectionValue: "12:00 PM",
+          gateLabel: "entrance",
+          metricPrefix: "inside",
+          beat: "One gate can't drain the surge — the crush builds.",
+          warRoom: false,
         }}
       />
     </>

@@ -136,6 +136,34 @@ class SceneWorld(BaseModel):
     one running story is shown as a moving scene instead of an abstract diagram.
     """
 
+    unit_icon: Literal[
+        "person", "car", "ticket", "server", "box", "request", "database", "file"
+    ] = Field(
+        default="person",
+        description="What the COUNTABLE THING in this narration line literally is, "
+        "drawn as many small icons. Map the noun to the closest icon: people/users/"
+        "fans/customers/drivers->person; vehicles/rides/cabs->car; tickets/tokens/"
+        "passes/seats->ticket; servers/nodes/workers/pods/instances->server; "
+        "packages/orders/items/containers/deploys->box; requests/calls/packets/"
+        "events/queries->request; databases/stores/shards->database; files/rows/"
+        "records/logs/documents->file. Pick the one the viewer would recognise.",
+    )
+    formation: Literal["rush", "queue", "jam", "field", "scatter"] = Field(
+        default="field",
+        description="How the units MOVE this beat — the verb of the line. "
+        "rush = many units stream toward one gate and pile up (thundering herd, "
+        "flash sale, surge); queue = units line up and drain in orderly batches "
+        "(message queue, rate limiter, waiting room); jam = units are already "
+        "crushed at a choke point (an overload/outage beat); field = units fill a "
+        "grid/lot and a fraction light up (N things at rest: rows, cars, servers, "
+        "'online_fraction' is the lit share); scatter = units fan out from a hub "
+        "(broadcast, fan-out, replication). Choose the one that matches the verb.",
+    )
+    gate_label: Optional[str] = Field(
+        default=None,
+        description="rush/queue/jam only: the <=10 char label on the gate the units "
+        "push through, e.g. 'ENTRANCE', 'CHECKOUT', 'API', 'PRIMARY'. null otherwise.",
+    )
     headline_line1: str = Field(
         description="Top headline line, punchy. <= 22 chars. e.g. '42,000 shoppers,'"
     )
@@ -149,15 +177,16 @@ class SceneWorld(BaseModel):
     )
     metric_prefix: str = Field(
         default="online",
-        description="Label before the live count in the pill: 'online', 'requests', "
-        "'drivers', 'healthy'. <= 12 chars.",
+        description="Label before the live count in the pill — what GOT THROUGH / is "
+        "active: 'inside', 'served', 'parked', 'delivered', 'online'. <= 12 chars.",
     )
     population: int = Field(
         description="The crowd size the pill counts against, e.g. 42000, 500, 10000."
     )
     online_fraction: float = Field(
-        description="0.0-1.0 share of the crowd currently lit/healthy. 1.0 = all "
-        "online (calm setup); low = collapsed (the failure beat)."
+        description="0.0-1.0 share that got THROUGH / is active / is lit. 1.0 = all "
+        "fine (calm); low = most stuck or dark (the failure beat). For a jam use a "
+        "low value so the crush dominates; for a healthy field use a high value."
     )
     status: Literal["normal", "warning", "critical"] = Field(
         default="normal",
@@ -501,13 +530,22 @@ the Intro is ideal). Fully populate each scene's data field; an empty data field
 renders blank and is unacceptable.
    - Intro       -> MUST have 3-4 agenda_items.
    - StatHero    -> MUST set hero_stat_value (number+unit) and hero_stat_label.
-   - ScenarioWorld -> MUST set `world` (headline_line1/2, section_label, \
-population, online_fraction, status). This is the NARRATIVE SPINE: use it for \
-2-4 beats that show the scenario as a living world — the calm setup \
-(status normal, online_fraction ~1.0), the failure/turn (status critical, \
-online_fraction low), and the payoff (status normal again, recovered). The \
-headline is 2 short lines; population/online_fraction are the live quantity the \
-crowd animates (e.g. 42000 -> 8% online during a stampede).
+   - ScenarioWorld -> MUST set `world`: unit_icon (what the countable thing in \
+the line literally IS — person/car/ticket/server/box/request/database/file), \
+formation (how they MOVE this beat — rush/queue/jam/field/scatter), gate_label \
+(rush/queue/jam only), headline_line1/2, section_label, metric_prefix, \
+population, online_fraction, status. This is the DOMINANT NARRATIVE SPINE: make \
+it 3-6 beats — ideally EVERY narration line that names a concrete countable thing \
+becomes a ScenarioWorld beat that LITERALLY DRAWS that thing doing that verb. \
+e.g. '100,000 fans rush one gate' -> unit_icon person, formation rush, gate_label \
+ENTRANCE, population 100000, online_fraction 0.1 (the jam); 'a million rows, no \
+index' -> unit_icon file, formation field, online_fraction 0.08; 'orders pile up \
+behind one worker' -> unit_icon box, formation queue, gate_label WORKER; 'one \
+event fans out to every subscriber' -> unit_icon request, formation scatter. \
+Show the arc through status/online_fraction: calm setup (normal, ~1.0), the \
+failure/turn (critical, low), the payoff (normal, recovered). ALWAYS pick \
+unit_icon + formation to MATCH THE WORDS of that exact line, so the viewer sees \
+precisely what is being said — not an abstract chart.
    - SystemGraph -> MUST have >=3 nodes and >=2 edges.
    - CodeDiff    -> MUST have code_diff; keep EACH line <= 46 characters and \
 <= 6 lines per side so code never overflows the panel.
@@ -743,16 +781,99 @@ def _stats_to_benchmarks(scene: "SceneSpec") -> None:
         scene.benchmarks = items
 
 
+# Keyword -> glyph. Checked by score (most hits win); default "person".
+_UNIT_KEYWORDS = [
+    ("car", ("car", "cab", "taxi", "vehicle", " ride", "truck", "fleet", "driver")),
+    ("ticket", ("ticket", "token", "pass", "seat", "booking", "reservation")),
+    ("server", ("server", "node", "worker", "pod", "instance", "machine",
+                "host", "replica", "broker")),
+    ("database", ("database", " db ", "datastore", "shard", "warehouse")),
+    ("file", ("file", "row", "record", " log", "document", "photo", "image",
+              "blob", "object")),
+    ("box", ("package", "order", "parcel", " item", "product", "deploy",
+             "build", "container", "shipment", "cart")),
+    ("request", ("request", "query", "packet", "event", "message", " api",
+                 "rpc", "ping", "webhook", " call", "transaction")),
+    ("person", ("user", "fan", "customer", "shopper", "visitor", "people",
+                "rider", "viewer", "client", "subscriber", "player",
+                "passenger", "person", "crowd")),
+]
+
+# Keyword -> motion. Checked by score; default "field" ("jam" if the beat is
+# critical and nothing else matched).
+_FORMATION_KEYWORDS = [
+    ("scatter", ("fan out", "fan-out", "broadcast", "replicat", "publish",
+                 "propagat", "distribute", "spread", "notify", "gossip",
+                 "multicast")),
+    ("jam", ("jam", "stuck", "choke", "bottleneck", "gridlock", "overload",
+             "crush", "saturate", "congest", "deadlock", "pile up", "pile-up")),
+    ("queue", ("queue", "wait", "line up", "backlog", "buffer", "batch",
+               "rate limit", "throttle", "drain", "pipeline", "behind one")),
+    ("rush", ("rush", "surge", "spike", "flood", "stampede", "thundering",
+              "herd", "flash sale", "peak", "burst", "swarm", "hammer", "slam",
+              "pour", "all at once", "simultaneous")),
+    ("field", ("grid", " lot", "cluster", "pool", "table", "stored", "at rest",
+               "park", "idle", "capacity", "million", "records", " sit")),
+]
+
+_GATE_LABELS = [
+    ("CHECKOUT", ("checkout", "cart", "purchase", "buy")),
+    ("API", (" api", "endpoint", "gateway")),
+    ("PRIMARY", ("database", "primary", " db ", "datastore")),
+    ("WORKER", ("worker", "consumer", "processor")),
+    ("ENTRANCE", ("entrance", "gate", "door", "turnstile", "stadium")),
+]
+
+
+def _score_keywords(text: str, groups) -> Optional[str]:
+    best, best_score = None, 0
+    for name, kws in groups:
+        score = sum(text.count(k) for k in kws)
+        if score > best_score:
+            best, best_score = name, score
+    return best
+
+
+def _world_text(sc: "SceneSpec", payload: VideoRenderPayload) -> str:
+    parts = [
+        sc.narration_text or "",
+        sc.chapter_title or "",
+        " ".join(sc.callout_keywords or []),
+        sc.story_beat or "",
+    ]
+    if payload.scenario:
+        parts.append(payload.scenario.setting or "")
+        parts.append(payload.scenario.analogy or "")
+    return (" " + " ".join(parts) + " ").lower()
+
+
+def _infer_unit_formation(text: str, critical: bool):
+    unit = _score_keywords(text, _UNIT_KEYWORDS) or "person"
+    formation = _score_keywords(text, _FORMATION_KEYWORDS) or (
+        "jam" if critical else "field"
+    )
+    return unit, formation
+
+
+def _default_gate_label(text: str) -> str:
+    return _score_keywords(text, _GATE_LABELS) or "GATE"
+
+
 def _ensure_world(sc: "SceneSpec", payload: VideoRenderPayload) -> None:
     """Guarantee a ScenarioWorld scene has a usable `world` block.
 
     Synthesizes sensible defaults from the scenario setting, the HUD status, and
     the scene's chapter/keywords so the animated world always has something real
-    to drive even if the model left `world` null or half-filled.
+    to drive even if the model left `world` null or half-filled. The unit glyph
+    and the motion formation are inferred from the words of the line, so an
+    auto-created beat still draws the right thing doing the right verb.
     """
     status = {"critical": "critical", "warning": "warning"}.get(
         sc.hud.status_level, "normal"
     )
+    text = _world_text(sc, payload)
+    inferred_unit, inferred_formation = _infer_unit_formation(text, status == "critical")
+
     setting = (payload.scenario.setting if payload.scenario else "") or ""
     m = re.search(r"[\d,]{2,}", setting)
     pop = None
@@ -766,7 +887,15 @@ def _ensure_world(sc: "SceneSpec", payload: VideoRenderPayload) -> None:
 
     if sc.world is None:
         kws = sc.callout_keywords[:2]
+        gate = (
+            _default_gate_label(text)
+            if inferred_formation in ("rush", "queue", "jam")
+            else None
+        )
         sc.world = SceneWorld(
+            unit_icon=inferred_unit,
+            formation=inferred_formation,
+            gate_label=gate,
             headline_line1=(sc.chapter_title or "The system")[:22],
             headline_line2=(" ".join(kws) if kws else "under pressure")[:22],
             section_label="the problem" if status != "normal" else "the setup",
@@ -777,6 +906,14 @@ def _ensure_world(sc: "SceneSpec", payload: VideoRenderPayload) -> None:
         )
         return
     w = sc.world
+    # Gently correct lazy defaults: only override when the model left the field
+    # at its default AND the words clearly point elsewhere.
+    if w.unit_icon == "person" and inferred_unit != "person":
+        w.unit_icon = inferred_unit
+    if w.formation == "field" and inferred_formation != "field":
+        w.formation = inferred_formation
+    if w.formation in ("rush", "queue", "jam") and not (w.gate_label or "").strip():
+        w.gate_label = _default_gate_label(text)
     if not w.population or w.population < 1:
         w.population = pop
     w.online_fraction = min(1.0, max(0.0, w.online_fraction))
