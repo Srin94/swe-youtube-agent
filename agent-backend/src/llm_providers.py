@@ -25,7 +25,7 @@ Configure via env (all optional; sane defaults):
   LLM_PROVIDER_ORDER   comma list, default
                        "gemini_native,github,groq,openrouter"
   GEMINI_API_KEY       Gemini (google-genai native)      [GEMINI_MODEL]
-  GITHUB_MODELS_TOKEN  GitHub Models (or GITHUB_TOKEN)   [GITHUB_MODELS_MODEL]
+  GH_MODELS_TOKEN      GitHub Models (or GITHUB_TOKEN)   [GITHUB_MODELS_MODEL]
   GROQ_API_KEY         Groq                              [GROQ_MODEL]
   OPENROUTER_API_KEY   OpenRouter                        [OPENROUTER_MODEL]
   LLM_MAX_INPUT_CHARS  truncate user content for the OpenAI-compat providers,
@@ -62,7 +62,7 @@ def _env(name: str, default: str) -> str:
 _OPENAI_COMPAT = {
     "github": {
         "base_url": _env("GITHUB_MODELS_BASE_URL", "https://models.github.ai/inference"),
-        "key_envs": ("GITHUB_MODELS_TOKEN", "GITHUB_TOKEN"),
+        "key_envs": ("GH_MODELS_TOKEN", "GITHUB_TOKEN"),
         "model": _env("GITHUB_MODELS_MODEL", "openai/gpt-4o"),
     },
     "groq": {
@@ -232,7 +232,7 @@ def generate_structured(
     if not chain:
         raise RuntimeError(
             "No LLM provider is configured. Set GEMINI_API_KEY (primary) or any "
-            "of GITHUB_MODELS_TOKEN / GROQ_API_KEY / OPENROUTER_API_KEY. See "
+            "of GH_MODELS_TOKEN / GROQ_API_KEY / OPENROUTER_API_KEY. See "
             ".env.example and LLM_PROVIDER_ORDER."
         )
 
