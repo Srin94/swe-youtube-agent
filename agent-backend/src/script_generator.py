@@ -16,15 +16,16 @@ from __future__ import annotations
 
 import json
 import re
-import time
 from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
 try:
     from . import config
+    from . import llm_providers
 except ImportError:  # pragma: no cover
     import config  # type: ignore
+    import llm_providers  # type: ignore
 
 
 # ===========================================================================
@@ -365,55 +366,11 @@ class VideoRenderPayload(BaseModel):
 
 
 # ===========================================================================
-# Gemini client helpers
+# LLM generation (multi-provider with automatic fallback; see llm_providers)
 # ===========================================================================
-def _get_client():
-    """Lazily construct a google-genai client (import + key validation)."""
-    try:
-        from google import genai  # type: ignore
-    except ImportError as exc:  # pragma: no cover
-        raise RuntimeError(
-            "google-genai is not installed. `pip install google-genai`."
-        ) from exc
-    return genai.Client(api_key=config.require_gemini())
-
-
-# Transient server-side conditions worth retrying. 503 "high demand" is common
-# on the free Gemini tier; 429 can be a short rate-limit burst (vs. a hard daily
-# quota). We back off and retry rather than crash the whole pipeline.
-_RETRYABLE_MARKERS = (
-    "503", "UNAVAILABLE", "500", "502", "504",
-    "OVERLOAD", "HIGH DEMAND", "429", "RESOURCE_EXHAUSTED",
-)
-_RETRY_DELAYS = (4, 10, 25, 60)  # seconds between attempts (max ~99s total)
-
-
-def _is_retryable(exc: Exception) -> bool:
-    code = getattr(exc, "code", None) or getattr(exc, "status_code", None)
-    if code in (500, 502, 503, 504, 429):
-        return True
-    msg = str(exc).upper()
-    return any(marker in msg for marker in _RETRYABLE_MARKERS)
-
-
-def _generate_resilient(client, **kwargs):
-    """Call Gemini's generate_content with backoff on transient overload.
-
-    Retries on 503/overload and short 429 bursts; re-raises anything else (and
-    the final attempt) so genuine errors still surface.
-    """
-    for attempt in range(len(_RETRY_DELAYS) + 1):
-        try:
-            return client.models.generate_content(**kwargs)
-        except Exception as exc:  # noqa: BLE001
-            if attempt == len(_RETRY_DELAYS) or not _is_retryable(exc):
-                raise
-            wait = _RETRY_DELAYS[attempt]
-            print(
-                f"[script] Gemini transient error ({exc}); "
-                f"retry {attempt + 1}/{len(_RETRY_DELAYS)} in {wait}s..."
-            )
-            time.sleep(wait)
+# All structured generation routes through `llm_providers.generate_structured`,
+# which tries Gemini (native structured output) first and transparently falls
+# back across the free OpenAI-compatible providers on overload / quota errors.
 
 
 # ---------------------------------------------------------------------------
@@ -453,20 +410,15 @@ def select_topic(candidates: list) -> int:
         for i, c in enumerate(shortlist)
     )
     try:
-        client = _get_client()
-        resp = _generate_resilient(
-            client,
-            model=config.GEMINI_MODEL,
-            contents=f"{_TOPIC_SELECT_PROMPT}\n\nCANDIDATES:\n{listing}",
-            config={
-                "response_mime_type": "application/json",
-                "response_schema": _TopicChoice,
-                "temperature": 0.3,
-            },
+        choice = llm_providers.generate_structured(
+            _TOPIC_SELECT_PROMPT,
+            f"CANDIDATES:\n{listing}",
+            _TopicChoice,
+            temperature=0.3,
+            label="topic-select",
         )
-        choice = _TopicChoice.model_validate_json(resp.text)
         idx = max(0, min(choice.chosen_index, len(shortlist) - 1))
-        print(f"[script] Gemini picked [{idx}]: {choice.reason}")
+        print(f"[script] LLM picked [{idx}]: {choice.reason}")
         return idx
     except Exception as exc:  # noqa: BLE001
         print(f"[script] Topic selection failed ({exc}); defaulting to top-scored.")
@@ -602,23 +554,18 @@ def generate_script(
     article_markdown: str,
 ) -> VideoRenderPayload:
     """Generate a fully-typed VideoRenderPayload from a source article."""
-    client = _get_client()
     user_content = (
         f"SOURCE URL: {source_url}\n"
         f"HEADLINE: {topic_title}\n\n"
         f"SOURCE ARTICLE (markdown, may be truncated):\n{article_markdown}"
     )
-    resp = _generate_resilient(
-        client,
-        model=config.GEMINI_MODEL,
-        contents=[_SYSTEM_PROMPT, user_content],
-        config={
-            "response_mime_type": "application/json",
-            "response_schema": VideoRenderPayload,
-            "temperature": 0.8,
-        },
+    payload = llm_providers.generate_structured(
+        _SYSTEM_PROMPT,
+        user_content,
+        VideoRenderPayload,
+        temperature=0.8,
+        label="script",
     )
-    payload = VideoRenderPayload.model_validate_json(resp.text)
 
     # Enforce the theme-selection rule deterministically (belt and suspenders).
     if payload.topic_category in ("INCIDENT_POSTMORTEM", "JOB_MARKET"):

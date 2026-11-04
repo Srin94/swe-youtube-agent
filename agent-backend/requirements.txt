@@ -1,4 +1,7 @@
 google-genai>=1.2.0
+# OpenAI SDK powers the multi-provider fallback chain (GitHub Models, Groq,
+# OpenRouter) in src/llm_providers.py.
+openai>=1.54.0
 pydantic>=2.10.0
 python-dotenv>=1.0.1
 httpx>=0.28.0
