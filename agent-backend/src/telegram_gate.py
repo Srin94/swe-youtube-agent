@@ -14,6 +14,7 @@ If Telegram is not configured, `request_approval` returns True immediately
 
 from __future__ import annotations
 
+import html
 import time
 from dataclasses import dataclass
 
@@ -88,13 +89,19 @@ def _send_preview(payload: VideoRenderPayload) -> None:
         else "⚠️ Thumbnail: NOT generated — YouTube would use an auto-frame"
     )
 
+    # HTML parse mode (not Markdown): only < > & are special and html.escape
+    # handles them, so underscores/parens/brackets in titles or the source URL
+    # can never break the caption.
+    src = html.escape(payload.source_url, quote=True)
     caption = (
-        f"\U0001F3AC *{_md(payload.youtube_title)}*\n\n"
-        f"Theme: `{payload.theme_id}`  |  Category: `{payload.topic_category}`\n"
-        f"Duration: `{payload.total_duration_sec:.0f}s`  |  Scenes: `{len(payload.scenes)}`\n"
+        f"\U0001F3AC <b>{html.escape(payload.youtube_title)}</b>\n\n"
+        f"Theme: <code>{html.escape(payload.theme_id)}</code>  |  "
+        f"Category: <code>{html.escape(payload.topic_category)}</code>\n"
+        f"Duration: <code>{payload.total_duration_sec:.0f}s</code>  |  "
+        f"Scenes: <code>{len(payload.scenes)}</code>\n"
         f"{thumb_line}\n\n"
-        f"*Pinned comment:*\n{_md(payload.pinned_comment)}\n\n"
-        f"Source: {payload.source_url}"
+        f"<b>Pinned comment:</b>\n{html.escape(payload.pinned_comment[:400])}\n\n"
+        f'Source: <a href="{src}">{html.escape(payload.source_url)}</a>'
     )
     keyboard = {
         "inline_keyboard": [[
@@ -105,7 +112,7 @@ def _send_preview(payload: VideoRenderPayload) -> None:
     data = {
         "chat_id": config.TELEGRAM_CHAT_ID,
         "caption": caption[:1024],
-        "parse_mode": "Markdown",
+        "parse_mode": "HTML",
         "reply_markup": _json.dumps(keyboard),
     }
 
@@ -142,13 +149,6 @@ def _send_preview(payload: VideoRenderPayload) -> None:
                 url, data=data, files={"photo": ("thumbnail.png", img, "image/png")}
             )
             resp.raise_for_status()
-
-
-def _md(text: str) -> str:
-    """Escape the handful of Markdown-v1 metacharacters we care about."""
-    for ch in ("_", "*", "`", "["):
-        text = text.replace(ch, "\\" + ch)
-    return text
 
 
 def _poll_for_decision(deadline: float) -> ApprovalResult:
