@@ -28,6 +28,11 @@ Configure via env (all optional; sane defaults):
   OPENROUTER_API_KEY   OpenRouter                        [OPENROUTER_MODEL]
   LLM_MAX_INPUT_CHARS  truncate user content for the OpenAI-compat providers,
                        so Groq's free TPM limit never trips (default 8000)
+  LLM_MAX_OUTPUT_TOKENS cap on generated tokens, applied to BOTH the Gemini
+                       native call and the OpenAI-compat calls. Must be high
+                       enough to hold the whole multi-scene JSON payload, or the
+                       response truncates mid-JSON, validation fails, and (for a
+                       lenient provider) you get a 1-scene stub (default 16000).
 
 Each provider also accepts a ``<NAME>_BASE_URL`` override if the endpoint moves.
 """
@@ -128,6 +133,20 @@ def _max_input_chars() -> int:
         return 8000
 
 
+def _max_output_tokens() -> int:
+    """Output-token ceiling for every provider.
+
+    Default 16000 comfortably holds a 15-20 scene VideoRenderPayload (~12-15k
+    JSON tokens). Without an explicit cap, providers default to a far smaller
+    limit (commonly ~4k) and the JSON is cut off mid-object — which is exactly
+    how a fallback produced a 1-scene, 8-second stub.
+    """
+    try:
+        return int(os.getenv("LLM_MAX_OUTPUT_TOKENS", "16000"))
+    except ValueError:
+        return 16000
+
+
 def _provider_order() -> list[str]:
     raw = os.getenv("LLM_PROVIDER_ORDER", _DEFAULT_ORDER)
     return [p.strip() for p in raw.split(",") if p.strip()]
@@ -171,6 +190,7 @@ def _call_gemini_native(system_prompt: str, user_content: str, schema: Type[T], 
             "response_mime_type": "application/json",
             "response_schema": schema,
             "temperature": temperature,
+            "max_output_tokens": _max_output_tokens(),
         },
     )
     return schema.model_validate_json(resp.text)
@@ -193,6 +213,7 @@ def _call_openai_compat(cfg: dict, system_prompt: str, user_content: str, schema
     resp = client.chat.completions.create(
         model=cfg["model"],
         temperature=temperature,
+        max_tokens=_max_output_tokens(),
         response_format={"type": "json_object"},
         messages=[
             {"role": "system", "content": full_system},
