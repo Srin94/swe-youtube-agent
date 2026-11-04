@@ -8,8 +8,8 @@ PRIMARY path: Gemini via ``google-genai`` native structured output
 (``response_schema``) — the highest-fidelity route for our deeply-nested
 ``VideoRenderPayload`` (near-zero validation errors on nested schemas).
 
-FALLBACKS: a chain of free, OpenAI-SDK-compatible providers (GitHub Models,
-Groq, OpenRouter). When Gemini is overloaded / rate-limited
+FALLBACKS: a chain of OpenAI-SDK-compatible providers (Groq, OpenRouter).
+When Gemini is overloaded / rate-limited
 — or ``GEMINI_API_KEY`` is unset — the next provider in the chain is tried,
 with the Pydantic JSON schema injected into the system prompt and the returned
 JSON validated against the same model. Providers whose API key is not
@@ -22,14 +22,12 @@ instance back. This file is shared VERBATIM by ``swe-youtube-agent`` and
 
 Configure via env (all optional; sane defaults):
 
-  LLM_PROVIDER_ORDER   comma list, default
-                       "gemini_native,github,groq,openrouter"
+  LLM_PROVIDER_ORDER   comma list, default "gemini_native,groq,openrouter"
   GEMINI_API_KEY       Gemini (google-genai native)      [GEMINI_MODEL]
-  GH_MODELS_TOKEN      GitHub Models (or GITHUB_TOKEN)   [GITHUB_MODELS_MODEL]
   GROQ_API_KEY         Groq                              [GROQ_MODEL]
   OPENROUTER_API_KEY   OpenRouter                        [OPENROUTER_MODEL]
   LLM_MAX_INPUT_CHARS  truncate user content for the OpenAI-compat providers,
-                       so Groq/GitHub free TPM limits never trip (default 8000)
+                       so Groq's free TPM limit never trips (default 8000)
 
 Each provider also accepts a ``<NAME>_BASE_URL`` override if the endpoint moves.
 """
@@ -60,20 +58,17 @@ def _env(name: str, default: str) -> str:
 
 
 _OPENAI_COMPAT = {
-    "github": {
-        "base_url": _env("GITHUB_MODELS_BASE_URL", "https://models.github.ai/inference"),
-        "key_envs": ("GH_MODELS_TOKEN", "GITHUB_TOKEN"),
-        "model": _env("GITHUB_MODELS_MODEL", "openai/gpt-4o"),
-    },
     "groq": {
         "base_url": _env("GROQ_BASE_URL", "https://api.groq.com/openai/v1"),
         "key_envs": ("GROQ_API_KEY",),
-        "model": _env("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        # gpt-oss-120b is Groq's current self-serve production model; the old
+        # llama-3.3-70b-versatile is now enterprise-only.
+        "model": _env("GROQ_MODEL", "openai/gpt-oss-120b"),
     },
     "openrouter": {
         "base_url": _env("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"),
         "key_envs": ("OPENROUTER_API_KEY",),
-        "model": _env("OPENROUTER_MODEL", "deepseek/deepseek-chat:free"),
+        "model": _env("OPENROUTER_MODEL", "google/gemma-4-31b-it:free"),
     },
     # Gemini via its OpenAI-compat shim. Available for manual ordering but NOT in
     # the default chain, since `gemini_native` already covers Gemini (and if
@@ -88,7 +83,7 @@ _OPENAI_COMPAT = {
     },
 }
 
-_DEFAULT_ORDER = "gemini_native,github,groq,openrouter"
+_DEFAULT_ORDER = "gemini_native,groq,openrouter"
 
 # Transient conditions worth retrying the whole chain for.
 _RETRYABLE_MARKERS = (
@@ -232,8 +227,8 @@ def generate_structured(
     if not chain:
         raise RuntimeError(
             "No LLM provider is configured. Set GEMINI_API_KEY (primary) or any "
-            "of GH_MODELS_TOKEN / GROQ_API_KEY / OPENROUTER_API_KEY. See "
-            ".env.example and LLM_PROVIDER_ORDER."
+            "of GROQ_API_KEY / OPENROUTER_API_KEY. See .env.example and "
+            "LLM_PROVIDER_ORDER."
         )
 
     last_exc: Exception | None = None
