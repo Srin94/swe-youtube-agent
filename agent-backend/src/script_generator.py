@@ -211,6 +211,9 @@ class SceneSpec(BaseModel):
         "Pipeline",
         "Layers",
         "Mesh",
+        "Grid",
+        "Sequence",
+        "Flow",
         "CodeDiff",
         "BenchmarkChart",
         "IncidentTimeline",
@@ -525,13 +528,32 @@ the layer depth (1=top/closest to the user, higher=deeper).
    - Mesh -> an INTERCONNECTED NETWORK (distributed system, replication, a \
 service mesh, peer-to-peer/gossip, a consensus cluster). MUST have >=3 nodes and \
 several `edges` linking many of them.
-   For SystemGraph/Tree/Pipeline/Layers/Mesh, fill `nodes` (id, label <=16 \
-chars, sublabel <=22 chars, icon_slug, tier, status) and `edges` (source, \
-target, packet_color) exactly as for SystemGraph — only the ARRANGEMENT differs.
+   - Grid -> a GRID / MATRIX of cells (hash-table buckets, shards/partitions, \
+memory cells/pages, a comparison matrix). `nodes` fill slots left-to-right, \
+top-to-bottom. MUST have >=4 nodes; no edges required.
+   - Sequence -> MESSAGES OVER TIME between participants (a TCP/TLS handshake, \
+an OAuth flow, an API request lifecycle, a 2-phase commit, DNS resolution). \
+`nodes` are the participants (columns); `edges` are the ordered messages — list \
+them in TIME ORDER and set each edge's `label` to the message (<=20 chars, e.g. \
+'SYN', '200 OK', 'grant token'). MUST have >=2 nodes and >=2 edges.
+   - Flow -> a STATE MACHINE / FLOWCHART with branches and loops (control flow, \
+a retry/backoff loop, a session/auth lifecycle, consensus roles, a decision \
+tree with cycles). `nodes` are states/steps — set `tier` to the step rank \
+(1,2,3...); multiple nodes MAY share a tier to branch. `edges` are transitions; \
+set each edge's `label` to the condition (<=16 chars, e.g. 'on success', \
+'retry', 'timeout'), and an edge pointing back to an earlier tier reads as a \
+loop. MUST have >=3 nodes and >=2 edges.
+   For SystemGraph/Tree/Pipeline/Layers/Mesh/Grid/Sequence/Flow, fill `nodes` \
+(id, label <=16 chars, sublabel <=22 chars, icon_slug, tier, status) and `edges` \
+(source, target, packet_color, plus `label` for Sequence and Flow) exactly as \
+for SystemGraph — only the ARRANGEMENT differs.
    ILLUSTRATION = MATCH THE MECHANISM (key for variety): pick the illustration \
 whose SHAPE matches the topic — a hierarchy -> Tree; a sequence of stages -> \
-Pipeline; layered tiers/caches -> Layers; a many-to-many network -> Mesh; a \
-general architecture -> SystemGraph; a population/crowd feeling -> ScenarioWorld. \
+Pipeline; layered tiers/caches -> Layers; a many-to-many network -> Mesh; \
+messages exchanged over time (a handshake, protocol, or API flow) -> Sequence; \
+a grid of cells/buckets/shards or a comparison matrix -> Grid; a process with \
+branches or loops (control flow, retries, a state machine) -> Flow; a general \
+architecture -> SystemGraph; a population/crowd feeling -> ScenarioWorld. \
 Do NOT draw every topic as the same shape.
    - CodeDiff    -> MUST have code_diff; keep EACH line <= 46 characters and \
 <= 6 lines per side so code never overflows the panel.
@@ -552,9 +574,9 @@ a ScenarioWorld beat, choose the detail scene — visual variety wins.
 BenchmarkChart, IncidentTimeline, JobMarketCard, StatHero) carry the video; \
 ScenarioWorld adds at most 2 human beats. Pick types by topic: \
 INCIDENT_POSTMORTEM favors ScenarioWorld + StatHero + IncidentTimeline; \
-SYSTEM_DESIGN favors SystemGraph + Tree + Pipeline + Layers + Mesh + CodeDiff \
-(pick the shapes that fit the mechanism); NEW_TECH_RELEASE favors StatHero + \
-BenchmarkChart + Pipeline + CodeDiff; JOB_MARKET favors ScenarioWorld + StatHero \
+SYSTEM_DESIGN favors SystemGraph + Tree + Pipeline + Layers + Mesh + Sequence + \
+Flow + Grid + CodeDiff (pick the shapes that fit the mechanism); \
+NEW_TECH_RELEASE favors StatHero + BenchmarkChart + Pipeline + Sequence + CodeDiff; JOB_MARKET favors ScenarioWorld + StatHero \
 + JobMarketCard. Use AT MOST 2 ScenarioWorld beats per \
 video; make the other 4-6 body scenes DIFFERENT specialized visuals.
 6. HUD (category-adaptive, strict): fill each scene's `hud` with metrics that \
@@ -936,7 +958,12 @@ def _fill_as(sc: "SceneSpec", vtype: str, payload: VideoRenderPayload) -> None:
 def _is_empty(sc: "SceneSpec") -> bool:
     """A specialized detail scene whose data field is missing (renders blank)."""
     return (
-        (sc.visual_type in ("SystemGraph", "Tree", "Pipeline", "Mesh", "Layers") and len(sc.nodes) < 2)
+        (
+            sc.visual_type
+            in ("SystemGraph", "Tree", "Pipeline", "Mesh", "Layers", "Grid", "Sequence", "Flow")
+            and len(sc.nodes) < 2
+        )
+        or (sc.visual_type in ("Sequence", "Flow") and len(sc.edges) < 1)
         or (sc.visual_type == "CodeDiff" and sc.code_diff is None)
         or (sc.visual_type == "BenchmarkChart" and not sc.benchmarks)
         or (sc.visual_type == "IncidentTimeline" and not sc.timeline_events)

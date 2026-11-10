@@ -178,6 +178,106 @@ export const Edge: React.FC<{
   );
 };
 
+// A directed edge with an arrowhead at p1 and an optional label chip at its
+// midpoint. Used by Sequence (messages over time) and Flow (state transitions),
+// which — unlike Edge — need a clear direction and a labelled condition. Pass a
+// control point `c` for a curved transition (loops/branches); `reveal` (0..1)
+// fades the whole arrow in so messages can appear one at a time.
+export const Arrow: React.FC<{
+  p0: [number, number];
+  p1: [number, number];
+  c?: [number, number];
+  color: string;
+  frame: number;
+  animate?: boolean;
+  width?: number;
+  label?: string | null;
+  theme?: Theme;
+  reveal?: number;
+  dashed?: boolean;
+}> = ({
+  p0,
+  p1,
+  c,
+  color,
+  frame,
+  animate = false,
+  width = 2.5,
+  label,
+  theme,
+  reveal = 1,
+  dashed = false,
+}) => {
+  const d = c
+    ? `M${p0[0]},${p0[1]} Q${c[0]},${c[1]} ${p1[0]},${p1[1]}`
+    : `M${p0[0]},${p0[1]} L${p1[0]},${p1[1]}`;
+  // End tangent → arrowhead orientation (curve uses the control→end direction).
+  const tx = c ? p1[0] - c[0] : p1[0] - p0[0];
+  const ty = c ? p1[1] - c[1] : p1[1] - p0[1];
+  const ang = Math.atan2(ty, tx);
+  const ah = 14;
+  const a1 = ang + Math.PI - 0.42;
+  const a2 = ang + Math.PI + 0.42;
+  const head = `M${p1[0]},${p1[1]} L${p1[0] + ah * Math.cos(a1)},${p1[1] + ah * Math.sin(a1)} L${p1[0] + ah * Math.cos(a2)},${p1[1] + ah * Math.sin(a2)} Z`;
+  const at = (t: number): [number, number] => {
+    if (c) {
+      const u = 1 - t;
+      return [
+        u * u * p0[0] + 2 * u * t * c[0] + t * t * p1[0],
+        u * u * p0[1] + 2 * u * t * c[1] + t * t * p1[1],
+      ];
+    }
+    return [p0[0] + (p1[0] - p0[0]) * t, p0[1] + (p1[1] - p0[1]) * t];
+  };
+  const mid = at(0.5);
+  const labelW = label ? label.length * 9.4 + 20 : 0;
+  return (
+    <g style={{ opacity: Math.max(0, Math.min(1, reveal)) }}>
+      <path
+        d={d}
+        fill="none"
+        stroke={color}
+        strokeWidth={width}
+        strokeOpacity={0.6}
+        strokeLinecap="round"
+        strokeDasharray={dashed ? "7 7" : undefined}
+      />
+      <path d={head} fill={color} />
+      {animate
+        ? [0, 0.5].map((off, i) => {
+            const t = (((frame * 0.02 + off) % 1) + 1) % 1;
+            const [px, py] = at(t);
+            const fade = Math.min(1, Math.min(t, 1 - t) * 8);
+            return <circle key={i} cx={px} cy={py} r={4} fill={color} style={{ opacity: fade }} />;
+          })
+        : null}
+      {label && theme ? (
+        <g>
+          <rect
+            x={mid[0] - labelW / 2}
+            y={mid[1] - 14}
+            width={labelW}
+            height={27}
+            rx={7}
+            fill={theme.canvasBg}
+            stroke={color}
+            strokeOpacity={0.5}
+          />
+          <text
+            x={mid[0]}
+            y={mid[1] + 4}
+            textAnchor="middle"
+            fill={theme.textPrimary}
+            style={{ fontFamily: theme.fontMono, fontSize: 15, fontWeight: 700 }}
+          >
+            {label}
+          </text>
+        </g>
+      ) : null}
+    </g>
+  );
+};
+
 // Group node indices by their `tier` value, returning ordered [tier, idxs][].
 export const byTier = (nodes: GraphNode[]): [number, number[]][] => {
   const m = new Map<number, number[]>();

@@ -6,6 +6,9 @@ import { TreeScene } from "./scenes/TreeScene";
 import { PipelineScene } from "./scenes/PipelineScene";
 import { LayersScene } from "./scenes/LayersScene";
 import { MeshScene } from "./scenes/MeshScene";
+import { GridScene } from "./scenes/GridScene";
+import { SequenceScene } from "./scenes/SequenceScene";
+import { FlowScene } from "./scenes/FlowScene";
 import { CodeDiffScene } from "./scenes/CodeDiffScene";
 import { BenchmarkChart } from "./scenes/BenchmarkChart";
 import { IncidentTimeline } from "./scenes/IncidentTimeline";
@@ -57,6 +60,12 @@ export const ZoneAStage: React.FC<Props> = ({
         return <LayersScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
       case "Mesh":
         return <MeshScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
+      case "Grid":
+        return <GridScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
+      case "Sequence":
+        return <SequenceScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
+      case "Flow":
+        return <FlowScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
       case "CodeDiff":
         return <CodeDiffScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
       case "BenchmarkChart":
