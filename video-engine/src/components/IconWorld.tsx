@@ -36,6 +36,7 @@ export interface IconWorldProps {
   beatText?: string;
   progress?: number;
   selfContained?: boolean;
+  beatIndex?: number; // scene index — rotates the actor rail so beats differ
 }
 
 const statusColor = (theme: Theme, status: IconWorldProps["status"]): string =>
@@ -66,8 +67,16 @@ export const IconWorld: React.FC<IconWorldProps> = ({
   beatText,
   progress = 0,
   selfContained = true,
+  beatIndex = 0,
 }) => {
   const accent = statusColor(theme, status);
+  // Rotate + trim the actor rail per beat so two ScenarioWorld scenes in one
+  // video don't show the identical left-hand cards.
+  const railActors = (() => {
+    if (actors.length === 0) return [];
+    const rot = ((beatIndex % actors.length) + actors.length) % actors.length;
+    return [...actors.slice(rot), ...actors.slice(0, rot)].slice(0, 2);
+  })();
   const colors: CrowdColors = {
     accent: theme.accentPrimary,
     status: accent,
@@ -193,8 +202,8 @@ export const IconWorld: React.FC<IconWorldProps> = ({
 
       {/* actor rail */}
       <div style={{ position: "absolute", left: 110, top: 470, display: "flex", flexDirection: "column", gap: 20 }}>
-        {actors.slice(0, 3).map((a, idx) => {
-          const c = [theme.accentPrimary, theme.accentSecondary, theme.textPrimary][idx % 3];
+        {railActors.map((a, idx) => {
+          const c = [theme.accentPrimary, theme.accentSecondary, theme.textPrimary][(idx + beatIndex) % 3];
           const rowIn = smooth((10 + idx * 4) / fps, (24 + idx * 4) / fps, localFrame / fps);
           return (
             <div key={a.name} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", background: "rgba(18,21,30,0.68)", border: theme.borderStyle, borderRadius: 14, minWidth: 320, maxWidth: 420, opacity: rowIn, transform: `translateX(${interpolate(rowIn, [0, 1], [-24, 0])}px)` }}>

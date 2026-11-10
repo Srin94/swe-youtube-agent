@@ -207,6 +207,10 @@ class SceneSpec(BaseModel):
         "StatHero",
         "ScenarioWorld",
         "SystemGraph",
+        "Tree",
+        "Pipeline",
+        "Layers",
+        "Mesh",
         "CodeDiff",
         "BenchmarkChart",
         "IncidentTimeline",
@@ -457,7 +461,10 @@ happens in the scenario at that moment. Teach the engineering THROUGH the story.
 BANNED unless immediately grounded in the scenario in the same sentence: \
 'leverages', 'robust', 'scalable', 'under the hood', 'at scale', naked metrics \
 with no actor. Prefer 'the queue' over 'the buffer', 'waiting room' over \
-'staging', 'bouncer' over 'rate limiter' — then name the real term once, mapped.
+'staging', 'bouncer' over 'rate limiter' — then name the real term once, mapped. The \
+scenario drives the NARRATION and at most 2 ScenarioWorld beats — it does NOT \
+mean most scenes use the ScenarioWorld visual; visual variety (rule 5) is \
+equally non-negotiable.
 1. STRUCTURE (mandatory bookends): the FIRST scene MUST be visual_type "Intro" \
 and the LAST scene MUST be visual_type "Outro".
    - Intro (0:00-0:08): a punchy cold open. narration_text states the ONE \
@@ -475,10 +482,15 @@ shard node so the architecture visibly evolves. Reuse node ids across scenes. \
 Keep node label <= 16 chars and sublabel <= 22 chars so nothing overflows.
 4. THEME SELECTION (strict): INCIDENT_POSTMORTEM and JOB_MARKET => "WAR_ROOM_HUD". \
 SYSTEM_DESIGN and NEW_TECH_RELEASE => "ARCHITECT_PAPER".
-5. VISUAL VARIETY + NO EMPTY SCENES (critical): between the Intro and Outro, \
-VARY the visual_type every beat — never the same type back-to-back more than \
-once. Use StatHero for the single most dramatic number in the story (right after \
-the Intro is ideal). Fully populate each scene's data field; an empty data field \
+5. VISUAL VARIETY — TOP PRIORITY (as important as the scenario): the body \
+(every scene between Intro and Outro) MUST look different beat to beat. HARD \
+RULES, all mandatory: (a) use AT LEAST 5 DIFFERENT visual_type values across the \
+video; (b) use any one visual_type AT MOST TWICE; (c) use ScenarioWorld AT MOST \
+TWICE — it is a human accent, never the backbone; (d) never place two scenes of \
+the same visual_type back-to-back. Lead with the specialized visuals \
+(SystemGraph, CodeDiff, BenchmarkChart, IncidentTimeline, JobMarketCard, \
+StatHero); use StatHero for the single most dramatic number (right after the \
+Intro is ideal). Fully populate each scene's data field; an empty data field \
 renders blank and is unacceptable.
    - Intro       -> MUST have 3-4 agenda_items.
    - StatHero    -> MUST set hero_stat_value (number+unit) and hero_stat_label.
@@ -486,9 +498,10 @@ renders blank and is unacceptable.
 the line literally IS — person/car/ticket/server/box/request/database/file), \
 formation (how they MOVE this beat — rush/queue/jam/field/scatter), gate_label \
 (rush/queue/jam only), headline_line1/2, section_label, metric_prefix, \
-population, online_fraction, status. This is the DOMINANT NARRATIVE SPINE: make \
-it 3-6 beats — ideally EVERY narration line that names a concrete countable thing \
-becomes a ScenarioWorld beat that LITERALLY DRAWS that thing doing that verb. \
+population, online_fraction, status. Use ScenarioWorld for AT MOST 2 beats in \
+the whole video — it is a human "what it feels like" accent, NOT the backbone. \
+When you do use it, pick unit_icon + formation to MATCH THE WORDS of that line \
+and vary the formation between the two beats so they don't look alike. \
 e.g. '100,000 fans rush one gate' -> unit_icon person, formation rush, gate_label \
 ENTRANCE, population 100000, online_fraction 0.1 (the jam); 'a million rows, no \
 index' -> unit_icon file, formation field, online_fraction 0.08; 'orders pile up \
@@ -498,7 +511,28 @@ Show the arc through status/online_fraction: calm setup (normal, ~1.0), the \
 failure/turn (critical, low), the payoff (normal, recovered). ALWAYS pick \
 unit_icon + formation to MATCH THE WORDS of that exact line, so the viewer sees \
 precisely what is being said — not an abstract chart.
-   - SystemGraph -> MUST have >=3 nodes and >=2 edges.
+   - SystemGraph -> a general service architecture (client->gateway->services\
+->stores). MUST have >=3 nodes and >=2 edges; `tier` = column (1=edge..5=store).
+   - Tree -> a HIERARCHY (DOM tree, B-tree, file system, dependency/call tree, \
+decision tree). MUST have >=3 nodes + parent->child edges; set each node's \
+`tier` to its DEPTH (root=1, children=2, grandchildren=3...).
+   - Pipeline -> a SEQUENTIAL PROCESS (parser/compiler stages, a request \
+lifecycle, CI/CD, an ETL/data pipeline). MUST have >=3 nodes; set `tier` to the \
+STAGE ORDER (1,2,3...); stages render left-to-right.
+   - Layers -> STACKED TIERS (cache levels, the memory hierarchy, the network/\
+OSI stack, CDN edge->origin, storage tiers). MUST have >=2 nodes; set `tier` to \
+the layer depth (1=top/closest to the user, higher=deeper).
+   - Mesh -> an INTERCONNECTED NETWORK (distributed system, replication, a \
+service mesh, peer-to-peer/gossip, a consensus cluster). MUST have >=3 nodes and \
+several `edges` linking many of them.
+   For SystemGraph/Tree/Pipeline/Layers/Mesh, fill `nodes` (id, label <=16 \
+chars, sublabel <=22 chars, icon_slug, tier, status) and `edges` (source, \
+target, packet_color) exactly as for SystemGraph — only the ARRANGEMENT differs.
+   ILLUSTRATION = MATCH THE MECHANISM (key for variety): pick the illustration \
+whose SHAPE matches the topic — a hierarchy -> Tree; a sequence of stages -> \
+Pipeline; layered tiers/caches -> Layers; a many-to-many network -> Mesh; a \
+general architecture -> SystemGraph; a population/crowd feeling -> ScenarioWorld. \
+Do NOT draw every topic as the same shape.
    - CodeDiff    -> MUST have code_diff; keep EACH line <= 46 characters and \
 <= 6 lines per side so code never overflows the panel.
    - BenchmarkChart -> MUST have >=2 benchmarks.
@@ -511,17 +545,18 @@ sentence) so the visual is always anchored to the running story.
 — use a ScenarioWorld beat in its place. Never output an empty SystemGraph (no \
 nodes), an empty CodeDiff (no code_diff), or an empty chart; empty detail scenes \
 all collapse into identical bar charts and wreck the pacing.
-   - Use AT MOST ONE BenchmarkChart in the whole video (two only if they compare \
-genuinely different number sets), and NEVER place two scenes of the same \
-visual_type back-to-back. When in doubt between a detail scene and a \
-ScenarioWorld beat, choose ScenarioWorld.
-   HYBRID STRUCTURE (preferred): ScenarioWorld carries the story beats (setup, \
-turn, payoff) and the specialized visuals carry the detail. Pick types by topic: \
+   - NEVER place two scenes of the same visual_type back-to-back, and never use \
+any single visual_type more than twice. When in doubt between a detail scene and \
+a ScenarioWorld beat, choose the detail scene — visual variety wins.
+   HYBRID STRUCTURE (preferred): the specialized visuals (SystemGraph, CodeDiff, \
+BenchmarkChart, IncidentTimeline, JobMarketCard, StatHero) carry the video; \
+ScenarioWorld adds at most 2 human beats. Pick types by topic: \
 INCIDENT_POSTMORTEM favors ScenarioWorld + StatHero + IncidentTimeline; \
-SYSTEM_DESIGN favors ScenarioWorld + SystemGraph + CodeDiff; NEW_TECH_RELEASE \
-favors ScenarioWorld + StatHero + BenchmarkChart + CodeDiff; JOB_MARKET favors \
-ScenarioWorld + StatHero + JobMarketCard. Aim for 2-4 ScenarioWorld beats per \
-video, interleaved with 2-4 detail scenes.
+SYSTEM_DESIGN favors SystemGraph + Tree + Pipeline + Layers + Mesh + CodeDiff \
+(pick the shapes that fit the mechanism); NEW_TECH_RELEASE favors StatHero + \
+BenchmarkChart + Pipeline + CodeDiff; JOB_MARKET favors ScenarioWorld + StatHero \
++ JobMarketCard. Use AT MOST 2 ScenarioWorld beats per \
+video; make the other 4-6 body scenes DIFFERENT specialized visuals.
 6. HUD (category-adaptive, strict): fill each scene's `hud` with metrics that \
 FIT THE TOPIC. Never put RPS / p99 / latency / error-rate / "INCIDENT CLOCK" on \
 a JOB_MARKET or NEW_TECH_RELEASE video.
@@ -584,6 +619,7 @@ def generate_script(
     # never blank, then seed timings.
     _ensure_intro_outro(payload)
     _repair_scenes(payload)
+    _enforce_variety(payload)
     _renumber_scenes(payload)
     _seed_provisional_timings(payload)
     return payload
@@ -870,15 +906,74 @@ def _ensure_world(sc: "SceneSpec", payload: VideoRenderPayload) -> None:
         w.section_label = "the problem" if status != "normal" else "the setup"
 
 
+# Types we can always synthesize data for (from the HUD stats or the scenario),
+# so they are safe deterministic fallbacks when a scene is empty or over-used.
+_FILLABLE_FALLBACKS = ("BenchmarkChart", "StatHero", "ScenarioWorld")
+_SCENARIOWORLD_CAP = 2  # at most this many ScenarioWorld scenes per video
+_PER_TYPE_CAP = 2  # at most this many of any one visual_type per video
+_BOOKENDS = ("Intro", "Outro")
+
+
+def _type_cap(vtype: str) -> int:
+    return _SCENARIOWORLD_CAP if vtype == "ScenarioWorld" else _PER_TYPE_CAP
+
+
+def _fill_as(sc: "SceneSpec", vtype: str, payload: VideoRenderPayload) -> None:
+    """Convert a scene to `vtype` and synthesize its required data in place."""
+    sc.visual_type = vtype  # type: ignore[assignment]
+    if vtype == "ScenarioWorld":
+        _ensure_world(sc, payload)
+    elif vtype == "BenchmarkChart":
+        if not sc.benchmarks:
+            _stats_to_benchmarks(sc)
+    elif vtype == "StatHero":
+        if not sc.hero_stat_value:
+            first = sc.hud.stats[0] if sc.hud.stats else HudStat(label="SIGNAL", value="—")
+            sc.hero_stat_value = first.value
+            sc.hero_stat_label = sc.hero_stat_label or sc.chapter_title or first.label
+
+
+def _is_empty(sc: "SceneSpec") -> bool:
+    """A specialized detail scene whose data field is missing (renders blank)."""
+    return (
+        (sc.visual_type in ("SystemGraph", "Tree", "Pipeline", "Mesh", "Layers") and len(sc.nodes) < 2)
+        or (sc.visual_type == "CodeDiff" and sc.code_diff is None)
+        or (sc.visual_type == "BenchmarkChart" and not sc.benchmarks)
+        or (sc.visual_type == "IncidentTimeline" and not sc.timeline_events)
+        or (sc.visual_type == "JobMarketCard" and not sc.benchmarks)
+    )
+
+
+def _choose_fallback(counts: dict, prev_type, exclude=()) -> str:
+    """Least-used fillable type that respects the caps and isn't `prev_type`.
+
+    Relaxes the caps (but still avoids `prev_type`) if every fillable type is
+    already capped, so this always returns something sensible.
+    """
+
+    def ok(t: str) -> bool:
+        return t != prev_type and t not in exclude and counts.get(t, 0) < _type_cap(t)
+
+    options = [t for t in _FILLABLE_FALLBACKS if ok(t)]
+    if not options:
+        options = [t for t in _FILLABLE_FALLBACKS if t != prev_type and t not in exclude]
+    if not options:
+        options = [t for t in _FILLABLE_FALLBACKS if t != prev_type] or list(_FILLABLE_FALLBACKS)
+    return min(options, key=lambda t: counts.get(t, 0))
+
+
 def _repair_scenes(payload: VideoRenderPayload) -> None:
     """Guarantee each scene's visual has data.
 
-    An empty detail scene is turned into a ScenarioWorld beat (always fillable
-    from the scenario, and more cinematic) rather than a bar chart — unless that
-    would stack two ScenarioWorlds back-to-back, in which case it falls back to a
-    BenchmarkChart from the HUD stats. This keeps the visual rhythm varied even
-    when the model under-fills several detail scenes in a row.
+    An empty detail scene (the model declared e.g. a SystemGraph but gave no
+    nodes) is reassigned to the LEAST-USED fillable visual that respects the
+    per-type caps and never duplicates the previous scene's type — so empties
+    are spread across several looks instead of all collapsing into ScenarioWorld.
     """
+    counts: dict[str, int] = {}
+    for sc in payload.scenes:
+        counts[sc.visual_type] = counts.get(sc.visual_type, 0) + 1
+
     for i, sc in enumerate(payload.scenes):
         if not sc.hud.stats:
             sc.hud.stats = [HudStat(label="SIGNAL", value="—")]
@@ -888,39 +983,68 @@ def _repair_scenes(payload: VideoRenderPayload) -> None:
             first = sc.hud.stats[0]
             sc.hero_stat_value = first.value
             sc.hero_stat_label = sc.hero_stat_label or first.label
-            continue
         if sc.visual_type in ("Intro", "Outro", "StatHero"):
             continue
-
         # ScenarioWorld needs its `world` block, not the node/chart data.
         if sc.visual_type == "ScenarioWorld":
             _ensure_world(sc, payload)
             continue
-
-        empty = (
-            (sc.visual_type == "SystemGraph" and len(sc.nodes) < 2)
-            or (sc.visual_type == "CodeDiff" and sc.code_diff is None)
-            or (sc.visual_type == "BenchmarkChart" and not sc.benchmarks)
-            or (sc.visual_type == "IncidentTimeline" and not sc.timeline_events)
-            or (sc.visual_type == "JobMarketCard" and not sc.benchmarks)
-        )
-        if not empty:
+        if not _is_empty(sc):
             continue
-        # Prefer turning an empty detail scene into a ScenarioWorld beat (always
-        # fillable from the scenario, more cinematic) over piling on bar charts.
-        # Never duplicate the previous scene's type, so no two of the same visual
-        # ever land back-to-back.
+
         prev_type = payload.scenes[i - 1].visual_type if i > 0 else None
-        fallback = "ScenarioWorld" if prev_type != "ScenarioWorld" else "BenchmarkChart"
+        counts[sc.visual_type] = counts.get(sc.visual_type, 1) - 1
+        fallback = _choose_fallback(counts, prev_type)
         print(
             f"[script] Scene {sc.scene_id} ({sc.visual_type}) had no data; "
             f"repairing to {fallback}."
         )
-        sc.visual_type = fallback
-        if fallback == "ScenarioWorld":
-            _ensure_world(sc, payload)
-        elif not sc.benchmarks:
-            _stats_to_benchmarks(sc)
+        _fill_as(sc, fallback, payload)
+        counts[fallback] = counts.get(fallback, 0) + 1
+
+
+def _enforce_variety(payload: VideoRenderPayload) -> None:
+    """Deterministic guarantee that the body is visually varied.
+
+    Keeps the first `cap` scenes of each visual_type (ScenarioWorld capped hard
+    at 2) and reassigns every surplus scene — and any remaining same-type
+    back-to-back pair — to the least-used fillable visual. Richly authored,
+    unique detail scenes are left untouched; this only trims over-use and
+    repeats, the two things that made every video look the same.
+    """
+    body = [i for i, sc in enumerate(payload.scenes) if sc.visual_type not in _BOOKENDS]
+
+    # 1) Keep the first `cap` of each type; diversify the surplus.
+    kept: dict[str, int] = {}
+    for i in body:
+        sc = payload.scenes[i]
+        t = sc.visual_type
+        if kept.get(t, 0) < _type_cap(t):
+            kept[t] = kept.get(t, 0) + 1
+            continue
+        prev_type = payload.scenes[i - 1].visual_type if i > 0 else None
+        new_t = _choose_fallback(kept, prev_type, exclude=(t,))
+        print(f"[script] Scene {sc.scene_id}: '{t}' over cap; diversifying to {new_t}.")
+        _fill_as(sc, new_t, payload)
+        kept[new_t] = kept.get(new_t, 0) + 1
+
+    # 2) Break any remaining same-type back-to-back pairs.
+    for pos in range(1, len(payload.scenes)):
+        sc = payload.scenes[pos]
+        prev = payload.scenes[pos - 1]
+        if sc.visual_type in _BOOKENDS or sc.visual_type != prev.visual_type:
+            continue
+        nxt = payload.scenes[pos + 1].visual_type if pos + 1 < len(payload.scenes) else None
+        new_t = _choose_fallback(kept, prev.visual_type, exclude=(sc.visual_type, nxt or ""))
+        if new_t == sc.visual_type:
+            continue
+        print(
+            f"[script] Scene {sc.scene_id}: back-to-back '{sc.visual_type}'; "
+            f"varying to {new_t}."
+        )
+        kept[sc.visual_type] = kept.get(sc.visual_type, 1) - 1
+        _fill_as(sc, new_t, payload)
+        kept[new_t] = kept.get(new_t, 0) + 1
 
 
 def _seed_provisional_timings(payload: VideoRenderPayload) -> None:

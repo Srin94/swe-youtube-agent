@@ -2,6 +2,10 @@ import React from "react";
 import type { SceneSpec } from "../types/schema";
 import type { Theme } from "../styles/themes";
 import { SystemGraphScene } from "./scenes/SystemGraphScene";
+import { TreeScene } from "./scenes/TreeScene";
+import { PipelineScene } from "./scenes/PipelineScene";
+import { LayersScene } from "./scenes/LayersScene";
+import { MeshScene } from "./scenes/MeshScene";
 import { CodeDiffScene } from "./scenes/CodeDiffScene";
 import { BenchmarkChart } from "./scenes/BenchmarkChart";
 import { IncidentTimeline } from "./scenes/IncidentTimeline";
@@ -45,6 +49,14 @@ export const ZoneAStage: React.FC<Props> = ({
         return <StatHeroScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
       case "SystemGraph":
         return <SystemGraphScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
+      case "Tree":
+        return <TreeScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
+      case "Pipeline":
+        return <PipelineScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
+      case "Layers":
+        return <LayersScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
+      case "Mesh":
+        return <MeshScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
       case "CodeDiff":
         return <CodeDiffScene scene={scene} theme={theme} localFrame={localFrame} fps={fps} />;
       case "BenchmarkChart":

@@ -118,7 +118,8 @@ export const MasterComposition: React.FC<MasterProps> = ({ payload }) => {
           sectionLabel={w.section_label}
           sectionValue={active.scene.hud?.context_value || undefined}
           headlineLines={[w.headline_line1, w.headline_line2]}
-          accentLine={1}
+          accentLine={(active.index % 2) as 0 | 1}
+          beatIndex={active.index}
           unit={w.unit_icon ?? "person"}
           formation={w.formation ?? "field"}
           population={w.population}
